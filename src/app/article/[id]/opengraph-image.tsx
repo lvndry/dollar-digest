@@ -123,7 +123,7 @@ export default async function ArticleOgImage({
           marginBottom: 32,
         }}
       >
-        THE DOLLAR DIGEST
+        THE ONE DOLLAR DIGEST
       </div>
 
       {badgeLabel && (

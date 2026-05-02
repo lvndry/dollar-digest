@@ -74,7 +74,7 @@ export default function OgImage() {
             margin: 0,
           }}
         >
-          THE DOLLAR DIGEST
+          THE ONE DOLLAR DIGEST
         </h1>
       </div>
 
