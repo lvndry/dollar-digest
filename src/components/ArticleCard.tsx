@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Article } from "@/lib/schema";
 
 const BIAS_LABELS: Record<string, string> = {
@@ -74,6 +75,49 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
           </span>
         )}
       </div>
+
+      {/* Image */}
+      <Link
+        href={`/article/${article.id}`}
+        className="block mb-4 overflow-hidden rounded-[3px]"
+        tabIndex={-1}
+        aria-hidden
+      >
+        <div
+          className="relative w-full"
+          style={{
+            aspectRatio: "16/9",
+            backgroundColor: tagColor
+              ? `color-mix(in srgb, ${tagColor} 10%, var(--border))`
+              : "var(--border)",
+          }}
+        >
+          {article.imageUrl ? (
+            <Image
+              src={article.imageUrl}
+              alt={article.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              style={{ transition: "transform 0.5s ease" }}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 flex items-end p-3"
+              style={{
+                background: `linear-gradient(135deg, color-mix(in srgb, ${tagColor} 15%, transparent), color-mix(in srgb, ${tagColor} 5%, transparent))`,
+              }}
+            >
+              <span
+                className="font-display italic text-[1.75rem] leading-none opacity-20"
+                style={{ color: tagColor ?? "var(--ink)" }}
+              >
+                {num}
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
 
       {/* Title */}
       <Link
