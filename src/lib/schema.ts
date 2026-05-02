@@ -82,3 +82,21 @@ export const verificationTokens = sqliteTable(
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const bookmarks = sqliteTable(
+  "bookmark",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    articleId: integer("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    createdAt: text("created_at").notNull(),
+  },
+  (bookmark) => ({
+    pk: primaryKey({ columns: [bookmark.userId, bookmark.articleId] }),
+  }),
+);
+
+export type Bookmark = typeof bookmarks.$inferSelect;
