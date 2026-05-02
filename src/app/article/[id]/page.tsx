@@ -7,7 +7,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
-import { canAccessDigestDate, trialDaysRemaining } from "@/lib/access";
+import { canAccessDigestDate } from "@/lib/access";
 
 function parseTagColumn(raw: string | null): string[] {
   if (!raw) return [];
@@ -168,10 +168,7 @@ export default async function ArticlePage({
             ← Today's Digest
           </Link>
         </div>
-        <ArchivePaywall
-          isSignedIn={!!session?.user}
-          daysRemaining={trialDaysRemaining(session)}
-        />
+        <ArchivePaywall isSignedIn={!!session?.user} />
       </div>
     );
   }
