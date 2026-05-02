@@ -119,11 +119,12 @@ export function NextDigestCountdown() {
 
   return (
     <span
-      className="font-ui text-[0.575rem] tracking-[0.08em] tabular-nums"
+      className="font-ui text-[0.575rem] tracking-[0.08em] tabular-nums flex flex-col items-end leading-[1.5]"
       style={{ color: "var(--ink-faint)" }}
       title={`Next AI digest run at ${nextLocalTime} (06:00 UTC)`}
     >
-      next digest at {nextLocalTime} · in {formatCountdown(remaining)}
+      <span>next digest at {nextLocalTime}</span>
+      <span>in {formatCountdown(remaining)}</span>
     </span>
   );
 }
