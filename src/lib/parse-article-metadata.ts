@@ -17,6 +17,20 @@ export interface ArticleSource {
   bias?: string | null;
 }
 
+export function formatArticleSourceLabel(
+  articleSources: ArticleSource[],
+  fallbackName: string,
+): string {
+  const primarySourceName = articleSources[0]?.name ?? fallbackName;
+  const additionalSourceCount = articleSources.length - 1;
+
+  if (additionalSourceCount <= 0) return primarySourceName;
+
+  return `${primarySourceName} + ${additionalSourceCount} ${
+    additionalSourceCount === 1 ? "source" : "sources"
+  }`;
+}
+
 function optionalString(value: unknown): string | null {
   return value ? String(value) : null;
 }

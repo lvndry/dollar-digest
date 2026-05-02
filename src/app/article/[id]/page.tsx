@@ -205,7 +205,7 @@ export default async function ArticlePage({
   const sourceLabel =
     articleSources.length > 1
       ? articleSources.map((source) => source.name).join(" · ")
-      : article.source;
+      : (articleSources[0]?.name ?? article.source);
 
   const userId = session?.user?.id;
   const saved = userId ? await isArticleBookmarked(article.id, userId) : false;

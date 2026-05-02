@@ -1,7 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Article } from "@/lib/schema";
-import { parseArticleSources, parseJsonStringArray } from "@/lib/parse-article-metadata";
+import {
+  formatArticleSourceLabel,
+  parseArticleSources,
+  parseJsonStringArray,
+} from "@/lib/parse-article-metadata";
 
 const BIAS_LABELS: Record<string, string> = {
   "far-left": "Far Left",
@@ -55,10 +59,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
     url: article.sourceUrl,
     bias: article.bias,
   });
-  const sourceLabel =
-    articleSources.length > 1
-      ? `${articleSources[0]!.name} + ${articleSources.length - 1} sources`
-      : article.source;
+  const sourceLabel = formatArticleSourceLabel(articleSources, article.source);
 
   const publishedDate = new Date(article.publishedAt).toLocaleDateString("en-US", {
     month: "short",
