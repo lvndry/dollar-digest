@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "The Dollar Digest — Politics";
+export const alt = "The Dollar Digest: Politics";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -89,7 +89,7 @@ export default function OgImage() {
           margin: 0,
         }}
       >
-        Balanced coverage across the political spectrum — bias-labeled sources
+        Balanced coverage across the political spectrum, with bias-labeled sources
       </p>
     </div>,
     size,

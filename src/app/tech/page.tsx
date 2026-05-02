@@ -6,7 +6,7 @@ import type { Article } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Technology",
   description:
-    "Today's most important tech stories — AI, startups, research, security and more. Curated daily by AI.",
+    "Today's most important tech stories: AI, startups, research, security and more. Curated daily.",
   alternates: { canonical: "/tech" },
   keywords: [
     "tech news",
@@ -19,19 +19,19 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Technology · The Dollar Digest",
     description:
-      "Today's most important tech stories — AI, startups, research, security and more.",
+      "Today's most important tech stories: AI, startups, research, security and more.",
     images: [
       {
         url: "/tech/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "The Dollar Digest — Technology",
+        alt: "The Dollar Digest: Technology",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: [{ url: "/tech/opengraph-image", alt: "The Dollar Digest — Technology" }],
+    images: [{ url: "/tech/opengraph-image", alt: "The Dollar Digest: Technology" }],
   },
 };
 

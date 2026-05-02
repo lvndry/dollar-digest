@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "The Dollar Digest — Technology";
+export const alt = "The Dollar Digest: Technology";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -89,7 +89,7 @@ export default function OgImage() {
           margin: 0,
         }}
       >
-        AI, startups, research &amp; security — curated daily
+        AI, startups, research &amp; security, curated daily
       </p>
     </div>,
     size,

@@ -6,7 +6,7 @@ import type { Article } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Politics",
   description:
-    "Today's most important political stories — balanced coverage, bias-labeled sources, clearly sourced.",
+    "Today's most important political stories, with balanced coverage and bias-labeled sources.",
   alternates: { canonical: "/politics" },
   keywords: [
     "political news",
@@ -19,19 +19,19 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Politics · The Dollar Digest",
     description:
-      "Today's most important political stories — balanced coverage, bias-labeled sources.",
+      "Today's most important political stories, with balanced coverage and bias-labeled sources.",
     images: [
       {
         url: "/politics/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "The Dollar Digest — Politics",
+        alt: "The Dollar Digest: Politics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: [{ url: "/politics/opengraph-image", alt: "The Dollar Digest — Politics" }],
+    images: [{ url: "/politics/opengraph-image", alt: "The Dollar Digest: Politics" }],
   },
 };
 
