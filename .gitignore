@@ -11,3 +11,4 @@ build/
 output/
 tsconfig.tsbuildinfo
 .vercel
+.cursor
