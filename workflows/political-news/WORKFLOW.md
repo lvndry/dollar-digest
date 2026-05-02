@@ -13,15 +13,15 @@ Search the web for today's most important political stories — domestic policy,
 
 For every story, identify the **source's political lean** based on established media bias ratings (AllSides, Ad Fontes Media). Label it honestly:
 
-| Value | Meaning |
-|-------|---------|
-| `far-left` | MSNBC opinion, Jacobin, HuffPost |
-| `left` | NYT, WaPo, Guardian, NPR |
-| `center` | Reuters, AP, BBC, Axios |
-| `right` | WSJ news, NY Post news, Fox News reporting |
-| `far-right` | Breitbart, Daily Wire opinion |
+| Value       | Meaning                                    |
+| ----------- | ------------------------------------------ |
+| `far-left`  | MSNBC opinion, Jacobin, HuffPost           |
+| `left`      | NYT, WaPo, Guardian, NPR                   |
+| `center`    | Reuters, AP, BBC, Axios                    |
+| `right`     | WSJ news, NY Post news, Fox News reporting |
+| `far-right` | Breitbart, Daily Wire opinion              |
 
-**Important:** This label is about the *source's known lean*, not the story's content. A Reuters article about a Republican policy win is still `center`. Aim to include sources from multiple points on the spectrum for the same story where possible.
+**Important:** This label is about the _source's known lean_, not the story's content. A Reuters article about a Republican policy win is still `center`. Aim to include sources from multiple points on the spectrum for the same story where possible.
 
 For each story, produce a JSON object with these exact fields:
 
@@ -41,12 +41,14 @@ For each story, produce a JSON object with these exact fields:
 ```
 
 **Scoring guidance (importanceScore 0–1):**
+
 - 0.9–1.0: Major legislation passed, election results, military conflict escalation, head-of-state decision
 - 0.7–0.9: Significant policy proposal, major court ruling, large-scale protest
 - 0.5–0.7: Committee vote, minor regulatory action, political appointment
 - Below 0.5: Skip it
 
 **Quality bar:**
+
 - 6–10 stories total
 - Prioritise stories with concrete, verified outcomes over speculation
 - For high-importance stories, include two versions from sources of different bias so readers can see how coverage differs

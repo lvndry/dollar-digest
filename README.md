@@ -11,9 +11,9 @@ AI-curated daily news for $1/month.
 
 ## Workflows
 
-| Workflow | Schedule | Description |
-|----------|----------|-------------|
-| `tech-news` | 07:00 daily | AI, VC, Research, Startup, Product, Security |
+| Workflow         | Schedule    | Description                                              |
+| ---------------- | ----------- | -------------------------------------------------------- |
+| `tech-news`      | 07:00 daily | AI, VC, Research, Startup, Product, Security             |
 | `political-news` | 07:30 daily | Politics with source bias labels (left / center / right) |
 
 Run manually:

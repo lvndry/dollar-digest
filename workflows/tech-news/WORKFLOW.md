@@ -28,6 +28,7 @@ For each story you find, produce a JSON object with these exact fields:
 ```
 
 **Subcategory definitions:**
+
 - **AI** — model releases, benchmarks, AI safety, foundation models, inference
 - **VC** — funding rounds, acquisitions, valuations, investor activity
 - **Research** — academic papers, university studies, lab discoveries
@@ -36,12 +37,14 @@ For each story you find, produce a JSON object with these exact fields:
 - **Security** — vulnerabilities, breaches, patches, threat research
 
 **Scoring guidance (importanceScore 0–1):**
+
 - 0.9–1.0: Industry-shifting (GPT-5 launch, $1B+ acquisition, critical zero-day)
 - 0.7–0.9: Significant but not seismic (solid Series B, notable paper, meaningful product launch)
 - 0.5–0.7: Worth knowing (small funding round, minor product update, niche research)
 - Below 0.5: Skip it
 
 **Quality bar:**
+
 - Aim for 8–12 stories total
 - At least one story per subcategory if possible
 - Prefer primary sources (company blog, paper PDF, official announcement) over aggregators

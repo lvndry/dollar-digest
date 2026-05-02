@@ -7,16 +7,31 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,mts}": [
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "better-sqlite3": "^11.7.0",
+    "drizzle-orm": "^0.38.3",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "drizzle-orm": "^0.38.3",
-    "better-sqlite3": "^11.7.0"
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
@@ -24,8 +39,12 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "drizzle-kit": "^0.29.1",
-    "typescript": "^5.7.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "15.3.1"
+    "eslint-config-next": "15.3.1",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.7.0"
   }
 }

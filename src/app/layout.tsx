@@ -27,16 +27,10 @@ export const metadata: Metadata = {
   description: "AI-curated daily news digest — $1/month",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${fraunces.variable} ${lora.variable} ${spaceMono.variable}`}
-      >
+      <body className={`${fraunces.variable} ${lora.variable} ${spaceMono.variable}`}>
         {children}
       </body>
     </html>
