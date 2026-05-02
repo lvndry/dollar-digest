@@ -6,7 +6,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
-import { canAccessArchive, canAccessDigestDate, trialDaysRemaining } from "@/lib/access";
+import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
 import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -145,10 +145,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       {/* Article grids */}
       <main className="max-w-5xl mx-auto px-6 pb-24">
         {!hasAccess ? (
-          <ArchivePaywall
-            isSignedIn={!!session?.user}
-            daysRemaining={trialDaysRemaining(session)}
-          />
+          <ArchivePaywall isSignedIn={!!session?.user} />
         ) : articles.length === 0 ? (
           <p
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
