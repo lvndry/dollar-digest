@@ -34,18 +34,13 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
-      - name: Capture pre-run credit balance
-        id: credits_before
-        run: |
-          USAGE=$(curl -s https://openrouter.ai/api/v1/auth/key \
-            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-            | jq -r '.data.usage // 0')
-          echo "usage=$USAGE" >> $GITHUB_OUTPUT
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-
       - name: Run tech-news workflow
-        run: jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve
+        id: jazz
+        run: |
+          jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve \
+            | tee /tmp/jazz-output.txt
+          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
@@ -60,19 +55,25 @@ jobs:
           DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/tech-news-${DATE}.json"
 
-          # Article count
+          COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
             COUNT=$(jq 'length' "$OUTPUT_FILE")
-          else
-            COUNT=0
           fi
 
-          # Cost delta
-          USAGE_AFTER=$(curl -s https://openrouter.ai/api/v1/auth/key \
-            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-            | jq -r '.data.usage // 0')
-          COST=$(echo "$USAGE_AFTER - ${{ steps.credits_before.outputs.usage }}" | bc -l)
-          COST_FMT=$(printf '%.4f' $COST)
+          COST="n/a"
+          TOKENS=""
+          SUMMARY='${{ steps.jazz.outputs.summary }}'
+          if [ -n "$SUMMARY" ]; then
+            RAW_COST=$(echo "$SUMMARY" | jq -r '.costUSD // empty')
+            if [ -n "$RAW_COST" ]; then
+              COST=$(printf '$%.4f' $RAW_COST)
+            fi
+            PROMPT=$(echo "$SUMMARY" | jq -r '.tokenUsage.promptTokens // empty')
+            COMPLETION=$(echo "$SUMMARY" | jq -r '.tokenUsage.completionTokens // empty')
+            if [ -n "$PROMPT" ] && [ -n "$COMPLETION" ]; then
+              TOKENS="${PROMPT} in / ${COMPLETION} out"
+            fi
+          fi
 
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## Tech News — ${DATE}
@@ -80,10 +81,9 @@ jobs:
           | | |
           |---|---|
           | Articles inserted | ${COUNT} |
-          | Run cost | \$${COST_FMT} |
+          | Run cost | ${COST} |
+          | Tokens | ${TOKENS:-n/a} |
           EOF
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
   political-news:
     name: Political News
@@ -102,18 +102,13 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
-      - name: Capture pre-run credit balance
-        id: credits_before
-        run: |
-          USAGE=$(curl -s https://openrouter.ai/api/v1/auth/key \
-            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-            | jq -r '.data.usage // 0')
-          echo "usage=$USAGE" >> $GITHUB_OUTPUT
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-
       - name: Run political-news workflow
-        run: jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve
+        id: jazz
+        run: |
+          jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve \
+            | tee /tmp/jazz-output.txt
+          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
@@ -128,19 +123,25 @@ jobs:
           DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/political-news-${DATE}.json"
 
-          # Article count
+          COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
             COUNT=$(jq 'length' "$OUTPUT_FILE")
-          else
-            COUNT=0
           fi
 
-          # Cost delta
-          USAGE_AFTER=$(curl -s https://openrouter.ai/api/v1/auth/key \
-            -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-            | jq -r '.data.usage // 0')
-          COST=$(echo "$USAGE_AFTER - ${{ steps.credits_before.outputs.usage }}" | bc -l)
-          COST_FMT=$(printf '%.4f' $COST)
+          COST="n/a"
+          TOKENS=""
+          SUMMARY='${{ steps.jazz.outputs.summary }}'
+          if [ -n "$SUMMARY" ]; then
+            RAW_COST=$(echo "$SUMMARY" | jq -r '.costUSD // empty')
+            if [ -n "$RAW_COST" ]; then
+              COST=$(printf '$%.4f' $RAW_COST)
+            fi
+            PROMPT=$(echo "$SUMMARY" | jq -r '.tokenUsage.promptTokens // empty')
+            COMPLETION=$(echo "$SUMMARY" | jq -r '.tokenUsage.completionTokens // empty')
+            if [ -n "$PROMPT" ] && [ -n "$COMPLETION" ]; then
+              TOKENS="${PROMPT} in / ${COMPLETION} out"
+            fi
+          fi
 
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## Political News — ${DATE}
@@ -148,7 +149,6 @@ jobs:
           | | |
           |---|---|
           | Articles inserted | ${COUNT} |
-          | Run cost | \$${COST_FMT} |
+          | Run cost | ${COST} |
+          | Tokens | ${TOKENS:-n/a} |
           EOF
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
