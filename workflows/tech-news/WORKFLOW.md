@@ -1,7 +1,7 @@
 ---
 name: tech-news
 description: Daily professional tech news digest — deep research across AI, VC, Research, Startup, Product, and Security
-schedule: "0 7 * * *"
+schedule: "0 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
 maxIterations: 60
@@ -17,9 +17,23 @@ You are a senior tech news editor. Your job is to produce a comprehensive, autho
 
 Follow this sequence **every run**. Do not skip steps.
 
+### Phase 0 — Determine Digest Date
+
+Run this command first to get the target date:
+
+```
+echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
+```
+
+Store the output as `DIGEST_DATE`. Use it for every subsequent step:
+
+- Search for news from **that specific date**
+- Set `publishedAt` to `DIGEST_DATE` in every article JSON object
+- Write the output file to `output/tech-news-DIGEST_DATE.json`
+
 ### Phase 1 — Scan & Discover (web_search)
 
-Search the web for today's biggest tech stories across these domains:
+Search the web for the biggest tech stories on `DIGEST_DATE` across these domains:
 
 - **AI / ML** — model releases, benchmarks, safety developments, foundation models, inference hardware
 - **Venture Capital** — funding rounds, acquisitions, valuations, exits, investor activity
@@ -28,7 +42,7 @@ Search the web for today's biggest tech stories across these domains:
 - **Product** — feature releases, redesigns, platform changes at established companies
 - **Security** — vulnerabilities, breaches, patches, threat research
 
-Run **at least 3–5 targeted web searches** covering different angles (e.g. "AI news today", "venture capital funding this week", "startup launches", "security vulnerabilities 2026"). Do not rely on a single search. If a subcategory seems thin, do a dedicated search for it.
+Run **at least 3–5 targeted web searches** covering different angles (e.g. "AI news `DIGEST_DATE`", "venture capital funding `DIGEST_DATE`", "startup launches", "security vulnerabilities 2026"). Do not rely on a single search. If a subcategory seems thin, do a dedicated search for it.
 
 ### Phase 2 — Deep Research via Sub-Agents (spawn_subagent)
 
@@ -43,11 +57,11 @@ Each sub-agent should:
 
 **Example sub-agent task:**
 
-> "Research the new Anthropic model release today. Find the official announcement, the technical report/paper, and independent coverage from Ars Technica and The Verge. Summarize: what's new vs the previous model, benchmark numbers, availability, pricing, and how it compares to OpenAI and Google's latest."
+> "Research the new Anthropic model release on 2026-05-01. Find the official announcement, the technical report/paper, and independent coverage from Ars Technica and The Verge. Summarize: what's new vs the previous model, benchmark numbers, availability, pricing, and how it compares to OpenAI and Google's latest."
 
 **Another example:**
 
-> "Deep-dive into the cybersecurity incident reported today. Find the vendor's disclosure, CVE details, and third-party analysis. Summarize: what's affected, severity score, exploitation status, patch availability, and remediation steps."
+> "Deep-dive into the cybersecurity incident reported on 2026-05-01. Find the vendor's disclosure, CVE details, and third-party analysis. Summarize: what's affected, severity score, exploitation status, patch availability, and remediation steps."
 
 **Why sub-agents?** They let you research multiple stories in parallel without losing depth. Use them aggressively. Each sub-agent gets a fresh context — leverage that.
 
@@ -84,7 +98,7 @@ For each story, produce this exact JSON object:
   "sourceUrl": "Full article URL (prefer canonical / primary source)",
   "category": "tech",
   "subcategory": "AI | VC | Research | Startup | Product | Security",
-  "publishedAt": "YYYY-MM-DD",
+  "publishedAt": "DIGEST_DATE",
   "readingTimeMinutes": 3,
   "importanceScore": 0.85
 }
@@ -113,22 +127,15 @@ For each story, produce this exact JSON object:
 
 ## Delivery
 
-### Step 1 — Write to file
+Write the full JSON array to `output/tech-news-DIGEST_DATE.json`.
 
-Write the full JSON array to `output/tech-news-YYYY-MM-DD.json` (where YYYY-MM-DD is today's date).
-
-### Step 2 — Ingest into database
-
-Run the ingestion script:
-
-```
-bun ./scripts/insert-articles.ts output/tech-news-YYYY-MM-DD.json
-```
+The CI pipeline handles ingestion automatically after the workflow completes.
 
 ---
 
 ## Quality Checklist (verify before finishing)
 
+- [ ] Phase 0 ran — DIGEST_DATE is confirmed
 - [ ] 8–12 stories selected
 - [ ] At least one story per subcategory (AI, VC, Research, Startup, Product, Security) — or confirmed it's a quiet day via dedicated search
 - [ ] Each story has concrete numbers or verifiable outcomes
@@ -136,9 +143,9 @@ bun ./scripts/insert-articles.ts output/tech-news-YYYY-MM-DD.json
 - [ ] Summaries are factual, precise, and hype-free
 - [ ] Titles are specific and information-dense — no clickbait
 - [ ] Subcategory labels are accurate per definition table
+- [ ] All `publishedAt` fields set to DIGEST_DATE
 - [ ] JSON is valid and complete (no missing fields)
-- [ ] File written to `output/` with today's date
-- [ ] Ingestion script ran successfully
+- [ ] File written to `output/tech-news-DIGEST_DATE.json`
 
 ---
 
@@ -146,6 +153,7 @@ bun ./scripts/insert-articles.ts output/tech-news-YYYY-MM-DD.json
 
 **Always:**
 
+- Run Phase 0 first — never assume the date
 - Use `web_search` for discovery — you have access, use it
 - Use `spawn_subagent` for deep dives — parallel research is your superpower
 - Lead every summary with a concrete number or verifiable fact

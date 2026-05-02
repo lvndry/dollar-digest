@@ -15,6 +15,10 @@ on:
           - both
           - tech
           - politics
+      date:
+        description: "Digest date (YYYY-MM-DD, leave empty for today UTC)"
+        required: false
+        default: ""
 
 jobs:
   tech-news:
@@ -34,6 +38,14 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
+      - name: Determine digest date
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            echo "DATE=${{ inputs.date }}" >> $GITHUB_ENV
+          else
+            echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
+          fi
+
       - name: Run tech-news workflow
         id: jazz
         run: |
@@ -44,12 +56,12 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
 
       - name: Insert articles into DB
         run: |
-          DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/tech-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "No output file found, skipping insert"
@@ -63,7 +75,6 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/tech-news-${DATE}.json"
 
           COUNT=0
@@ -113,6 +124,14 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
+      - name: Determine digest date
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            echo "DATE=${{ inputs.date }}" >> $GITHUB_ENV
+          else
+            echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
+          fi
+
       - name: Run political-news workflow
         id: jazz
         run: |
@@ -123,12 +142,12 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
 
       - name: Insert articles into DB
         run: |
-          DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/political-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "No output file found, skipping insert"
@@ -142,7 +161,6 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          DATE=$(date -u +%Y-%m-%d)
           OUTPUT_FILE="output/political-news-${DATE}.json"
 
           COUNT=0

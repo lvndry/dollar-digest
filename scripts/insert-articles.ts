@@ -10,7 +10,8 @@ if (!filePath) {
 }
 
 const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, unknown>[];
-const digestDate = new Date().toISOString().split("T")[0];
+const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})\.json$/);
+const digestDate = dateMatch?.[1] ?? new Date().toISOString().split("T")[0]!;
 
 console.log(`[insert] Fetching OG images for ${parsed.length} articles…`);
 const imageUrls = await fetchOgImages(
