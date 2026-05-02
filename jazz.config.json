@@ -1,0 +1,6 @@
+{
+  "storage": {
+    "type": "file",
+    "path": ".github"
+  }
+}

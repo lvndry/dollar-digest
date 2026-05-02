@@ -1,0 +1,13 @@
+{
+  "id": "default",
+  "name": "default",
+  "description": "Dollar Digest research agent",
+  "model": "openrouter/deepseek/deepseek-v4-flash",
+  "config": {
+    "persona": "default",
+    "llmProvider": "openrouter",
+    "llmModel": "deepseek/deepseek-v4-flash"
+  },
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
