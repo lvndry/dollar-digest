@@ -1,4 +1,4 @@
-# The Dollar Digest
+# The One Dollar Digest
 
 AI-curated daily news digest — tech and politics, every morning, for $1/month.
 

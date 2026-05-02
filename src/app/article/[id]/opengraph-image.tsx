@@ -88,7 +88,7 @@ export default async function ArticleOgImage({
           color: "#141210",
         }}
       >
-        {article ? "Premium Archive" : "The Dollar Digest"}
+        {article ? "Premium Archive" : "The One Dollar Digest"}
       </div>,
       size,
     );

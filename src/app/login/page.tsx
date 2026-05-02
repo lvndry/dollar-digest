@@ -26,7 +26,7 @@ export default function LoginPage() {
             className="font-display italic text-3xl mb-2 text-center hover:opacity-70 transition-opacity duration-150"
             style={{ color: "var(--ink)" }}
           >
-            The Dollar Digest
+            The One Dollar Digest
           </h1>
         </Link>
         <p

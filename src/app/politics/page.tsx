@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "geopolitics",
   ],
   openGraph: {
-    title: "Politics · The Dollar Digest",
+    title: "Politics · The One Dollar Digest",
     description:
       "Today's most important political stories, with balanced coverage and bias-labeled sources.",
     images: [
@@ -25,13 +25,15 @@ export const metadata: Metadata = {
         url: "/politics/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "The Dollar Digest: Politics",
+        alt: "The One Dollar Digest: Politics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: [{ url: "/politics/opengraph-image", alt: "The Dollar Digest: Politics" }],
+    images: [
+      { url: "/politics/opengraph-image", alt: "The One Dollar Digest: Politics" },
+    ],
   },
 };
 
@@ -99,7 +101,7 @@ export default async function PoliticsPage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {today.getFullYear()} The Dollar Digest
+          © {today.getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

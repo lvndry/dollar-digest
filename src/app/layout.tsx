@@ -27,8 +27,8 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Dollar Digest",
-    template: "%s · The Dollar Digest",
+    default: "The One Dollar Digest",
+    template: "%s · The One Dollar Digest",
   },
   description:
     "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
@@ -44,10 +44,10 @@ export const metadata: Metadata = {
     "AI",
     "politics",
   ],
-  authors: [{ name: "The Dollar Digest" }],
-  creator: "The Dollar Digest",
+  authors: [{ name: "The One Dollar Digest" }],
+  creator: "The One Dollar Digest",
   openGraph: {
-    siteName: "The Dollar Digest",
+    siteName: "The One Dollar Digest",
     type: "website",
     locale: "en_US",
   },

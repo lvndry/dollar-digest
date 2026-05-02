@@ -33,7 +33,7 @@ export function SiteNav() {
           className="font-display italic text-[1.125rem] tracking-[-0.01em] shrink-0"
           style={{ color: "var(--ink)" }}
         >
-          The Dollar Digest
+          The One Dollar Digest
         </Link>
 
         <nav className="hidden sm:flex items-center gap-7">
