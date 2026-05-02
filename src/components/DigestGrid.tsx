@@ -1,5 +1,6 @@
 import type { Article } from "@/lib/schema";
 import { ArticleCard } from "./ArticleCard";
+import { FeaturedArticleCard } from "./FeaturedArticleCard";
 
 interface DigestGridProps {
   articles: Article[];
@@ -11,27 +12,37 @@ export function DigestGrid({ articles, category, label }: DigestGridProps) {
   const sorted = [...articles]
     .filter((a) => a.category === category)
     .sort((a, b) => (b.importanceScore ?? 0) - (a.importanceScore ?? 0))
-    .slice(0, 8);
+    .slice(0, 7);
 
   if (sorted.length === 0) return null;
 
+  const [featured, ...rest] = sorted;
+
   return (
-    <section className="mb-20">
-      {/* Section label */}
-      <div className="flex items-center gap-4 mb-2">
-        <span
-          className="font-ui text-[0.6rem] tracking-[0.16em] uppercase shrink-0"
-          style={{ color: "var(--ink-muted)" }}
+    <section className="mb-28">
+      {/* Section title */}
+      <div className="mb-8">
+        <h2
+          className="font-display italic fade-in"
+          style={{
+            color: "var(--ink)",
+            fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+            letterSpacing: "-0.025em",
+            lineHeight: "1",
+          }}
         >
           {label}
-        </span>
-        <div className="flex-1 h-px" style={{ backgroundColor: "var(--border)" }} />
+        </h2>
+        <div className="mt-4 h-px" style={{ backgroundColor: "var(--border)" }} />
       </div>
 
-      {/* Numbered card grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
-        {sorted.map((article, idx) => (
-          <ArticleCard key={article.id} article={article} index={idx} />
+      {/* Featured lead article */}
+      {featured && <FeaturedArticleCard article={featured} />}
+
+      {/* Secondary articles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7 gap-y-10">
+        {rest.map((article, idx) => (
+          <ArticleCard key={article.id} article={article} index={idx + 1} />
         ))}
       </div>
     </section>

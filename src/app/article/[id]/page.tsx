@@ -252,8 +252,8 @@ export default async function ArticlePage({
         <div className="flex items-center gap-3 mb-5">
           {tagLabel && (
             <span
-              className="font-ui text-[0.575rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-[2px] text-white"
-              style={{ backgroundColor: tagColor }}
+              className="font-ui text-[0.6rem] tracking-[0.1em] uppercase"
+              style={{ color: tagColor }}
             >
               {tagLabel}
             </span>

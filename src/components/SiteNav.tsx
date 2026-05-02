@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "./ThemeToggle";
-import { NextDigestCountdown } from "./NextDigestCountdown";
 import { MobileTabBar } from "./MobileTabBar";
 import { createCheckoutSession } from "@/app/actions";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -23,34 +22,35 @@ export function SiteNav() {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b"
+      className="sticky top-0 z-50 w-full"
       style={{
-        borderColor: "var(--border)",
-        backgroundColor: "color-mix(in srgb, var(--bg) 85%, transparent)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid var(--border)",
+        backgroundColor: "color-mix(in srgb, var(--bg) 92%, transparent)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}
     >
-      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link
           href="/"
-          className="font-display italic text-[1.125rem] tracking-[-0.01em] shrink-0"
-          style={{ color: "var(--ink)" }}
+          className="font-display italic shrink-0"
+          style={{ color: "var(--ink)", fontSize: "1rem", letterSpacing: "-0.01em" }}
         >
           The One Dollar Digest
         </Link>
 
-        <nav className="hidden sm:flex items-center gap-7">
+        <nav className="hidden sm:flex items-center gap-8">
           {NAV_ITEMS.map(({ href, label }) => {
             const active = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
-                className="font-ui text-[0.625rem] tracking-[0.06em] uppercase transition-colors duration-150"
+                className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-opacity duration-150"
                 style={{
                   color: active ? "var(--ink)" : "var(--ink-muted)",
                   fontWeight: active ? "500" : "400",
+                  opacity: 1,
                 }}
               >
                 {label}
@@ -59,23 +59,18 @@ export function SiteNav() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <NextDigestCountdown />
-
+        <div className="flex items-center gap-4">
           {session?.user ? (
             <div className="hidden sm:flex items-center gap-3">
-              <span
-                className="font-ui text-[0.6rem] tracking-[0.04em]"
-                style={{ color: "var(--ink-muted)" }}
-              >
-                {session.user.email}
-              </span>
               {!session.user.subscribed && (
                 <form action={createCheckoutSession}>
                   <button
                     type="submit"
-                    className="font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border transition-colors duration-150"
-                    style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                    className="font-ui text-[0.6rem] tracking-[0.1em] uppercase px-3 py-1.5 transition-opacity duration-150 hover:opacity-70"
+                    style={{
+                      color: "var(--bg)",
+                      backgroundColor: "var(--accent)",
+                    }}
                   >
                     Upgrade — $1/mo
                   </button>
@@ -83,7 +78,8 @@ export function SiteNav() {
               )}
               <button
                 onClick={() => signOut({ redirectTo: "/" })}
-                className="btn-accent font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
+                className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-opacity duration-150 hover:opacity-60"
+                style={{ color: "var(--ink-muted)" }}
               >
                 Sign out
               </button>
@@ -91,7 +87,11 @@ export function SiteNav() {
           ) : (
             <Link
               href="/login"
-              className="btn-accent hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
+              className="hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.1em] uppercase px-4 py-2 transition-opacity duration-150 hover:opacity-75"
+              style={{
+                color: "var(--bg)",
+                backgroundColor: "var(--ink)",
+              }}
             >
               Sign in
             </Link>
