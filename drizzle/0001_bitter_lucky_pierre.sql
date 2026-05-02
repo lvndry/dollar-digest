@@ -1,0 +1,1 @@
+ALTER TABLE `articles` ADD `primary_region` text;

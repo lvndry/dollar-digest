@@ -14,7 +14,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mb-10">
       <h2
-        className="font-ui text-[0.6rem] tracking-[0.1em] uppercase mb-3"
+        className="font-ui text-[0.6rem] tracking-widest uppercase mb-3"
         style={{ color: "var(--ink-muted)" }}
       >
         {title}
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
       <SiteNav />
       <main className="max-w-2xl mx-auto px-6 py-16">
         <p
-          className="font-ui text-[0.6rem] tracking-[0.1em] uppercase mb-2"
+          className="font-ui text-[0.6rem] tracking-widest uppercase mb-2"
           style={{ color: "var(--ink-muted)" }}
         >
           Legal

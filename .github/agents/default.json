@@ -1,12 +1,12 @@
 {
   "id": "default",
   "name": "default",
-  "description": "Dollar Digest research agent",
-  "model": "openrouter/deepseek/deepseek-v4-flash",
+  "description": "One Dollar Digest research agent",
+  "model": "openrouter/openai/gpt-oss-120b:free",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "deepseek/deepseek-v4-flash",
+    "llmModel": "openai/gpt-oss-120b:free",
     "tools": [
       "web_search",
       "http_request",
@@ -20,7 +20,5 @@
       "execute_command",
       "spawn_subagent"
     ]
-  },
-  "createdAt": "2026-01-01T00:00:00.000Z",
-  "updatedAt": "2026-01-01T00:00:00.000Z"
+  }
 }

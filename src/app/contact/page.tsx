@@ -28,7 +28,7 @@ export default function ContactPage() {
       >
         <div className="w-full max-w-sm">
           <p
-            className="font-ui text-[0.6rem] tracking-[0.1em] uppercase mb-2 text-center"
+            className="font-ui text-[0.6rem] tracking-widest uppercase mb-2 text-center"
             style={{ color: "var(--ink-muted)" }}
           >
             Get in touch

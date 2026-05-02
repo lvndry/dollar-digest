@@ -36,7 +36,7 @@ Store the output as `DIGEST_DATE`. Use it for every subsequent step:
 
 Before searching, generate a fresh query plan for `DIGEST_DATE`. Do not reuse yesterday's queries without adapting them to the date and current news cycle.
 
-Create **10–16 targeted search queries** across these domains:
+Create **10–20 targeted search queries** across these domains:
 
 - **AI / ML** — model releases, benchmarks, safety developments, foundation models, inference hardware
 - **Research** — academic papers, university studies, lab discoveries
@@ -63,14 +63,9 @@ Use these exact tag strings when they apply:
 - **Consumer** — consumer apps, devices, social platforms, creator tools
 - **Open source** — OSS releases, licenses, maintainers, ecosystem governance
 - **Policy** — regulation, antitrust, data privacy, government action affecting tech
+- **OSS** — foundations (CNCF, Apache, LF), flagship libraries and runtimes, license disputes, maintainer handoffs, package-registry or dependency-supply-chain incidents
 
 Each query must include either `DIGEST_DATE`, a narrow time phrase such as "today", or a source/event-specific phrase. Include at least one query for each subcategory. Example query patterns:
-
-- `AI model release benchmark DIGEST_DATE`
-- `venture capital funding round announced DIGEST_DATE`
-- `security vulnerability CVE exploited patch DIGEST_DATE`
-- `tech antitrust regulation ruling DIGEST_DATE`
-- `startup launch product funding DIGEST_DATE`
 
 ### Phase 2 — Subagent Search & Article Research
 
@@ -86,9 +81,13 @@ Each subagent must return an array of zero or more candidates in this structure:
     "candidateTitle": "Working title",
     "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy",
     "tags": ["AI", "Models", "Infrastructure"],
-    "source": "Publication or primary source",
-    "sourceUrl": "Fetched or search-result URL",
-    "sourceStatus": "2xx | redirected-to-2xx | unverified | failed",
+    "sources": [
+      {
+        "name": "Publication or primary source",
+        "url": "Fetched or search-result URL",
+        "sourceStatus": "2xx | redirected-to-2xx | unverified | failed"
+      }
+    ],
     "publishedAt": "YYYY-MM-DD or full ISO timestamp if found",
     "keyFacts": ["fact with number/name/outcome", "fact with evidence"],
     "whyItMatters": "One sentence",
@@ -101,7 +100,7 @@ If subagents cannot use `web_search` or HTTP fetch in the current environment, t
 
 #### Step 2b — Deepen finalists
 
-From all subagent returns, identify **12–18 candidate stories**. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
+From all subagent returns, identify **20 candidate stories**. When several candidates describe the same story or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
 
 - What is the primary source and exact announcement?
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
@@ -111,22 +110,22 @@ Run additional searches or fetches as needed. If no source-backed answer is avai
 
 ### Phase 3 — Validate Sources & Links
 
-Before writing final JSON, validate every `sourceUrl`.
+Before writing final JSON, validate every `sourceUrl` and every `sources[].url`.
 
 For each selected story:
 
 - Prefer the canonical primary source: company blog, research paper, SEC filing, official disclosure, CVE advisory, court/regulatory document, or original reporting from a reputable outlet
-- Use the HTTP fetch tool for every final `sourceUrl` when available, and always use it when the search result is a redirect, aggregator, tag page, shortened URL, or otherwise uncertain
+- Use the HTTP fetch tool for every final `sourceUrl` and `sources[].url` when available, and always use it when the search result is a redirect, aggregator, tag page, shortened URL, or otherwise uncertain
 - Follow redirects and use the final canonical URL when the fetched page resolves successfully
 - Confirm the final page returns a successful response (`2xx`) and is not a 404, soft-404, blocked error page, search page, homepage, or unrelated live blog
 - Confirm the fetched page title/body matches the story, source, and publication date
 - Replace invalid links with a working canonical source; if no working source can be verified, skip the story
 
-Never output a `sourceUrl` that has failed fetch validation or looks likely to 404.
+Never output a `sourceUrl` or `sources[].url` that has failed fetch validation or looks likely to 404.
 
 ### Phase 4 — Select & Score
 
-From all verified research, select **8–12 stories** for the final digest. Every selected story must have passed the same research and link-validation bar.
+From all verified research, select **8-10+ stories** for the final digest. Every selected story must have passed the same research and link-validation bar.
 
 Apply the importance score:
 
@@ -142,7 +141,7 @@ Rules of thumb:
 - **Aim for broad coverage** — aim for at least 6 of the 8 subcategories to be represented. If a category is empty, do a dedicated search before accepting it's a quiet day
 - **Favor stories with concrete numbers** (funding amounts, benchmark scores, user counts, revenue figures) over qualitative hype
 - **Prefer primary sources** — link to the paper PDF, not the Medium recap of the paper
-- **No duplicates** — if two outlets cover the same event, pick the best source and use the other as reference only
+- **No duplicates** — if two outlets cover the same event, output one JSON object and include the verified coverage in its `sources` array
 - Do not pad — 8 really important stories beat 12 mediocre ones
 
 ### Phase 5 — Write & Output
@@ -153,8 +152,14 @@ For each story, produce this exact JSON object:
 {
   "title": "Concise, specific headline (no clickbait)",
   "summary": "5-10 sentences. Lead with the single most important fact. Include numbers, names, outcomes. Be precise.",
-  "source": "Publication name (primary source preferred)",
-  "sourceUrl": "Full article URL (prefer canonical / primary source)",
+  "source": "Primary publication name (primary source preferred)",
+  "sourceUrl": "Primary canonical article URL",
+  "sources": [
+    {
+      "name": "Primary or corroborating publication name",
+      "url": "Canonical article URL"
+    }
+  ],
   "category": "tech",
   "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy",
   "tags": ["AI", "Models", "Infrastructure"],
@@ -167,6 +172,8 @@ For each story, produce this exact JSON object:
 
 - **`subcategory`**: exactly one primary editorial bucket.
 - **`tags`**: non-empty array; use exact strings from the tag list above, usually 1–4 tags. Tags may overlap with `subcategory`, but should add useful detail rather than repeat it mechanically.
+- **`source` / `sourceUrl`**: the primary source used for backward compatibility, usually the first entry in `sources`.
+- **`sources`**: non-empty array of every verified source used for this single story. If several articles cover the same event, keep one digest entry and add each validated source here instead of creating separate entries.
 
 **Summary writing rules:**
 
@@ -208,7 +215,8 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 - [ ] Each story has a non-empty `tags` array with allowed tag strings only
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Primary sources preferred over aggregator reblogs
-- [ ] Every final `sourceUrl` was fetched or otherwise validated, resolves to the correct story, and does not 404
+- [ ] Every final `sourceUrl` and `sources[].url` was fetched or otherwise validated, resolves to the correct story, and does not 404
+- [ ] Multi-source stories use one entry with a non-empty `sources` array rather than repeated entries for the same event
 - [ ] `publishedAt` reflects the source article date; `digestDate` equals DIGEST_DATE
 - [ ] Summaries are factual, precise, and hype-free
 - [ ] Titles are specific and information-dense — no clickbait
@@ -236,7 +244,7 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 **Never:**
 
 - Never use hype language ("game-changing", "revolutionary", "huge") in summaries
-- Never output an unverified, failed, homepage, search-result, soft-404, or unrelated `sourceUrl`
+- Never output an unverified, failed, homepage, search-result, soft-404, or unrelated `sourceUrl` or `sources[].url`
 - Never spawn more than 5 subagents total per run
 - **Never fabricate, invent, or infer any fact, number, name, or URL** — if you cannot find it via `web_search`, omit it or skip the story entirely. An empty output is better than a hallucinated one.
 - Never include stories below 0.5 importance

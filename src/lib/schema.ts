@@ -6,6 +6,7 @@ export const articles = sqliteTable("articles", {
   summary: text("summary").notNull(),
   source: text("source").notNull(),
   sourceUrl: text("source_url"),
+  sources: text("sources"),
   category: text("category", { enum: ["tech", "politics"] }).notNull(),
   subcategory: text("subcategory"),
   bias: text("bias", {
@@ -17,6 +18,7 @@ export const articles = sqliteTable("articles", {
   imageUrl: text("image_url"),
   tags: text("tags"),
   regions: text("regions"),
+  primaryRegion: text("primary_region"),
   strategicInterpretation: text("strategic_interpretation"),
   digestDate: text("digest_date").notNull(),
   createdAt: text("created_at").notNull(),

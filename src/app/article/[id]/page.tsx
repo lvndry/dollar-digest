@@ -9,18 +9,7 @@ import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { BookmarkButton } from "@/components/BookmarkButton";
 import { auth } from "@/auth";
 import { canAccessDigestDate, canAccessArchive } from "@/lib/access";
-
-function parseTagColumn(raw: string | null): string[] {
-  if (!raw) return [];
-  try {
-    const parsedTags = JSON.parse(raw) as unknown;
-    return Array.isArray(parsedTags)
-      ? parsedTags.filter((tag): tag is string => typeof tag === "string")
-      : [];
-  } catch {
-    return [];
-  }
-}
+import { parseArticleSources, parseJsonStringArray } from "@/lib/parse-article-metadata";
 
 async function isArticleBookmarked(articleId: number, userId: string): Promise<boolean> {
   try {
@@ -73,6 +62,12 @@ export async function generateMetadata({
     };
   }
 
+  const articleSources = parseArticleSources(article.sources, {
+    name: article.source,
+    url: article.sourceUrl,
+    bias: article.bias,
+  });
+
   const images = [
     {
       url: `/article/${id}/opengraph-image`,
@@ -92,7 +87,7 @@ export async function generateMetadata({
       type: "article",
       publishedTime: article.publishedAt,
       section: getArticleSection(article),
-      authors: [article.source],
+      authors: articleSources.map((source) => source.name),
       images,
     },
     twitter: {
@@ -179,7 +174,7 @@ export default async function ArticlePage({
         <div className="max-w-[680px] mx-auto px-6 pt-14">
           <Link
             href="/"
-            className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
+            className="font-ui text-[0.6rem] tracking-widest uppercase transition-colors duration-150 inline-block mb-14"
             style={{ color: "var(--ink-muted)" }}
           >
             ← Today's Digest
@@ -193,9 +188,24 @@ export default async function ArticlePage({
   const tagColor = getTagColor(article);
   const tagLabel = getTagLabel(article);
 
-  const articleTags = parseTagColumn(article.tags);
+  const articleTags = parseJsonStringArray(article.tags);
   const articleRegions =
-    article.category === "politics" ? parseTagColumn(article.regions) : [];
+    article.category === "politics" ? parseJsonStringArray(article.regions) : [];
+  const primaryRegionLabel =
+    article.category === "politics" && article.primaryRegion?.trim()
+      ? article.primaryRegion.trim()
+      : null;
+  const articleSources = parseArticleSources(article.sources, {
+    name: article.source,
+    url: article.sourceUrl,
+    bias: article.bias,
+  });
+  const primarySourceUrl =
+    articleSources.find((source) => source.url)?.url ?? article.sourceUrl;
+  const sourceLabel =
+    articleSources.length > 1
+      ? articleSources.map((source) => source.name).join(" · ")
+      : article.source;
 
   const userId = session?.user?.id;
   const saved = userId ? await isArticleBookmarked(article.id, userId) : false;
@@ -208,7 +218,10 @@ export default async function ArticlePage({
     headline: article.title,
     description: article.summary.slice(0, 160),
     datePublished: article.publishedAt,
-    author: { "@type": "Organization", name: article.source },
+    author: articleSources.map((source) => ({
+      "@type": "Organization",
+      name: source.name,
+    })),
     publisher: {
       "@type": "Organization",
       name: "The One Dollar Digest",
@@ -216,7 +229,7 @@ export default async function ArticlePage({
     },
     url: `${base}/article/${id}`,
     ...(article.imageUrl ? { image: article.imageUrl } : {}),
-    ...(article.sourceUrl ? { mainEntityOfPage: article.sourceUrl } : {}),
+    ...(primarySourceUrl ? { mainEntityOfPage: primarySourceUrl } : {}),
     articleSection: getArticleSection(article),
     isAccessibleForFree: true,
   };
@@ -236,7 +249,7 @@ export default async function ArticlePage({
         <div className="flex items-center justify-between mb-14">
           <Link
             href="/"
-            className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150"
+            className="font-ui text-[0.6rem] tracking-widest uppercase transition-colors duration-150"
             style={{ color: "var(--ink-muted)" }}
           >
             ← Today's Digest
@@ -252,7 +265,7 @@ export default async function ArticlePage({
         <div className="flex items-center gap-3 mb-5">
           {tagLabel && (
             <span
-              className="font-ui text-[0.6rem] tracking-[0.1em] uppercase"
+              className="font-ui text-[0.6rem] tracking-widest uppercase"
               style={{ color: tagColor }}
             >
               {tagLabel}
@@ -275,33 +288,41 @@ export default async function ArticlePage({
           {article.title}
         </h1>
 
-        {articleTags.length > 0 && (
-          <p
-            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
+        {(primaryRegionLabel || articleTags.length > 0 || articleRegions.length > 0) && (
+          <div
+            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4 flex flex-wrap items-baseline gap-x-8 gap-y-2"
             style={{ color: "var(--ink-muted)" }}
           >
-            <span className="text-(--ink-faint) uppercase tracking-widest">Tags</span>{" "}
-            {articleTags.join(" · ")}
-          </p>
-        )}
-
-        {articleRegions.length > 0 && (
-          <p
-            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
-            style={{ color: "var(--ink-muted)" }}
-          >
-            <span className="text-(--ink-faint) uppercase tracking-widest">Regions</span>{" "}
-            {articleRegions.join(" · ")}
-          </p>
+            {primaryRegionLabel && (
+              <p className="m-0">
+                <span className="text-(--ink-faint) uppercase tracking-widest">
+                  Primary region
+                </span>{" "}
+                {primaryRegionLabel}
+              </p>
+            )}
+            {articleTags.length > 0 && (
+              <p className="m-0">
+                <span className="text-(--ink-faint) uppercase tracking-widest">Tags</span>{" "}
+                {articleTags.join(" · ")}
+              </p>
+            )}
+            {articleRegions.length > 0 && (
+              <p className="m-0">
+                <span className="text-(--ink-faint) uppercase tracking-widest">
+                  Regions
+                </span>{" "}
+                {articleRegions.join(" · ")}
+              </p>
+            )}
+          </div>
         )}
 
         <div
           className="flex items-center gap-2 font-ui text-[0.6rem] tracking-[0.08em] uppercase mb-10"
           style={{ color: "var(--ink-muted)" }}
         >
-          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>
-            {article.source}
-          </span>
+          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{sourceLabel}</span>
           <span style={{ color: "var(--border-strong)" }}>·</span>
           <time dateTime={article.publishedAt}>
             {new Date(article.publishedAt).toLocaleDateString("en-US", {
@@ -315,7 +336,7 @@ export default async function ArticlePage({
         <div className="h-px mb-10" style={{ backgroundColor: "var(--border)" }} />
 
         {article.imageUrl && (
-          <div className="w-full aspect-[16/9] overflow-hidden mb-10">
+          <div className="w-full aspect-video overflow-hidden mb-10">
             <Image
               src={article.imageUrl}
               alt={article.title}
@@ -354,16 +375,38 @@ export default async function ArticlePage({
           </section>
         )}
 
-        {article.sourceUrl && (
+        {articleSources.some((source) => source.url) && (
           <div className="mt-14 pt-10 border-t" style={{ borderColor: "var(--border)" }}>
-            <a
-              href={article.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-accent font-ui text-[0.6875rem] tracking-[0.08em] uppercase px-5 py-3 border inline-block"
+            <h2
+              className="font-ui text-[0.65rem] tracking-widest uppercase mb-4"
+              style={{ color: "var(--ink-faint)" }}
             >
-              Read full article at {article.source} →
-            </a>
+              Sources
+            </h2>
+            <div className="flex flex-col gap-3">
+              {articleSources.map((source) =>
+                source.url ? (
+                  <a
+                    key={`${source.name}-${source.url}`}
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-ui text-[0.6875rem] tracking-[0.08em] uppercase px-5 py-3 border inline-flex justify-between gap-4 transition-colors duration-150"
+                    style={{
+                      borderColor: "var(--border)",
+                      color: "var(--ink-mid)",
+                    }}
+                  >
+                    <span>{source.name}</span>
+                    {source.bias && (
+                      <span style={{ color: "var(--ink-faint)" }}>
+                        {BIAS_LABELS[source.bias] ?? source.bias}
+                      </span>
+                    )}
+                  </a>
+                ) : null,
+              )}
+            </div>
           </div>
         )}
       </article>
