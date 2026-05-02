@@ -32,6 +32,19 @@ export const metadata: Metadata = {
   description:
     "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com"),
+  keywords: [
+    "news digest",
+    "AI news",
+    "tech news",
+    "political news",
+    "daily briefing",
+    "technology",
+    "startups",
+    "AI",
+    "politics",
+  ],
+  authors: [{ name: "The Dollar Digest" }],
+  creator: "The Dollar Digest",
   openGraph: {
     siteName: "The Dollar Digest",
     type: "website",
@@ -40,12 +53,14 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@dollardigest",
+    creator: "@dollardigest",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
+  category: "news",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

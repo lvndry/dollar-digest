@@ -1,28 +1,8 @@
 import { ImageResponse } from "next/og";
-import type { Article } from "@/lib/schema";
 
-export const runtime = "edge";
+export const alt = "Article";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-async function getArticle(id: string): Promise<Article | null> {
-  try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { eq } = await import("drizzle-orm");
-
-    const rows = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.id, parseInt(id, 10)))
-      .limit(1);
-
-    return rows[0] ?? null;
-  } catch {
-    const { mockArticles } = await import("@/lib/mock-data");
-    return mockArticles.find((a) => a.id === parseInt(id, 10)) ?? null;
-  }
-}
 
 const BIAS_COLOR: Record<string, string> = {
   "far-left": "#1a2f7a",
@@ -40,6 +20,22 @@ const SUB_COLOR: Record<string, string> = {
   Product: "#0a7a7a",
   Security: "#a81515",
 };
+
+async function getArticle(id: string) {
+  try {
+    const { db } = await import("@/lib/db");
+    const { articles } = await import("@/lib/schema");
+    const { eq } = await import("drizzle-orm");
+    const rows = await db
+      .select()
+      .from(articles)
+      .where(eq(articles.id, parseInt(id, 10)))
+      .limit(1);
+    return rows[0] ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export default async function ArticleOgImage({
   params,
@@ -74,13 +70,16 @@ export default async function ArticleOgImage({
     article.category === "politics" && article.bias
       ? BIAS_COLOR[article.bias]
       : article.subcategory
-        ? (SUB_COLOR[article.subcategory] ?? "#c4882a")
-        : "#c4882a";
+        ? (SUB_COLOR[article.subcategory] ?? "#3d6b5c")
+        : "#3d6b5c";
 
   const badgeLabel =
     article.category === "politics" && article.bias
       ? article.bias.replace("-", " ").toUpperCase()
       : (article.subcategory?.toUpperCase() ?? "");
+
+  const title =
+    article.title.length > 80 ? article.title.slice(0, 77) + "…" : article.title;
 
   return new ImageResponse(
     <div
@@ -95,7 +94,6 @@ export default async function ArticleOgImage({
         borderTop: `6px solid ${accentColor}`,
       }}
     >
-      {/* Publication name */}
       <div
         style={{
           fontFamily: "'Courier New', monospace",
@@ -109,7 +107,6 @@ export default async function ArticleOgImage({
         THE DOLLAR DIGEST
       </div>
 
-      {/* Badge */}
       {badgeLabel && (
         <div
           style={{
@@ -121,7 +118,6 @@ export default async function ArticleOgImage({
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             padding: "4px 12px",
-            borderRadius: 2,
             marginBottom: 24,
             display: "inline-flex",
             alignSelf: "flex-start",
@@ -131,12 +127,12 @@ export default async function ArticleOgImage({
         </div>
       )}
 
-      {/* Headline */}
       <h1
         style={{
           flex: 1,
-          fontSize: 58,
-          fontWeight: 800,
+          fontSize: title.length > 60 ? 52 : 62,
+          fontStyle: "italic",
+          fontWeight: 400,
           letterSpacing: "-0.02em",
           lineHeight: 1.1,
           color: "#141210",
@@ -145,10 +141,9 @@ export default async function ArticleOgImage({
           alignItems: "center",
         }}
       >
-        {article.title}
+        {title}
       </h1>
 
-      {/* Footer */}
       <div style={{ height: 1, background: "#d8d2c8", marginBottom: 20 }} />
       <div
         style={{
@@ -162,7 +157,7 @@ export default async function ArticleOgImage({
         }}
       >
         <span style={{ fontWeight: 700, color: "#4a4640" }}>{article.source}</span>
-        <span>$1 / month · dollardigest.com</span>
+        <span>dollardigest.com · $1/month</span>
       </div>
     </div>,
     size,
