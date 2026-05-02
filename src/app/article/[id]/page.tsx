@@ -180,7 +180,7 @@ export default async function ArticlePage({
   const articleRegions =
     article.category === "politics" ? parseTagColumn(article.regions) : [];
 
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
 
   const jsonLd = {
     "@context": "https://schema.org",

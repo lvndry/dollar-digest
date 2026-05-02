@@ -176,7 +176,7 @@ export default async function ArticleOgImage({
         }}
       >
         <span style={{ fontWeight: 700, color: "#4a4640" }}>{article.source}</span>
-        <span>dollardigest.com · $1/month</span>
+        <span>onedollardigest.com · $1/month</span>
       </div>
     </div>,
     size,

@@ -25,44 +25,65 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "The One Dollar Digest",
-    template: "%s · The One Dollar Digest",
-  },
-  description:
-    "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com"),
-  keywords: [
-    "news digest",
-    "AI news",
-    "tech news",
-    "political news",
-    "daily briefing",
-    "technology",
-    "startups",
-    "AI",
-    "politics",
-  ],
-  authors: [{ name: "The One Dollar Digest" }],
-  creator: "The One Dollar Digest",
-  openGraph: {
-    siteName: "The One Dollar Digest",
-    type: "website",
-    locale: "en_US",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@dollardigest",
-    creator: "@dollardigest",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
-  category: "news",
-};
+function ordinalDate(date: Date): string {
+  const day = date.getDate();
+  const suffix =
+    day >= 11 && day <= 13
+      ? "th"
+      : day % 10 === 1
+        ? "st"
+        : day % 10 === 2
+          ? "nd"
+          : day % 10 === 3
+            ? "rd"
+            : "th";
+  const month = date.toLocaleDateString("en-GB", { month: "long" });
+  return `${day}${suffix} ${month} ${date.getFullYear()}`;
+}
+
+export function generateMetadata(): Metadata {
+  const date = ordinalDate(new Date());
+  return {
+    title: {
+      default: `The One Dollar Digest | ${date}`,
+      template: `%s | The One Dollar Digest | ${date}`,
+    },
+    description:
+      "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com",
+    ),
+    keywords: [
+      "news digest",
+      "AI news",
+      "tech news",
+      "political news",
+      "daily briefing",
+      "technology",
+      "startups",
+      "AI",
+      "politics",
+    ],
+    authors: [{ name: "The One Dollar Digest" }],
+    creator: "The One Dollar Digest",
+    openGraph: {
+      siteName: "The One Dollar Digest",
+      type: "website",
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@dollardigest",
+      creator: "@dollardigest",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    },
+    category: "news",
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

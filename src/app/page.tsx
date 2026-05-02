@@ -10,12 +10,10 @@ import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
 import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Today's Digest",
   description:
     "Today's most important tech and political stories, AI-curated and clearly sourced.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "The One Dollar Digest: Today",
     description:
       "Today's most important tech and political stories, AI-curated and clearly sourced.",
     images: [
@@ -84,7 +82,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     day: "numeric",
   });
 
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
