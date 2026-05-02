@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import { auth } from "@/auth";
+import { canAccessArchive } from "@/lib/access";
 
 export async function createCheckoutSession() {
   const session = await auth();
@@ -30,4 +32,36 @@ export async function createCheckoutSession() {
   }
 
   redirect(checkout.url);
+}
+
+export async function toggleBookmark(articleId: number) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  if (!canAccessArchive(session)) redirect("/");
+
+  const { db } = await import("@/lib/db");
+  const { bookmarks } = await import("@/lib/schema");
+  const { and, eq } = await import("drizzle-orm");
+
+  const existing = await db
+    .select()
+    .from(bookmarks)
+    .where(and(eq(bookmarks.userId, session.user.id), eq(bookmarks.articleId, articleId)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .delete(bookmarks)
+      .where(
+        and(eq(bookmarks.userId, session.user.id), eq(bookmarks.articleId, articleId)),
+      );
+  } else {
+    await db.insert(bookmarks).values({
+      userId: session.user.id,
+      articleId,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  revalidatePath(`/article/${articleId}`);
 }

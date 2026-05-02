@@ -6,8 +6,9 @@ import type { Article } from "@/lib/schema";
 import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { BookmarkButton } from "@/components/BookmarkButton";
 import { auth } from "@/auth";
-import { canAccessDigestDate } from "@/lib/access";
+import { canAccessDigestDate, canAccessArchive } from "@/lib/access";
 
 function parseTagColumn(raw: string | null): string[] {
   if (!raw) return [];
@@ -18,6 +19,22 @@ function parseTagColumn(raw: string | null): string[] {
       : [];
   } catch {
     return [];
+  }
+}
+
+async function isArticleBookmarked(articleId: number, userId: string): Promise<boolean> {
+  try {
+    const { db } = await import("@/lib/db");
+    const { bookmarks } = await import("@/lib/schema");
+    const { and, eq } = await import("drizzle-orm");
+    const rows = await db
+      .select()
+      .from(bookmarks)
+      .where(and(eq(bookmarks.userId, userId), eq(bookmarks.articleId, articleId)))
+      .limit(1);
+    return rows.length > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -180,6 +197,9 @@ export default async function ArticlePage({
   const articleRegions =
     article.category === "politics" ? parseTagColumn(article.regions) : [];
 
+  const userId = session?.user?.id;
+  const saved = userId ? await isArticleBookmarked(article.id, userId) : false;
+
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
 
   const jsonLd = {
@@ -213,13 +233,21 @@ export default async function ArticlePage({
       <SiteNav />
 
       <article className="max-w-[680px] mx-auto px-6 pt-14 pb-24">
-        <Link
-          href="/"
-          className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
-          style={{ color: "var(--ink-muted)" }}
-        >
-          ← Today's Digest
-        </Link>
+        <div className="flex items-center justify-between mb-14">
+          <Link
+            href="/"
+            className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            ← Today's Digest
+          </Link>
+          <BookmarkButton
+            articleId={article.id}
+            initialSaved={saved}
+            isLoggedIn={!!session?.user}
+            canBookmark={canAccessArchive(session)}
+          />
+        </div>
 
         <div className="flex items-center gap-3 mb-5">
           {tagLabel && (
