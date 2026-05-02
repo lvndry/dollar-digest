@@ -99,6 +99,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
           }}
         />
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="89afba01-12f7-410e-a589-458e5faaf18e"
+        />
       </head>
       <body className="font-body">
         <SessionProvider>{children}</SessionProvider>
