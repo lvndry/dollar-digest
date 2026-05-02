@@ -4,7 +4,7 @@ description: Daily political news digest by region (US, China, BRICS, Europe, Af
 schedule: "30 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
-maxIterations: 30
+maxIterations: 80
 ---
 
 # Political News Digest — Daily Professional Edition
@@ -256,7 +256,7 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 
 - Never editorialise in summaries — the bias label is the editorial layer
 - Never output an unverified, failed, homepage, search-result, soft-404, or unrelated `sourceUrl`
-- Never spawn more than 10 subagents per run
+- Never spawn more than **7** subagents per run (one per region); merge bundles only if the platform cap is lower, and never assign the same primary region to two subagents
 - **Never fabricate, invent, or infer any fact, number, name, or URL** — if you cannot find it via `web_search`, omit it or skip the story entirely. An empty output is better than a hallucinated one.
 - Never include stories below 0.5 importance
 - Never output duplicate JSON objects for the same political event

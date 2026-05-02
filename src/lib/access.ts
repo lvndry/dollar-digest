@@ -9,6 +9,14 @@ export function canAccessArchive(session: Session | null): boolean {
   return Date.now() - new Date(session.user.createdAt).getTime() < TRIAL_MS;
 }
 
+export function canAccessDigestDate(
+  digestDate: string,
+  session: Session | null,
+): boolean {
+  const today = new Date().toISOString().split("T")[0]!;
+  return digestDate === today || canAccessArchive(session);
+}
+
 export function trialDaysRemaining(session: Session | null): number {
   if (!session?.user?.createdAt) return 0;
   const elapsed = Date.now() - new Date(session.user.createdAt).getTime();

@@ -68,6 +68,7 @@ jobs:
 
       - name: Insert articles into DB
         run: |
+          bun run db:push
           OUTPUT_FILE="output/tech-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "No output file found, skipping insert"
@@ -160,6 +161,7 @@ jobs:
 
       - name: Insert articles into DB
         run: |
+          bun run db:push
           OUTPUT_FILE="output/political-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "No output file found, skipping insert"

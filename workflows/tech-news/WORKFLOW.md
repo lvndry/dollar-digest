@@ -4,7 +4,7 @@ description: Daily professional tech news digest — deep research across AI, VC
 schedule: "0 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
-maxIterations: 30
+maxIterations: 60
 ---
 
 # Tech News Digest — Daily Professional Edition

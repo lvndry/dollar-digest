@@ -1,4 +1,7 @@
 import { ImageResponse } from "next/og";
+import { auth } from "@/auth";
+import { canAccessDigestDate } from "@/lib/access";
+import type { Article } from "@/lib/schema";
 
 export const alt = "Article";
 export const size = { width: 1200, height: 630 };
@@ -21,7 +24,27 @@ const SUB_COLOR: Record<string, string> = {
   Security: "#a81515",
 };
 
-async function getArticle(id: string) {
+function getAccentColor(article: Article): string | undefined {
+  if (article.category === "politics" && article.bias) {
+    return BIAS_COLOR[article.bias];
+  }
+
+  if (article.subcategory) {
+    return SUB_COLOR[article.subcategory] ?? "#3d6b5c";
+  }
+
+  return "#3d6b5c";
+}
+
+function getBadgeLabel(article: Article): string {
+  if (article.category === "politics" && article.bias) {
+    return article.bias.replace("-", " ").toUpperCase();
+  }
+
+  return article.subcategory?.toUpperCase() ?? "";
+}
+
+async function getArticle(id: string): Promise<Article | null> {
   try {
     const { db } = await import("@/lib/db");
     const { articles } = await import("@/lib/schema");
@@ -45,7 +68,12 @@ export default async function ArticleOgImage({
   const { id } = await params;
   const article = await getArticle(id);
 
-  if (!article) {
+  const session = await auth();
+  const canReadArticle = article
+    ? canAccessDigestDate(article.digestDate, session)
+    : false;
+
+  if (!article || !canReadArticle) {
     return new ImageResponse(
       <div
         style={{
@@ -60,23 +88,14 @@ export default async function ArticleOgImage({
           color: "#141210",
         }}
       >
-        The Dollar Digest
+        {article ? "Premium Archive" : "The Dollar Digest"}
       </div>,
       size,
     );
   }
 
-  const accentColor =
-    article.category === "politics" && article.bias
-      ? BIAS_COLOR[article.bias]
-      : article.subcategory
-        ? (SUB_COLOR[article.subcategory] ?? "#3d6b5c")
-        : "#3d6b5c";
-
-  const badgeLabel =
-    article.category === "politics" && article.bias
-      ? article.bias.replace("-", " ").toUpperCase()
-      : (article.subcategory?.toUpperCase() ?? "");
+  const accentColor = getAccentColor(article);
+  const badgeLabel = getBadgeLabel(article);
 
   const title =
     article.title.length > 80 ? article.title.slice(0, 77) + "…" : article.title;

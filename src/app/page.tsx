@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
-import { canAccessArchive, trialDaysRemaining } from "@/lib/access";
+import { canAccessArchive, canAccessDigestDate, trialDaysRemaining } from "@/lib/access";
 import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -69,7 +69,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const isToday = selectedDate === today;
 
   const session = await auth();
-  const hasAccess = isToday || canAccessArchive(session);
+  const hasAccess = canAccessDigestDate(selectedDate, session);
 
   const [articles, availableDates] = await Promise.all([
     hasAccess ? getArticles(selectedDate) : Promise.resolve([]),

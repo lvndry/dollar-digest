@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real, primaryKey } from "drizzle-orm/sqlite-core";
 
 export const articles = sqliteTable("articles", {
@@ -16,6 +15,7 @@ export const articles = sqliteTable("articles", {
   readingTimeMinutes: integer("reading_time_minutes"),
   importanceScore: real("importance_score"),
   imageUrl: text("image_url"),
+  tags: text("tags"),
   politicalTopics: text("political_topics"),
   politicalRegions: text("political_regions"),
   strategicInterpretation: text("strategic_interpretation"),
@@ -34,9 +34,9 @@ export const users = sqliteTable("user", {
   image: text("image"),
   subscribed: integer("subscribed", { mode: "boolean" }).default(false),
   stripeCustomerId: text("stripe_customer_id"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(
-    sql`(unixepoch() * 1000)`,
-  ),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  stripeSubscriptionStatus: text("stripe_subscription_status"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }),
 });
 
 export const accounts = sqliteTable(

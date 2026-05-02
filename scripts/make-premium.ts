@@ -15,6 +15,7 @@ if (existing.length === 0) {
     id: crypto.randomUUID(),
     email,
     subscribed: true,
+    createdAt: new Date(),
   });
   console.log(`Created user ${email} with subscribed=true`);
 } else {

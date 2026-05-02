@@ -20,6 +20,12 @@ const imageUrls = await fetchOgImages(
 console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} images`);
 
 const now = new Date().toISOString();
+
+function serializeMetadataField(value: unknown): string | null {
+  if (Array.isArray(value)) return JSON.stringify(value);
+  return value != null ? String(value) : null;
+}
+
 const rows = parsed.map((item, i) => ({
   title: String(item.title ?? ""),
   summary: String(item.summary ?? ""),
@@ -32,16 +38,13 @@ const rows = parsed.map((item, i) => ({
   readingTimeMinutes: item.readingTimeMinutes ? Number(item.readingTimeMinutes) : null,
   importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
   imageUrl: imageUrls[i] ?? null,
+  tags: serializeMetadataField(item.tags),
   politicalTopics: Array.isArray(item.topics)
-    ? JSON.stringify(item.topics)
-    : item.politicalTopics != null
-      ? String(item.politicalTopics)
-      : null,
+    ? serializeMetadataField(item.topics)
+    : serializeMetadataField(item.politicalTopics),
   politicalRegions: Array.isArray(item.regions)
-    ? JSON.stringify(item.regions)
-    : item.politicalRegions != null
-      ? String(item.politicalRegions)
-      : null,
+    ? serializeMetadataField(item.regions)
+    : serializeMetadataField(item.politicalRegions),
   strategicInterpretation: item.strategicInterpretation
     ? String(item.strategicInterpretation)
     : null,

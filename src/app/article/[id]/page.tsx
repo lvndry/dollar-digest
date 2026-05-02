@@ -7,9 +7,9 @@ import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
-import { canAccessArchive, trialDaysRemaining } from "@/lib/access";
+import { canAccessDigestDate, trialDaysRemaining } from "@/lib/access";
 
-function parsePoliticalTagColumn(raw: string | null): string[] {
+function parseTagColumn(raw: string | null): string[] {
   if (!raw) return [];
   try {
     const parsedTags = JSON.parse(raw) as unknown;
@@ -47,6 +47,15 @@ export async function generateMetadata({
 
   if (!article) return { title: "Article Not Found", robots: { index: false } };
 
+  const session = await auth();
+  if (!canAccessDigestDate(article.digestDate, session)) {
+    return {
+      title: "Premium archive article",
+      description: "Subscribe to The Dollar Digest to read archived articles.",
+      robots: { index: false },
+    };
+  }
+
   const images = [
     {
       url: `/article/${id}/opengraph-image`,
@@ -65,10 +74,7 @@ export async function generateMetadata({
       description: article.summary.slice(0, 160),
       type: "article",
       publishedTime: article.publishedAt,
-      section:
-        article.category === "politics"
-          ? "Politics"
-          : (article.subcategory ?? "Technology"),
+      section: getArticleSection(article),
       authors: [article.source],
       images,
     },
@@ -106,6 +112,31 @@ const SUB_COLOR: Record<string, string> = {
   Security: "var(--color-sub-security)",
 };
 
+function getArticleSection(article: Article): string {
+  if (article.category === "politics") return "Politics";
+  return article.subcategory ?? "Technology";
+}
+
+function getTagColor(article: Article): string | undefined {
+  if (article.category === "politics") {
+    return article.bias ? BIAS_COLOR[article.bias] : "var(--ink-muted)";
+  }
+
+  if (article.subcategory) {
+    return SUB_COLOR[article.subcategory] ?? "var(--color-sub-product)";
+  }
+
+  return "var(--ink-muted)";
+}
+
+function getTagLabel(article: Article): string | null {
+  if (article.category === "politics") {
+    return article.bias ? (BIAS_LABELS[article.bias] ?? null) : null;
+  }
+
+  return article.subcategory ?? null;
+}
+
 export default async function ArticlePage({
   params,
 }: {
@@ -116,63 +147,43 @@ export default async function ArticlePage({
 
   if (!article) notFound();
 
-  const today = new Date().toISOString().split("T")[0]!;
-  const isToday = article.digestDate === today;
+  const session = await auth();
 
-  if (!isToday) {
-    const session = await auth();
-    if (!canAccessArchive(session)) {
-      return (
-        <div
-          style={{
-            minHeight: "100vh",
-            backgroundColor: "var(--bg)",
-            color: "var(--ink)",
-          }}
-        >
-          <SiteNav />
-          <div className="max-w-[680px] mx-auto px-6 pt-14">
-            <Link
-              href="/"
-              className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
-              style={{ color: "var(--ink-muted)" }}
-            >
-              ← Today&apos;s Digest
-            </Link>
-          </div>
-          <ArchivePaywall
-            isSignedIn={!!session?.user}
-            daysRemaining={trialDaysRemaining(session)}
-          />
+  if (!canAccessDigestDate(article.digestDate, session)) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--bg)",
+          color: "var(--ink)",
+        }}
+      >
+        <SiteNav />
+        <div className="max-w-[680px] mx-auto px-6 pt-14">
+          <Link
+            href="/"
+            className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            ← Today&apos;s Digest
+          </Link>
         </div>
-      );
-    }
+        <ArchivePaywall
+          isSignedIn={!!session?.user}
+          daysRemaining={trialDaysRemaining(session)}
+        />
+      </div>
+    );
   }
 
-  const tagColor =
-    article.category === "politics"
-      ? article.bias
-        ? BIAS_COLOR[article.bias]
-        : "var(--ink-muted)"
-      : article.subcategory
-        ? (SUB_COLOR[article.subcategory] ?? "var(--color-sub-product)")
-        : "var(--ink-muted)";
-
-  const tagLabel =
-    article.category === "politics"
-      ? article.bias
-        ? BIAS_LABELS[article.bias]
-        : null
-      : (article.subcategory ?? null);
+  const tagColor = getTagColor(article);
+  const tagLabel = getTagLabel(article);
 
   const politicsTopics =
-    article.category === "politics"
-      ? parsePoliticalTagColumn(article.politicalTopics)
-      : [];
+    article.category === "politics" ? parseTagColumn(article.politicalTopics) : [];
   const politicsRegions =
-    article.category === "politics"
-      ? parsePoliticalTagColumn(article.politicalRegions)
-      : [];
+    article.category === "politics" ? parseTagColumn(article.politicalRegions) : [];
+  const articleTags = article.category === "tech" ? parseTagColumn(article.tags) : [];
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
 
@@ -191,10 +202,7 @@ export default async function ArticlePage({
     url: `${base}/article/${id}`,
     ...(article.imageUrl ? { image: article.imageUrl } : {}),
     ...(article.sourceUrl ? { mainEntityOfPage: article.sourceUrl } : {}),
-    articleSection:
-      article.category === "politics"
-        ? "Politics"
-        : (article.subcategory ?? "Technology"),
+    articleSection: getArticleSection(article),
     isAccessibleForFree: true,
   };
 
@@ -268,6 +276,16 @@ export default async function ArticlePage({
                 {politicsRegions.join(" · ")}
               </>
             )}
+          </p>
+        )}
+
+        {articleTags.length > 0 && (
+          <p
+            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            <span className="text-(--ink-faint) uppercase tracking-widest">Tags</span>{" "}
+            {articleTags.join(" · ")}
           </p>
         )}
 
