@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
@@ -179,11 +180,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         >
           One dollar. Every story that matters.
         </span>
-        <span
-          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          Powered by AI
+        <span className="flex items-center gap-4">
+          <Link
+            href="/contact"
+            className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-colors duration-150 hover:opacity-70"
+            style={{ color: "var(--ink-faint)" }}
+          >
+            Contact
+          </Link>
+          <Link
+            href="/privacy"
+            className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-colors duration-150 hover:opacity-70"
+            style={{ color: "var(--ink-faint)" }}
+          >
+            Privacy
+          </Link>
         </span>
       </footer>
     </div>
