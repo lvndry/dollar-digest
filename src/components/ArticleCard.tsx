@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Article } from "@/lib/schema";
 
 type Size = "featured" | "mid" | "small";
@@ -86,14 +87,12 @@ export function ArticleCard({ article, size = "small" }: ArticleCardProps) {
         )}
       </div>
 
-      <a
-        href={article.sourceUrl ?? "#"}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={`/article/${article.id}`}
         className={`title-link block font-display font-bold tracking-[-0.015em] ${TITLE_SIZE[size]}`}
       >
         {article.title}
-      </a>
+      </Link>
 
       <p className={`font-body text-ink-mid leading-[1.7] mb-4 ${SUMMARY_SIZE[size]}`}>
         {article.summary}

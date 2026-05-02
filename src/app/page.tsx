@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
+import { SiteNav } from "@/components/SiteNav";
 import type { Article } from "@/lib/schema";
+
+export const metadata: Metadata = {
+  title: "Today's Digest",
+  description:
+    "Today's most important tech and political stories — AI-curated, clearly sourced.",
+  openGraph: {
+    title: "The Dollar Digest — Today",
+    description:
+      "Today's most important tech and political stories — AI-curated, clearly sourced.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+};
 
 async function getArticles(): Promise<Article[]> {
   try {
@@ -37,7 +51,7 @@ export default async function HomePage() {
     .toUpperCase();
 
   return (
-    <main className="min-h-screen bg-paper text-ink font-body leading-[1.65]">
+    <div className="min-h-screen bg-paper text-ink font-body leading-[1.65]">
       {/* Masthead */}
       <header className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] pt-8 mb-10">
         <div className="flex justify-between items-baseline mb-3">
@@ -53,22 +67,26 @@ export default async function HomePage() {
         </div>
 
         <div className="h-0.5 bg-ink mb-2" />
-
         <h1 className="font-display font-extrabold text-[clamp(2.75rem,9vw,6.5rem)] tracking-[-0.03em] leading-[0.9] text-center text-ink">
           THE DOLLAR DIGEST
         </h1>
-
         <div className="h-px bg-ink mt-2.5" />
-
         <p className="font-ui text-[0.6875rem] tracking-[0.06em] uppercase text-ink-muted text-center pt-2.5 pb-6">
           AI-curated news that respects your time and wallet
         </p>
       </header>
 
-      <DigestGrid articles={articles} category="tech" label="Technology" />
-      <DigestGrid articles={articles} category="politics" label="Politics" />
+      {/* Body: sidebar + content */}
+      <div className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] flex gap-12">
+        <SiteNav />
 
-      <footer className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] border-t-2 border-ink pt-6 pb-12 flex justify-between items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <DigestGrid articles={articles} category="tech" label="Technology" />
+          <DigestGrid articles={articles} category="politics" label="Politics" />
+        </div>
+      </div>
+
+      <footer className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] border-t-2 border-ink pt-6 pb-12 mt-4 flex justify-between items-center gap-4">
         <span className="font-ui text-[0.6rem] tracking-[0.08em] uppercase text-ink-faint">
           © {today.getFullYear()} The Dollar Digest
         </span>
@@ -79,6 +97,6 @@ export default async function HomePage() {
           Powered by AI
         </span>
       </footer>
-    </main>
+    </div>
   );
 }

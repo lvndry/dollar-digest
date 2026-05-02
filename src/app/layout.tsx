@@ -23,8 +23,27 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Dollar Digest",
-  description: "AI-curated daily news digest — $1/month",
+  title: {
+    default: "The Dollar Digest",
+    template: "%s · The Dollar Digest",
+  },
+  description:
+    "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com"),
+  openGraph: {
+    siteName: "The Dollar Digest",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@dollardigest",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
