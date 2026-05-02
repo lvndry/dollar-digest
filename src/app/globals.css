@@ -21,28 +21,30 @@
   --color-sub-security: #a81515;
 }
 
+/* ── Light mode — stark white ─────────────────── */
 :root {
-  --bg: #f8f5f0;
-  --surface: #ffffff;
-  --ink: #1a1816;
-  --ink-mid: #574e47;
-  --ink-muted: #9c948a;
-  --ink-faint: #c4bcb2;
-  --accent: #3d6b5c;
-  --border: #e4ded6;
-  --border-strong: #c4beb6;
+  --bg: #ffffff;
+  --surface: #f4f4f3;
+  --ink: #0e0e0d;
+  --ink-mid: #484440;
+  --ink-muted: #8a8580;
+  --ink-faint: #c8c4be;
+  --accent: #2a5444;
+  --border: #e6e2dd;
+  --border-strong: #ccc8c2;
 }
 
+/* ── Dark mode — deep black ───────────────────── */
 .dark {
-  --bg: #131210;
-  --surface: #1e1d1a;
-  --ink: #eae4da;
-  --ink-mid: #a09890;
-  --ink-muted: #6a6460;
-  --ink-faint: #2e2c28;
+  --bg: #0d0c0a;
+  --surface: #161412;
+  --ink: #f0ebe2;
+  --ink-mid: #9e9890;
+  --ink-muted: #58524e;
+  --ink-faint: #242220;
   --accent: #68a890;
-  --border: #2c2a26;
-  --border-strong: #3c3834;
+  --border: #1e1c18;
+  --border-strong: #2e2c28;
 }
 
 html {
@@ -61,15 +63,16 @@ body {
 .theme-transitioning,
 .theme-transitioning * {
   transition:
-    background-color 0.22s ease,
-    color 0.22s ease,
-    border-color 0.22s ease !important;
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease !important;
 }
 
-/* Article title hover — color shift + underline sweep */
+/* ── Article title hover — sweep underline ────── */
+/* Used on regular cards where title is outside overflow-hidden */
 .article-title {
   position: relative;
-  transition: color 0.2s ease;
+  transition: opacity 0.18s ease;
 }
 .article-title::after {
   content: "";
@@ -79,30 +82,41 @@ body {
   width: 0;
   height: 1px;
   background-color: var(--accent);
-  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.article-title:hover {
-  color: var(--accent);
-}
-.article-title:hover::after {
-  width: 100%;
-}
-
-/* Bottom sweep line — grows left→right on card hover */
-.card-sweep {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 1px;
-  width: 0;
-  background-color: var(--accent);
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.article-card:hover .card-sweep {
+.article-card:hover .article-title {
+  opacity: 0.7;
+}
+.article-card:hover .article-title::after {
   width: 100%;
 }
 
-/* Outline button that fills with accent on hover */
+/* ── Featured title hover — text-decoration ───── */
+/* Used when title is inside overflow-hidden (image overlay) */
+.article-title-overlay {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition:
+    opacity 0.18s ease,
+    text-decoration-color 0.3s ease;
+}
+.article-card:hover .article-title-overlay {
+  opacity: 0.8;
+  text-decoration-color: var(--accent);
+}
+
+/* ── Card image zoom on hover ─────────────────── */
+.card-image {
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.article-card:hover .card-image {
+  transform: scale(1.04);
+}
+
+/* ── Buttons ──────────────────────────────────── */
 .btn-accent {
   color: var(--accent);
   border-color: var(--accent);
@@ -115,11 +129,11 @@ body {
   color: #fff;
 }
 
-/* Staggered page-load entry animation */
+/* ── Animations ───────────────────────────────── */
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -127,16 +141,29 @@ body {
   }
 }
 
-.fade-up {
-  animation: fadeUp 0.45s ease-out both;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* Reading progress bar */
+.fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fade-in {
+  animation: fadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Reading progress ─────────────────────────── */
 .reading-progress {
   position: fixed;
   top: 0;
   left: 0;
-  height: 2px;
+  height: 1.5px;
   background-color: var(--accent);
   transition: width 0.08s linear;
   z-index: 60;

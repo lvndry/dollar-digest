@@ -108,25 +108,55 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <SiteNav />
 
       {/* Masthead */}
-      <div className="max-w-5xl mx-auto px-6 pt-16 pb-14 text-center">
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
         <p
-          className="font-ui text-[0.6rem] tracking-[0.14em] uppercase mb-8"
-          style={{ color: "var(--ink-muted)" }}
+          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
+          style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
         >
-          {isToday ? `Today, ${displayDate}` : displayDate}
+          {isToday ? `Today · ${displayDate}` : displayDate}
         </p>
+
         <h1
-          className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-tight leading-[0.93] mb-6"
-          style={{ color: "var(--ink)" }}
+          className="font-display italic leading-[0.86] mb-10 fade-up"
+          style={{
+            color: "var(--ink)",
+            fontSize: "clamp(4rem, 11vw, 8.5rem)",
+            letterSpacing: "-0.035em",
+            animationDelay: "50ms",
+          }}
         >
-          The One Dollar Digest
+          The One Dollar
+          <br />
+          Digest
         </h1>
+
         <p
-          className="font-ui text-[0.6875rem] tracking-[0.06em] uppercase"
-          style={{ color: "var(--ink-muted)" }}
+          className="font-body leading-relaxed max-w-xs mx-auto mb-10 fade-in"
+          style={{
+            color: "var(--ink-muted)",
+            fontSize: "1rem",
+            animationDelay: "130ms",
+          }}
         >
-          AI-curated news that respects your time and wallet
+          Tech and politics, clearly sourced.
+          <br />
+          One dollar a month.
         </p>
+
+        {!session?.user && (
+          <div className="mb-10 fade-in" style={{ animationDelay: "190ms" }}>
+            <Link
+              href="/login"
+              className="inline-block font-ui text-[0.65rem] tracking-[0.12em] uppercase px-6 py-3 transition-opacity duration-150 hover:opacity-75"
+              style={{
+                color: "var(--bg)",
+                backgroundColor: "var(--ink)",
+              }}
+            >
+              Start free — 3 day trial
+            </Link>
+          </div>
+        )}
 
         {/* Archive calendar */}
         <Suspense>
@@ -137,7 +167,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           />
         </Suspense>
 
-        <div className="mt-8 h-px" style={{ backgroundColor: "var(--border)" }} />
+        <div
+          className="mt-12 h-px fade-in"
+          style={{ backgroundColor: "var(--border)", animationDelay: "260ms" }}
+        />
       </div>
 
       {/* Article grids */}

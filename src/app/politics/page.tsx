@@ -73,20 +73,28 @@ export default async function PoliticsPage() {
     >
       <SiteNav />
 
-      <div className="max-w-5xl mx-auto px-6 pt-16 pb-14 text-center">
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
         <p
-          className="font-ui text-[0.6rem] tracking-[0.14em] uppercase mb-8"
-          style={{ color: "var(--ink-muted)" }}
+          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
+          style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
         >
           {formattedDate}
         </p>
         <h1
-          className="font-display italic text-[clamp(2.25rem,6vw,4.5rem)] tracking-[-0.025em] leading-[0.93] mb-6"
-          style={{ color: "var(--ink)" }}
+          className="font-display italic leading-[0.86] mb-12 fade-up"
+          style={{
+            color: "var(--ink)",
+            fontSize: "clamp(4rem, 11vw, 8.5rem)",
+            letterSpacing: "-0.035em",
+            animationDelay: "50ms",
+          }}
         >
           Politics
         </h1>
-        <div className="mt-12 h-px" style={{ backgroundColor: "var(--border)" }} />
+        <div
+          className="h-px fade-in"
+          style={{ backgroundColor: "var(--border)", animationDelay: "130ms" }}
+        />
       </div>
 
       <main className="max-w-5xl mx-auto px-6 pb-24">

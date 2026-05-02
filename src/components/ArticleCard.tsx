@@ -49,47 +49,23 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       : null
     : (article.subcategory ?? null);
 
-  const num = String(index + 1).padStart(2, "0");
-
   return (
     <article
-      className="article-card relative flex flex-col border-t pb-8 pt-5 fade-up"
-      style={{ borderColor: "var(--border)", animationDelay: `${index * 60}ms` }}
+      className="article-card flex flex-col fade-up"
+      style={{ animationDelay: `${index * 55}ms` }}
     >
-      <div className="card-sweep" />
-
-      {/* Number + tag row */}
-      <div className="flex items-center justify-between mb-4">
-        <span
-          className="font-ui text-[0.625rem] tracking-[0.04em]"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          {num}
-        </span>
-        {tagLabel && (
-          <span
-            className="font-ui text-[0.575rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-[2px] text-white"
-            style={{ backgroundColor: tagColor }}
-          >
-            {tagLabel}
-          </span>
-        )}
-      </div>
-
       {/* Image */}
       <Link
         href={`/article/${article.id}`}
-        className="block mb-4 overflow-hidden rounded-[3px]"
+        className="block overflow-hidden mb-3"
         tabIndex={-1}
         aria-hidden
       >
         <div
-          className="relative w-full"
+          className="relative w-full overflow-hidden"
           style={{
-            aspectRatio: "16/9",
-            backgroundColor: tagColor
-              ? `color-mix(in srgb, ${tagColor} 10%, var(--border))`
-              : "var(--border)",
+            aspectRatio: "3/2",
+            backgroundColor: `color-mix(in srgb, ${tagColor} 8%, var(--surface))`,
           }}
         >
           {article.imageUrl ? (
@@ -97,49 +73,48 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
               src={article.imageUrl}
               alt={article.title}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              style={{ transition: "transform 0.5s ease" }}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              quality={80}
+              className="object-cover card-image"
             />
           ) : (
             <div
-              className="absolute inset-0 flex items-end p-3"
+              className="absolute inset-0 card-image"
               style={{
-                background: `linear-gradient(135deg, color-mix(in srgb, ${tagColor} 15%, transparent), color-mix(in srgb, ${tagColor} 5%, transparent))`,
+                background: `linear-gradient(135deg, color-mix(in srgb, ${tagColor} 18%, var(--surface)), color-mix(in srgb, ${tagColor} 5%, var(--surface)))`,
               }}
-            >
-              <span
-                className="font-display italic text-[1.75rem] leading-none opacity-20"
-                style={{ color: tagColor ?? "var(--ink)" }}
-              >
-                {num}
-              </span>
-            </div>
+            />
           )}
         </div>
       </Link>
 
+      {/* Tag */}
+      {tagLabel && (
+        <span
+          className="font-ui text-[0.575rem] tracking-[0.12em] uppercase mb-2 block"
+          style={{ color: tagColor }}
+        >
+          {tagLabel}
+        </span>
+      )}
+
       {/* Title */}
       <Link
         href={`/article/${article.id}`}
-        className="article-title block font-display italic text-[1.0625rem] leading-[1.22] mb-3 flex-1"
-        style={{ color: "var(--ink)" }}
+        className="article-title block font-display italic leading-[1.2] mb-3 flex-1"
+        style={{
+          color: "var(--ink)",
+          fontSize: "clamp(1rem, 1.5vw, 1.0625rem)",
+          letterSpacing: "-0.01em",
+        }}
       >
         {article.title}
       </Link>
 
-      {/* Summary */}
-      <p
-        className="font-body text-[0.8125rem] leading-[1.65] mb-5 line-clamp-3"
-        style={{ color: "var(--ink-mid)" }}
-      >
-        {article.summary}
-      </p>
-
       {/* Footer */}
-      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase mt-auto">
+      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
         <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{article.source}</span>
-        <span style={{ color: "var(--border-strong)" }}>·</span>
+        <span style={{ color: "var(--ink-faint)" }}>·</span>
         <span style={{ color: "var(--ink-muted)" }}>
           {new Date(article.publishedAt).toLocaleDateString("en-US", {
             month: "short",
@@ -148,7 +123,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
         </span>
         {article.readingTimeMinutes != null && (
           <>
-            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span style={{ color: "var(--ink-faint)" }}>·</span>
             <span style={{ color: "var(--ink-muted)" }}>
               {article.readingTimeMinutes} min
             </span>
