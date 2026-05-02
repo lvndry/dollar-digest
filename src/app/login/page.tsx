@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
@@ -20,12 +21,14 @@ export default function LoginPage() {
       style={{ backgroundColor: "var(--bg)" }}
     >
       <div className="w-full max-w-sm">
-        <h1
-          className="font-display italic text-3xl mb-2 text-center"
-          style={{ color: "var(--ink)" }}
-        >
-          The Dollar Digest
-        </h1>
+        <Link href="/">
+          <h1
+            className="font-display italic text-3xl mb-2 text-center hover:opacity-70 transition-opacity duration-150"
+            style={{ color: "var(--ink)" }}
+          >
+            The Dollar Digest
+          </h1>
+        </Link>
         <p
           className="font-ui text-[0.65rem] tracking-[0.06em] uppercase text-center mb-10"
           style={{ color: "var(--ink-muted)" }}
