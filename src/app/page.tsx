@@ -8,12 +8,12 @@ import type { Article } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Today's Digest",
   description:
-    "Today's most important tech and political stories — AI-curated, clearly sourced.",
+    "Today's most important tech and political stories, AI-curated and clearly sourced.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "The Dollar Digest — Today",
+    title: "The Dollar Digest: Today",
     description:
-      "Today's most important tech and political stories — AI-curated, clearly sourced.",
+      "Today's most important tech and political stories, AI-curated and clearly sourced.",
     images: [
       { url: "/opengraph-image", width: 1200, height: 630, alt: "The Dollar Digest" },
     ],
@@ -109,7 +109,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           className="font-ui text-[0.6rem] tracking-[0.14em] uppercase mb-8"
           style={{ color: "var(--ink-muted)" }}
         >
-          {isToday ? `Today — ${displayDate}` : displayDate}
+          {isToday ? `Today, ${displayDate}` : displayDate}
         </p>
         <h1
           className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-[-0.025em] leading-[0.93] mb-6"
