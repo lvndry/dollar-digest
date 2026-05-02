@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "./ThemeToggle";
 import { NextDigestCountdown } from "./NextDigestCountdown";
+import { MobileTabBar } from "./MobileTabBar";
 import { createCheckoutSession } from "@/app/actions";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 
 const NAV_ITEMS = [
   { href: "/", label: "Today" },
@@ -17,6 +19,7 @@ const NAV_ITEMS = [
 export function SiteNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  useSwipeNavigation();
 
   return (
     <header
@@ -98,31 +101,7 @@ export function SiteNav() {
         </div>
       </div>
 
-      {/* Mobile topic strip */}
-      <div
-        className="sm:hidden flex overflow-x-auto scrollbar-none px-4 py-2 gap-2"
-        style={{ borderTop: "1px solid var(--border)" }}
-      >
-        {NAV_ITEMS.map(({ href, label }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className="shrink-0 font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border transition-colors duration-150"
-              style={{
-                borderColor: active ? "var(--accent)" : "var(--border-strong)",
-                color: active ? "var(--accent)" : "var(--ink-muted)",
-                backgroundColor: active
-                  ? "color-mix(in srgb, var(--accent) 8%, transparent)"
-                  : "transparent",
-              }}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </div>
+      <MobileTabBar />
     </header>
   );
 }
