@@ -34,10 +34,15 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
+      - name: Configure Jazz agent
+        run: |
+          mkdir -p ~/.jazz/agents
+          echo '{"id":"default","name":"default","description":"Dollar Digest research agent","model":"openrouter/deepseek/deepseek-v4-flash","config":{"persona":"default","llmProvider":"openrouter","llmModel":"deepseek/deepseek-v4-flash"},"createdAt":"2026-01-01T00:00:00.000Z","updatedAt":"2026-01-01T00:00:00.000Z"}' > ~/.jazz/agents/default.json
+
       - name: Run tech-news workflow
         run: jazz --output raw workflow run tech-news --auto-approve
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
@@ -61,10 +66,15 @@ jobs:
       - name: Install Jazz
         run: bun install -g jazz-ai
 
+      - name: Configure Jazz agent
+        run: |
+          mkdir -p ~/.jazz/agents
+          echo '{"id":"default","name":"default","description":"Dollar Digest research agent","model":"openrouter/deepseek/deepseek-v4-flash","config":{"persona":"default","llmProvider":"openrouter","llmModel":"deepseek/deepseek-v4-flash"},"createdAt":"2026-01-01T00:00:00.000Z","updatedAt":"2026-01-01T00:00:00.000Z"}' > ~/.jazz/agents/default.json
+
       - name: Run political-news workflow
         run: jazz --output raw workflow run political-news --auto-approve
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
