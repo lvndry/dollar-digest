@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "product launches",
   ],
   openGraph: {
-    title: "Technology · The Dollar Digest",
+    title: "Technology · The One Dollar Digest",
     description:
       "Today's most important tech stories: AI, startups, research, security and more.",
     images: [
@@ -25,13 +25,13 @@ export const metadata: Metadata = {
         url: "/tech/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "The Dollar Digest: Technology",
+        alt: "The One Dollar Digest: Technology",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: [{ url: "/tech/opengraph-image", alt: "The Dollar Digest: Technology" }],
+    images: [{ url: "/tech/opengraph-image", alt: "The One Dollar Digest: Technology" }],
   },
 };
 
@@ -99,7 +99,7 @@ export default async function TechPage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {today.getFullYear()} The Dollar Digest
+          © {today.getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

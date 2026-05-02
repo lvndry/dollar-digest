@@ -14,11 +14,11 @@ export const metadata: Metadata = {
     "Today's most important tech and political stories, AI-curated and clearly sourced.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "The Dollar Digest: Today",
+    title: "The One Dollar Digest: Today",
     description:
       "Today's most important tech and political stories, AI-curated and clearly sourced.",
     images: [
-      { url: "/opengraph-image", width: 1200, height: 630, alt: "The Dollar Digest" },
+      { url: "/opengraph-image", width: 1200, height: 630, alt: "The One Dollar Digest" },
     ],
   },
 };
@@ -87,7 +87,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "The Dollar Digest",
+    name: "The One Dollar Digest",
     url: base,
     description:
       "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
@@ -120,7 +120,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-[-0.025em] leading-[0.93] mb-6"
           style={{ color: "var(--ink)" }}
         >
-          The Dollar Digest
+          The One Dollar Digest
         </h1>
         <p
           className="font-ui text-[0.6875rem] tracking-[0.06em] uppercase"
@@ -171,7 +171,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {new Date().getFullYear()} The Dollar Digest
+          © {new Date().getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

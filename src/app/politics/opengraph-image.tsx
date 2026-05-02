@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "The Dollar Digest: Politics";
+export const alt = "The One Dollar Digest: Politics";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -36,7 +36,7 @@ export default function OgImage() {
             color: "#6a6460",
           }}
         >
-          The Dollar Digest
+          The One Dollar Digest
         </span>
         <span
           style={{

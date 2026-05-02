@@ -51,7 +51,7 @@ export async function generateMetadata({
   if (!canAccessDigestDate(article.digestDate, session)) {
     return {
       title: "Premium archive article",
-      description: "Subscribe to The Dollar Digest to read archived articles.",
+      description: "Subscribe to The One Dollar Digest to read archived articles.",
       robots: { index: false },
     };
   }
@@ -194,7 +194,7 @@ export default async function ArticlePage({
     author: { "@type": "Organization", name: article.source },
     publisher: {
       "@type": "Organization",
-      name: "The Dollar Digest",
+      name: "The One Dollar Digest",
       logo: { "@type": "ImageObject", url: `${base}/android-chrome-512x512.png` },
     },
     url: `${base}/article/${id}`,

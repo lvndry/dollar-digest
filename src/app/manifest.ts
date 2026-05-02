@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "The Dollar Digest",
+    name: "The One Dollar Digest",
     short_name: "Dollar Digest",
     description: "AI-curated news that respects your time and wallet",
     start_url: "/",
