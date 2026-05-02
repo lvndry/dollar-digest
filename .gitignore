@@ -1,0 +1,10 @@
+.next/
+node_modules/
+*.db
+*.db-journal
+.env
+.env.local
+.env*.local
+out/
+build/
+.DS_Store
