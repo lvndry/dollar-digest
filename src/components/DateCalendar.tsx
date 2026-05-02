@@ -6,6 +6,7 @@ import { useState } from "react";
 interface DateCalendarProps {
   availableDates: string[];
   selectedDate: string;
+  canAccessArchive: boolean;
 }
 
 const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -15,7 +16,11 @@ function isoToLocal(dateStr: string): Date {
   return new Date(y!, m! - 1, d!);
 }
 
-export function DateCalendar({ availableDates, selectedDate }: DateCalendarProps) {
+export function DateCalendar({
+  availableDates,
+  selectedDate,
+  canAccessArchive,
+}: DateCalendarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -182,13 +187,20 @@ export function DateCalendar({ availableDates, selectedDate }: DateCalendarProps
               const isSelected = dateStr === selectedDate;
               const isToday = dateStr === today;
               const isFuture = dateStr > today;
+              const isLocked = !isToday && !isFuture && !canAccessArchive;
 
               return (
                 <button
                   key={dateStr}
                   disabled={!hasArticles || isFuture}
                   onClick={() => hasArticles && !isFuture && selectDate(dateStr)}
-                  title={hasArticles ? dateStr : undefined}
+                  title={
+                    isLocked && hasArticles
+                      ? "Subscribe to access archive"
+                      : hasArticles
+                        ? dateStr
+                        : undefined
+                  }
                   style={{
                     height: "28px",
                     width: "100%",
@@ -197,6 +209,7 @@ export function DateCalendar({ availableDates, selectedDate }: DateCalendarProps
                     fontFamily: "var(--font-ui)",
                     letterSpacing: "0.02em",
                     cursor: hasArticles && !isFuture ? "pointer" : "default",
+                    opacity: isLocked && hasArticles ? 0.45 : 1,
                     backgroundColor: isSelected
                       ? "var(--accent)"
                       : isToday && !isSelected
@@ -217,7 +230,7 @@ export function DateCalendar({ availableDates, selectedDate }: DateCalendarProps
                   }}
                 >
                   {day}
-                  {hasArticles && !isSelected && (
+                  {hasArticles && !isSelected && !isLocked && (
                     <span
                       style={{
                         position: "absolute",
@@ -231,6 +244,21 @@ export function DateCalendar({ availableDates, selectedDate }: DateCalendarProps
                         display: "block",
                       }}
                     />
+                  )}
+                  {isLocked && hasArticles && !isSelected && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "2px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontSize: "0.4rem",
+                        lineHeight: 1,
+                        display: "block",
+                      }}
+                    >
+                      🔒
+                    </span>
                   )}
                 </button>
               );

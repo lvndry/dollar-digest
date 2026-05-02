@@ -3,6 +3,9 @@ import { Suspense } from "react";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
+import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { auth } from "@/auth";
+import { canAccessArchive, canAccessDigestDate, trialDaysRemaining } from "@/lib/access";
 import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -63,9 +66,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const today = new Date().toISOString().split("T")[0]!;
   const selectedDate = params.date ?? today;
+  const isToday = selectedDate === today;
+
+  const session = await auth();
+  const hasAccess = canAccessDigestDate(selectedDate, session);
 
   const [articles, availableDates] = await Promise.all([
-    getArticles(selectedDate),
+    hasAccess ? getArticles(selectedDate) : Promise.resolve([]),
     getAvailableDates(),
   ]);
 
@@ -75,8 +82,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     month: "long",
     day: "numeric",
   });
-
-  const isToday = selectedDate === today;
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
   const jsonLd = {
@@ -126,7 +131,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {/* Archive calendar */}
         <Suspense>
-          <DateCalendar availableDates={availableDates} selectedDate={selectedDate} />
+          <DateCalendar
+            availableDates={availableDates}
+            selectedDate={selectedDate}
+            canAccessArchive={canAccessArchive(session)}
+          />
         </Suspense>
 
         <div className="mt-8 h-px" style={{ backgroundColor: "var(--border)" }} />
@@ -134,7 +143,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       {/* Article grids */}
       <main className="max-w-5xl mx-auto px-6 pb-24">
-        {articles.length === 0 ? (
+        {!hasAccess ? (
+          <ArchivePaywall
+            isSignedIn={!!session?.user}
+            daysRemaining={trialDaysRemaining(session)}
+          />
+        ) : articles.length === 0 ? (
           <p
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
             style={{ color: "var(--ink-muted)" }}

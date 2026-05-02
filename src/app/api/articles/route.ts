@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { mockArticles } from "@/lib/mock-data";
 
 export async function GET() {
   try {
@@ -18,8 +17,8 @@ export async function GET() {
       return NextResponse.json(rows);
     }
   } catch {
-    // DB not initialised yet — fall through to mock data
+    // DB not initialised yet.
   }
 
-  return NextResponse.json(mockArticles);
+  return NextResponse.json([]);
 }
