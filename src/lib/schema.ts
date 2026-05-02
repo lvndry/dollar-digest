@@ -15,6 +15,9 @@ export const articles = sqliteTable("articles", {
   readingTimeMinutes: integer("reading_time_minutes"),
   importanceScore: real("importance_score"),
   imageUrl: text("image_url"),
+  tags: text("tags"),
+  regions: text("regions"),
+  strategicInterpretation: text("strategic_interpretation"),
   digestDate: text("digest_date").notNull(),
   createdAt: text("created_at").notNull(),
 });
@@ -30,6 +33,9 @@ export const users = sqliteTable("user", {
   image: text("image"),
   subscribed: integer("subscribed", { mode: "boolean" }).default(false),
   stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  stripeSubscriptionStatus: text("stripe_subscription_status"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }),
 });
 
 export const accounts = sqliteTable(

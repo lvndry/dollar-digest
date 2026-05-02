@@ -20,6 +20,12 @@ const imageUrls = await fetchOgImages(
 console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} images`);
 
 const now = new Date().toISOString();
+
+function serializeMetadataField(value: unknown): string | null {
+  if (Array.isArray(value)) return JSON.stringify(value);
+  return value != null ? String(value) : null;
+}
+
 const rows = parsed.map((item, i) => ({
   title: String(item.title ?? ""),
   summary: String(item.summary ?? ""),
@@ -32,6 +38,11 @@ const rows = parsed.map((item, i) => ({
   readingTimeMinutes: item.readingTimeMinutes ? Number(item.readingTimeMinutes) : null,
   importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
   imageUrl: imageUrls[i] ?? null,
+  tags: serializeMetadataField(item.tags),
+  regions: serializeMetadataField(item.regions),
+  strategicInterpretation: item.strategicInterpretation
+    ? String(item.strategicInterpretation)
+    : null,
   digestDate,
   createdAt: now,
 }));
