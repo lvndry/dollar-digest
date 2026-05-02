@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "./ThemeToggle";
 import { NextDigestCountdown } from "./NextDigestCountdown";
 
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 
 export function SiteNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <header
@@ -55,14 +57,31 @@ export function SiteNav() {
 
         <div className="flex items-center gap-3">
           <NextDigestCountdown />
-          <a
-            href="https://buy.stripe.com/6oUbJ0cAI35JfkZ8qL67S00"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-accent hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
-          >
-            $1 / month
-          </a>
+
+          {session?.user ? (
+            <div className="hidden sm:flex items-center gap-3">
+              <span
+                className="font-ui text-[0.6rem] tracking-[0.04em]"
+                style={{ color: "var(--ink-muted)" }}
+              >
+                {session.user.email}
+              </span>
+              <button
+                onClick={() => signOut({ redirectTo: "/" })}
+                className="btn-accent font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-accent hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
+            >
+              Sign in
+            </Link>
+          )}
+
           <ThemeToggle />
         </div>
       </div>
