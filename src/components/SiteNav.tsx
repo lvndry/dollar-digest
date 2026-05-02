@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_ITEMS = [
   { href: "/", label: "Today" },
@@ -14,40 +15,53 @@ export function SiteNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden lg:flex flex-col gap-1 sticky top-8 w-36 shrink-0">
-      <span className="font-ui text-[0.55rem] tracking-[0.14em] uppercase text-ink-faint mb-3">
-        Navigate
-      </span>
-      {NAV_ITEMS.map(({ href, label }) => {
-        const active = pathname === href;
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={[
-              "font-ui text-[0.6875rem] tracking-[0.06em] uppercase py-1 transition-colors duration-150",
-              active ? "text-ink font-bold" : "text-ink-muted hover:text-ink",
-            ].join(" ")}
-          >
-            {active && (
-              <span className="inline-block w-2 h-px bg-gold mr-1.5 translate-y-[-1px]" />
-            )}
-            {label}
-          </Link>
-        );
-      })}
-
-      <div className="mt-8 pt-6 border-t border-rule">
-        <span className="font-ui text-[0.55rem] tracking-[0.14em] uppercase text-ink-faint block mb-3">
-          Subscribe
-        </span>
-        <a
-          href="/subscribe"
-          className="font-ui text-[0.6rem] tracking-[0.08em] uppercase text-gold border border-gold px-3 py-1.5 hover:bg-gold hover:text-white transition-colors duration-150 block text-center"
+    <header
+      className="sticky top-0 z-50 w-full border-b"
+      style={{
+        borderColor: "var(--border)",
+        backgroundColor: "color-mix(in srgb, var(--bg) 85%, transparent)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
+    >
+      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+        <Link
+          href="/"
+          className="font-display italic text-[1.125rem] tracking-[-0.01em] shrink-0"
+          style={{ color: "var(--ink)" }}
         >
-          $1 / month
-        </a>
+          The Dollar Digest
+        </Link>
+
+        <nav className="hidden sm:flex items-center gap-7">
+          {NAV_ITEMS.map(({ href, label }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="font-ui text-[0.625rem] tracking-[0.06em] uppercase transition-colors duration-150"
+                style={{
+                  color: active ? "var(--ink)" : "var(--ink-muted)",
+                  fontWeight: active ? "500" : "400",
+                }}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <a
+            href="/subscribe"
+            className="btn-accent hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
+          >
+            $1 / month
+          </a>
+          <ThemeToggle />
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }

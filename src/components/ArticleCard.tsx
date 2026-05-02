@@ -12,116 +12,125 @@ const BIAS_LABELS: Record<string, string> = {
   "far-right": "Far Right",
 };
 
-const BIAS_BORDER: Record<string, string> = {
-  "far-left": "border-l-bias-far-left",
-  left: "border-l-bias-left",
-  center: "border-l-bias-center",
-  right: "border-l-bias-right",
-  "far-right": "border-l-bias-far-right",
+const BIAS_COLOR: Record<string, string> = {
+  "far-left": "var(--color-bias-far-left)",
+  left: "var(--color-bias-left)",
+  center: "var(--color-bias-center)",
+  right: "var(--color-bias-right)",
+  "far-right": "var(--color-bias-far-right)",
 };
 
-const BIAS_BG: Record<string, string> = {
-  "far-left": "bg-bias-far-left",
-  left: "bg-bias-left",
-  center: "bg-bias-center",
-  right: "bg-bias-right",
-  "far-right": "bg-bias-far-right",
-};
-
-const SUB_BG: Record<string, string> = {
-  AI: "bg-sub-ai",
-  VC: "bg-sub-vc",
-  Research: "bg-sub-research",
-  Startup: "bg-sub-startup",
-  Product: "bg-sub-product",
-  Security: "bg-sub-security",
+const SUB_COLOR: Record<string, string> = {
+  AI: "var(--color-sub-ai)",
+  VC: "var(--color-sub-vc)",
+  Research: "var(--color-sub-research)",
+  Startup: "var(--color-sub-startup)",
+  Product: "var(--color-sub-product)",
+  Security: "var(--color-sub-security)",
 };
 
 const TITLE_SIZE: Record<Size, string> = {
-  featured: "text-[clamp(1.625rem,3vw,2.375rem)] leading-[1.18] mb-4",
-  mid: "text-[clamp(1.125rem,2vw,1.5rem)] leading-[1.2] mb-3",
-  small: "text-[1.0625rem] leading-[1.2] mb-2.5",
-};
-
-const SUMMARY_SIZE: Record<Size, string> = {
-  featured: "text-base",
-  mid: "text-[0.9rem]",
-  small: "text-[0.9rem]",
+  featured: "text-[clamp(1.625rem,3.5vw,2.5rem)] leading-[1.1]",
+  mid: "text-[clamp(1.1rem,2vw,1.375rem)] leading-[1.18]",
+  small: "text-[1rem] leading-[1.22]",
 };
 
 interface ArticleCardProps {
   article: Article;
   size?: Size;
+  index?: number;
 }
 
-export function ArticleCard({ article, size = "small" }: ArticleCardProps) {
+export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardProps) {
   const isPolitics = article.category === "politics";
 
-  const containerClass = isPolitics
-    ? `border-l-[3px] pl-4 ${article.bias ? BIAS_BORDER[article.bias] : "border-l-rule"}`
-    : "";
+  const tagColor = isPolitics
+    ? article.bias
+      ? BIAS_COLOR[article.bias]
+      : "var(--ink-muted)"
+    : article.subcategory
+      ? (SUB_COLOR[article.subcategory] ?? "var(--color-sub-product)")
+      : "var(--ink-muted)";
 
-  const badgeBase =
-    "font-ui text-[0.6rem] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-[2px] text-white";
+  const tagLabel = isPolitics
+    ? article.bias
+      ? BIAS_LABELS[article.bias]
+      : null
+    : (article.subcategory ?? null);
 
   return (
-    <article className={containerClass}>
-      {/* Image — full-width for featured, thumbnail for mid */}
+    <article
+      className="article-card relative pl-4 fade-up"
+      style={{ animationDelay: `${index * 70}ms` }}
+    >
+      <div className="card-accent" />
+
+      {/* Image — featured and mid only */}
       {article.imageUrl && size !== "small" && (
         <div
           className={[
-            "overflow-hidden mb-4",
+            "overflow-hidden mb-5",
             size === "featured" ? "w-full aspect-[16/9]" : "w-full aspect-[3/2]",
           ].join(" ")}
         >
           <Image
             src={article.imageUrl}
             alt={article.title}
-            width={size === "featured" ? 900 : 480}
-            height={size === "featured" ? 506 : 320}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+            width={size === "featured" ? 960 : 480}
+            height={size === "featured" ? 540 : 320}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.025]"
             loading="lazy"
           />
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          {article.category === "tech" && article.subcategory && (
-            <span
-              className={`${badgeBase} ${SUB_BG[article.subcategory] ?? "bg-sub-product"}`}
-            >
-              {article.subcategory}
-            </span>
-          )}
-          {isPolitics && article.bias && (
-            <span className={`${badgeBase} ${BIAS_BG[article.bias]}`}>
-              {BIAS_LABELS[article.bias]}
-            </span>
-          )}
-        </div>
-        {article.readingTimeMinutes && (
-          <span className="font-ui text-[0.6rem] text-ink-faint tracking-[0.06em]">
-            {article.readingTimeMinutes} min read
+      {/* Tag row */}
+      <div className="flex items-center gap-3 mb-2.5">
+        {tagLabel && (
+          <span
+            className="font-ui text-[0.575rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-[2px] text-white"
+            style={{ backgroundColor: tagColor }}
+          >
+            {tagLabel}
+          </span>
+        )}
+        {article.readingTimeMinutes != null && (
+          <span
+            className="font-ui text-[0.575rem] tracking-[0.06em]"
+            style={{ color: "var(--ink-faint)" }}
+          >
+            {article.readingTimeMinutes} min
           </span>
         )}
       </div>
 
+      {/* Title */}
       <Link
         href={`/article/${article.id}`}
-        className={`title-link block font-display font-bold tracking-[-0.015em] ${TITLE_SIZE[size]}`}
+        className={`article-title block font-display italic mb-2.5 ${TITLE_SIZE[size]}`}
+        style={{ color: "var(--ink)" }}
       >
         {article.title}
       </Link>
 
-      <p className={`font-body text-ink-mid leading-[1.7] mb-4 ${SUMMARY_SIZE[size]}`}>
+      {/* Summary */}
+      <p
+        className={[
+          "font-body mb-4",
+          size === "featured"
+            ? "text-[0.9375rem] leading-[1.78]"
+            : "text-[0.875rem] leading-[1.65] line-clamp-3",
+        ].join(" ")}
+        style={{ color: "var(--ink-mid)" }}
+      >
         {article.summary}
       </p>
 
-      <footer className="flex items-center gap-2 font-ui text-[0.6rem] tracking-[0.08em] uppercase text-ink-faint">
-        <span className="text-ink-muted font-bold">{article.source}</span>
-        <span className="text-rule-strong">·</span>
-        <span>
+      {/* Footer */}
+      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
+        <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{article.source}</span>
+        <span style={{ color: "var(--border-strong)" }}>·</span>
+        <span style={{ color: "var(--ink-muted)" }}>
           {new Date(article.publishedAt).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",

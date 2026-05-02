@@ -25,7 +25,7 @@ async function getArticles(): Promise<Article[]> {
     const rows = await db
       .select()
       .from(articles)
-      .where(eq(articles.digestDate, today))
+      .where(eq(articles.digestDate, today!))
       .orderBy(desc(articles.importanceScore));
 
     if (rows.length > 0) return rows;
@@ -41,59 +41,68 @@ export default async function HomePage() {
   const articles = await getArticles();
 
   const today = new Date();
-  const formattedDate = today
-    .toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-    .toUpperCase();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body leading-[1.65]">
-      {/* Masthead */}
-      <header className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] pt-8 mb-10">
-        <div className="flex justify-between items-baseline mb-3">
-          <span className="font-ui text-[0.6875rem] tracking-[0.1em] uppercase text-ink-muted">
-            {formattedDate}
-          </span>
-          <span className="font-ui text-[0.6875rem] tracking-[0.05em] font-bold text-gold border border-gold px-2 py-0.5">
-            $1 / MO
-          </span>
-          <span className="font-ui text-[0.6875rem] tracking-[0.1em] uppercase text-ink-muted">
-            ISSUE 001
-          </span>
-        </div>
+    <div
+      style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
+    >
+      <SiteNav />
 
-        <div className="h-0.5 bg-ink mb-2" />
-        <h1 className="font-display font-extrabold text-[clamp(2.75rem,9vw,6.5rem)] tracking-[-0.03em] leading-[0.9] text-center text-ink">
-          THE DOLLAR DIGEST
+      {/* Masthead */}
+      <div className="max-w-5xl mx-auto px-6 pt-16 pb-14 text-center">
+        <p
+          className="font-ui text-[0.6rem] tracking-[0.14em] uppercase mb-8"
+          style={{ color: "var(--ink-muted)" }}
+        >
+          {formattedDate}
+        </p>
+        <h1
+          className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-[-0.025em] leading-[0.93] mb-6"
+          style={{ color: "var(--ink)" }}
+        >
+          The Dollar Digest
         </h1>
-        <div className="h-px bg-ink mt-2.5" />
-        <p className="font-ui text-[0.6875rem] tracking-[0.06em] uppercase text-ink-muted text-center pt-2.5 pb-6">
+        <p
+          className="font-ui text-[0.6875rem] tracking-[0.06em] uppercase"
+          style={{ color: "var(--ink-muted)" }}
+        >
           AI-curated news that respects your time and wallet
         </p>
-      </header>
-
-      {/* Body: sidebar + content */}
-      <div className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] flex gap-12">
-        <SiteNav />
-
-        <div className="flex-1 min-w-0">
-          <DigestGrid articles={articles} category="tech" label="Technology" />
-          <DigestGrid articles={articles} category="politics" label="Politics" />
-        </div>
+        <div className="mt-12 h-px" style={{ backgroundColor: "var(--border)" }} />
       </div>
 
-      <footer className="max-w-[1320px] mx-auto px-[clamp(1.25rem,4vw,3rem)] border-t-2 border-ink pt-6 pb-12 mt-4 flex justify-between items-center gap-4">
-        <span className="font-ui text-[0.6rem] tracking-[0.08em] uppercase text-ink-faint">
+      {/* Article grids */}
+      <main className="max-w-5xl mx-auto px-6 pb-24">
+        <DigestGrid articles={articles} category="tech" label="Technology" />
+        <DigestGrid articles={articles} category="politics" label="Politics" />
+      </main>
+
+      <footer
+        className="max-w-5xl mx-auto px-6 border-t pb-16 pt-8 flex items-center justify-between flex-wrap gap-4"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <span
+          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
+          style={{ color: "var(--ink-faint)" }}
+        >
           © {today.getFullYear()} The Dollar Digest
         </span>
-        <span className="font-display italic text-[0.875rem] text-ink-muted">
+        <span
+          className="font-display italic text-[0.875rem]"
+          style={{ color: "var(--ink-muted)" }}
+        >
           One dollar. Every story that matters.
         </span>
-        <span className="font-ui text-[0.6rem] tracking-[0.08em] uppercase text-ink-faint">
+        <span
+          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
+          style={{ color: "var(--ink-faint)" }}
+        >
           Powered by AI
         </span>
       </footer>
