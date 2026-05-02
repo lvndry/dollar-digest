@@ -54,7 +54,9 @@ export function SiteNav() {
 
         <div className="flex items-center gap-3">
           <a
-            href="/subscribe"
+            href="https://buy.stripe.com/6oUbJ0cAI35JfkZ8qL67S00"
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-accent hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"
           >
             $1 / month
