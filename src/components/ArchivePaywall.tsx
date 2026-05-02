@@ -3,10 +3,9 @@ import { createCheckoutSession } from "@/app/actions";
 
 interface ArchivePaywallProps {
   isSignedIn: boolean;
-  daysRemaining?: number;
 }
 
-export function ArchivePaywall({ isSignedIn, daysRemaining = 0 }: ArchivePaywallProps) {
+export function ArchivePaywall({ isSignedIn }: ArchivePaywallProps) {
   return (
     <div
       className="flex flex-col items-center text-center py-20 px-6 max-w-md mx-auto"
@@ -51,15 +50,6 @@ export function ArchivePaywall({ isSignedIn, daysRemaining = 0 }: ArchivePaywall
         >
           Start free trial
         </Link>
-      )}
-
-      {isSignedIn && daysRemaining > 0 && (
-        <p
-          className="font-ui text-[0.575rem] tracking-[0.06em]"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          {daysRemaining} day{daysRemaining !== 1 ? "s" : ""} left in your trial
-        </p>
       )}
 
       <div className="mt-4 h-px w-full" style={{ backgroundColor: "var(--border)" }} />
