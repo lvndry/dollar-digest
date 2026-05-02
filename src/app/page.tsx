@@ -29,17 +29,10 @@ async function getArticles(date: string): Promise<Article[]> {
       .where(eq(articles.digestDate, date))
       .orderBy(desc(articles.importanceScore));
 
-    if (rows.length > 0) return rows;
+    return rows;
   } catch {
-    // DB not ready — fall through to mock data only for today
+    return [];
   }
-
-  if (date === new Date().toISOString().split("T")[0]) {
-    const { mockArticles } = await import("@/lib/mock-data");
-    return mockArticles;
-  }
-
-  return [];
 }
 
 async function getAvailableDates(): Promise<string[]> {
