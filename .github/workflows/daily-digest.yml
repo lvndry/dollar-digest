@@ -44,10 +44,21 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
+
+      - name: Insert articles into DB
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          OUTPUT_FILE="output/tech-news-${DATE}.json"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "No output file found, skipping insert"
+            exit 0
+          fi
+          bun ./scripts/insert-articles.ts "$OUTPUT_FILE"
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Write job summary
         if: always()
@@ -112,10 +123,21 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
+
+      - name: Insert articles into DB
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          OUTPUT_FILE="output/political-news-${DATE}.json"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "No output file found, skipping insert"
+            exit 0
+          fi
+          bun ./scripts/insert-articles.ts "$OUTPUT_FILE"
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Write job summary
         if: always()
