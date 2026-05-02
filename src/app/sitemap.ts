@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: "daily", priority: 1 },
