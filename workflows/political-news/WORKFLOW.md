@@ -87,7 +87,7 @@ For each story, produce this exact JSON object:
 ```json
 {
   "title": "Factual, neutral headline — no spin",
-  "summary": "2–3 sentences. Lead with the single most important fact. Include who, what, where, and the immediate consequence. No editorialising.",
+  "summary": "5-10 sentences. Lead with the single most important fact. Include who, what, where, and the immediate consequence. No editorialising.",
   "source": "Publication name",
   "sourceUrl": "Full article URL (prefer canonical / primary source)",
   "category": "politics",
