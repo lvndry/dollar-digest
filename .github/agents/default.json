@@ -6,7 +6,20 @@
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "deepseek/deepseek-v4-flash"
+    "llmModel": "deepseek/deepseek-v4-flash",
+    "tools": [
+      "web_search",
+      "http_request",
+      "read_file",
+      "write_file",
+      "edit_file",
+      "ls",
+      "find",
+      "grep",
+      "mkdir",
+      "execute_command",
+      "spawn_subagent"
+    ]
   },
   "createdAt": "2026-01-01T00:00:00.000Z",
   "updatedAt": "2026-01-01T00:00:00.000Z"
