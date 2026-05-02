@@ -110,9 +110,9 @@ export function NextDigestCountdown() {
       <span
         className="font-ui text-[0.575rem] tracking-[0.08em]"
         style={{ color: "var(--accent)" }}
-        title="The AI is building today&#39;s digest"
+        title="The AI is building today's digest"
       >
-        building today&#39;s digest {dots}
+        building today's digest {dots}
       </span>
     );
   }
