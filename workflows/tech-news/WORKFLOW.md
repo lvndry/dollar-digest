@@ -50,6 +50,7 @@ For each story you find, produce a JSON object with these exact fields:
 - Prefer primary sources (company blog, paper PDF, official announcement) over aggregators
 - No duplicate stories covering the same event
 
-After gathering all stories, write the results as a JSON array to `output/tech-news-YYYY-MM-DD.json` where YYYY-MM-DD is today's date.
+After gathering all stories:
 
-Then insert each article into the Dollar Digest database by making a POST request to `http://localhost:3000/api/articles/ingest` with the JSON array as the body.
+1. Write the results as a JSON array to `output/tech-news-YYYY-MM-DD.json` where YYYY-MM-DD is today's date.
+2. Run `bun ./scripts/insert-articles.ts output/tech-news-YYYY-MM-DD.json` to insert the articles into the database.

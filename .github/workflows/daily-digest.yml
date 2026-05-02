@@ -28,15 +28,21 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install project dependencies
         run: bun install --frozen-lockfile
 
-      - name: Research and ingest tech news
-        run: bun run scripts/research-tech.ts
+      - name: Install Jazz
+        run: bun install -g jazz-ai
+
+      - name: Run tech-news workflow
+        run: jazz --output raw workflow run tech-news --auto-approve
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          CI: "true"
+          JAZZ_DISABLE_CATCH_UP: "1"
 
   political-news:
     name: Political News
@@ -49,12 +55,18 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install project dependencies
         run: bun install --frozen-lockfile
 
-      - name: Research and ingest political news
-        run: bun run scripts/research-politics.ts
+      - name: Install Jazz
+        run: bun install -g jazz-ai
+
+      - name: Run political-news workflow
+        run: jazz --output raw workflow run political-news --auto-approve
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          CI: "true"
+          JAZZ_DISABLE_CATCH_UP: "1"
