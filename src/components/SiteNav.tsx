@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "./ThemeToggle";
 import { NextDigestCountdown } from "./NextDigestCountdown";
+import { createCheckoutSession } from "@/app/actions";
 
 const NAV_ITEMS = [
   { href: "/", label: "Today" },
@@ -66,6 +67,17 @@ export function SiteNav() {
               >
                 {session.user.email}
               </span>
+              {!session.user.subscribed && (
+                <form action={createCheckoutSession}>
+                  <button
+                    type="submit"
+                    className="font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border transition-colors duration-150"
+                    style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                  >
+                    Upgrade — $1/mo
+                  </button>
+                </form>
+              )}
               <button
                 onClick={() => signOut({ redirectTo: "/" })}
                 className="btn-accent font-ui text-[0.6rem] tracking-[0.08em] uppercase px-3 py-1.5 border"

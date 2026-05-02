@@ -6,6 +6,10 @@ import { db } from "@/lib/db";
 import { users, accounts, sessions, verificationTokens } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { signInEmailHtml, signInEmailText } from "@/lib/email/sign-in-template";
+import {
+  trialWelcomeEmailHtml,
+  trialWelcomeEmailText,
+} from "@/lib/email/trial-welcome-template";
 
 let resendClient: ResendClient | null = null;
 function getResendClient(): ResendClient {
@@ -52,6 +56,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!user.id) return;
 
       await db.update(users).set({ createdAt: new Date() }).where(eq(users.id, user.id));
+
+      if (user.email) {
+        await getResendClient().emails.send({
+          from: "The One Dollar Digest <noreply@onedollardigest.com>",
+          to: user.email,
+          subject: "Your 3-day free trial has started",
+          html: trialWelcomeEmailHtml({ email: user.email }),
+          text: trialWelcomeEmailText({ email: user.email }),
+        });
+      }
     },
   },
 });
