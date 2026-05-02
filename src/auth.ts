@@ -7,7 +7,11 @@ import { users, accounts, sessions, verificationTokens } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { signInEmailHtml, signInEmailText } from "@/lib/email/sign-in-template";
 
-const resendClient = new ResendClient(process.env.AUTH_RESEND_KEY);
+let resendClient: ResendClient | null = null;
+function getResendClient(): ResendClient {
+  if (!resendClient) resendClient = new ResendClient(process.env.AUTH_RESEND_KEY);
+  return resendClient;
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db, {
@@ -22,7 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: "noreply@onedollardigest.com",
       async sendVerificationRequest({ identifier: to, url }) {
         const host = new URL(url).host;
-        await resendClient.emails.send({
+        await getResendClient().emails.send({
           from: "The One Dollar Digest <noreply@onedollardigest.com>",
           to,
           subject: "Sign in to The One Dollar Digest",
