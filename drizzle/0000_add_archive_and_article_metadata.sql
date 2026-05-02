@@ -1,6 +1,5 @@
 ALTER TABLE articles ADD COLUMN tags text;
-ALTER TABLE articles ADD COLUMN political_topics text;
-ALTER TABLE articles ADD COLUMN political_regions text;
+ALTER TABLE articles ADD COLUMN regions text;
 ALTER TABLE articles ADD COLUMN strategic_interpretation text;
 
 ALTER TABLE "user" ADD COLUMN created_at integer;

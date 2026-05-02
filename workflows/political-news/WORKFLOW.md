@@ -1,6 +1,6 @@
 ---
 name: political-news
-description: Daily political news digest by region (US, China, BRICS, Europe, Africa, Asia, South America) with topic + region tags and source bias indicators
+description: Daily political news digest by region (US, China, BRICS, Europe, Africa, Asia, South America) with tags, regions, and source bias indicators
 schedule: "30 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
@@ -36,9 +36,9 @@ Store the output as `DIGEST_DATE`. Use it for every subsequent step:
 
 Before searching, generate a fresh query plan for `DIGEST_DATE`. Do not reuse yesterday's queries without adapting them to the date and current news cycle.
 
-Create **14–28 targeted search queries**. Coverage has two axes — **what the story is about** (topics) and **which region(s) it primarily concerns** (regions). Nothing is “domestic US” by default; the **US** region is one peer among several.
+Create **14–28 targeted search queries**. Coverage has two axes — **what the story is about** (tags) and **which region(s) it primarily concerns** (regions). Nothing is “domestic US” by default; the **US** region is one peer among several.
 
-**Topic tags** (use these exact strings in `topics` arrays; pick every tag that clearly applies, usually 1–3):
+**Tags** (use these exact strings in `tags` arrays; pick every tag that clearly applies, usually 1–3):
 
 - **Policy** — legislation, executive orders, regulation, major government decisions
 - **Elections** — campaigns, polls, results, party leadership, referendums
@@ -80,8 +80,8 @@ Each subagent must return an array of zero or more candidates in this structure:
 [
   {
     "candidateTitle": "Working title",
-    "topics": ["Policy", "Diplomacy"],
-    "regions": ["US", "Europe"],
+    "tags": ["One or more allowed tags from Phase 1"],
+    "regions": ["One or more allowed region tags from Phase 1"],
     "primaryRegion": "US",
     "source": "Publication or primary source",
     "sourceUrl": "Fetched or search-result URL",
@@ -173,7 +173,7 @@ For each story, produce this exact JSON object:
   "source": "Publication name",
   "sourceUrl": "Full article URL (prefer canonical / primary source)",
   "category": "politics",
-  "topics": ["One or more allowed topic tags from Phase 1"],
+  "tags": ["One or more allowed tags from Phase 1"],
   "regions": ["One or more allowed region tags from Phase 1"],
   "bias": "far-left | left | center | right | far-right",
   "strategicInterpretation": "1-3 sentences explaining incentives, leverage, likely counter-moves, or second-order effects. Clearly distinguish interpretation from verified fact.",
@@ -184,11 +184,11 @@ For each story, produce this exact JSON object:
 }
 ```
 
-- **`topics`**: non-empty array; values must be chosen dynamically from the topic list in Phase 1 using exact strings. Do not default to `Policy` / `Diplomacy`; pick the tags that actually explain the story.
+- **`tags`**: non-empty array; values must be chosen dynamically from the tag list in Phase 1 using exact strings. Do not default to `Policy` / `Diplomacy`; pick the tags that actually explain the story.
 - **`regions`**: non-empty array; values must be chosen dynamically from the region list in Phase 1 using exact strings. Do not default to `US` / `Europe`; tag the region(s) materially involved in the story.
-- Use multiple `topics` or `regions` only when each tag adds real meaning. A US-China tariff story may be `["Policy", "Diplomacy", "Political economy"]` and `["US", "China"]`; a South American election story may be `["Elections"]` and `["South America"]`.
+- Use multiple `tags` or `regions` only when each value adds real meaning. A US-China tariff story may use `tags: ["Policy", "Diplomacy", "Political economy"]` and `regions: ["US", "China"]`; a South American election story may use `tags: ["Elections"]` and `regions: ["South America"]`.
 - **`strategicInterpretation`**: explain the game-theoretic or strategic meaning for the reader: incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground it in verified facts and avoid certainty theater; use wording such as "may", "could", or "signals" when interpreting motives or future moves.
-- Do **not** emit `subcategory` for politics articles; ingestion stores `topics` / `regions` as JSON columns.
+- Do **not** emit `subcategory` for politics articles; ingestion stores shared `tags` and `regions` as JSON columns.
 
 **Summary writing rules:**
 
@@ -198,7 +198,7 @@ For each story, produce this exact JSON object:
 - No adjectives that express opinion ("controversial", "surprising", "dramatic")
 - Keep the summary factual. Put strategic/game-theory analysis in `strategicInterpretation`, not mixed into the core summary.
 
-**Topic definitions (reference):**
+**Tag definitions (reference):**
 
 | Topic                 | Covers                                                                    |
 | --------------------- | ------------------------------------------------------------------------- |
@@ -221,11 +221,11 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 ## Quality Checklist (verify before finishing)
 
 - [ ] Phase 0 ran — DIGEST_DATE is confirmed
-- [ ] Fresh daily query plan generated with coverage across **all seven regions** and **all five topics**
+- [ ] Fresh daily query plan generated with coverage across **all seven regions** and **all five political tags**
 - [ ] Subagents executed assigned **per-region** query bundles (or documented merges if below 7), or the main agent did the same if subagent web access was unavailable
 - [ ] 6–10 unique political events selected
 - [ ] Each story has a concrete, verifiable outcome
-- [ ] Each story has non-empty `topics` and `regions` arrays with allowed enum strings only
+- [ ] Each story has non-empty `tags` and `regions` arrays with allowed enum strings only
 - [ ] Each story has a grounded `strategicInterpretation` that explains incentives, leverage, signaling, likely counter-moves, or second-order effects without overstating certainty
 - [ ] Bias labels reflect the source's known reputation — not the article's slant
 - [ ] Stories ≥ 0.8 importance have dual-source research from different bias points when available, without duplicate JSON entries

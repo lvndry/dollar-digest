@@ -39,12 +39,7 @@ const rows = parsed.map((item, i) => ({
   importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
   imageUrl: imageUrls[i] ?? null,
   tags: serializeMetadataField(item.tags),
-  politicalTopics: Array.isArray(item.topics)
-    ? serializeMetadataField(item.topics)
-    : serializeMetadataField(item.politicalTopics),
-  politicalRegions: Array.isArray(item.regions)
-    ? serializeMetadataField(item.regions)
-    : serializeMetadataField(item.politicalRegions),
+  regions: serializeMetadataField(item.regions),
   strategicInterpretation: item.strategicInterpretation
     ? String(item.strategicInterpretation)
     : null,

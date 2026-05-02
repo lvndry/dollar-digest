@@ -165,7 +165,7 @@ export default async function ArticlePage({
             className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
             style={{ color: "var(--ink-muted)" }}
           >
-            ← Today&apos;s Digest
+            ← Today's Digest
           </Link>
         </div>
         <ArchivePaywall
@@ -179,11 +179,9 @@ export default async function ArticlePage({
   const tagColor = getTagColor(article);
   const tagLabel = getTagLabel(article);
 
-  const politicsTopics =
-    article.category === "politics" ? parseTagColumn(article.politicalTopics) : [];
-  const politicsRegions =
-    article.category === "politics" ? parseTagColumn(article.politicalRegions) : [];
-  const articleTags = article.category === "tech" ? parseTagColumn(article.tags) : [];
+  const articleTags = parseTagColumn(article.tags);
+  const articleRegions =
+    article.category === "politics" ? parseTagColumn(article.regions) : [];
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
 
@@ -252,33 +250,6 @@ export default async function ArticlePage({
           {article.title}
         </h1>
 
-        {(politicsTopics.length > 0 || politicsRegions.length > 0) && (
-          <p
-            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
-            style={{ color: "var(--ink-muted)" }}
-          >
-            {politicsTopics.length > 0 && (
-              <>
-                <span className="text-(--ink-faint) uppercase tracking-widest">
-                  Topics
-                </span>{" "}
-                {politicsTopics.join(" · ")}
-              </>
-            )}
-            {politicsTopics.length > 0 && politicsRegions.length > 0 && (
-              <span style={{ color: "var(--border-strong)" }}> · </span>
-            )}
-            {politicsRegions.length > 0 && (
-              <>
-                <span className="text-(--ink-faint) uppercase tracking-widest">
-                  Regions
-                </span>{" "}
-                {politicsRegions.join(" · ")}
-              </>
-            )}
-          </p>
-        )}
-
         {articleTags.length > 0 && (
           <p
             className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
@@ -286,6 +257,16 @@ export default async function ArticlePage({
           >
             <span className="text-(--ink-faint) uppercase tracking-widest">Tags</span>{" "}
             {articleTags.join(" · ")}
+          </p>
+        )}
+
+        {articleRegions.length > 0 && (
+          <p
+            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            <span className="text-(--ink-faint) uppercase tracking-widest">Regions</span>{" "}
+            {articleRegions.join(" · ")}
           </p>
         )}
 

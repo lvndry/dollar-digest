@@ -16,10 +16,6 @@ function serializeMetadataField(value: unknown): string | null {
   return serializeStringArray(value) ?? optionalString(value);
 }
 
-function serializeMetadataAlias(primary: unknown, fallback: unknown): string | null {
-  return serializeStringArray(primary) ?? optionalString(fallback);
-}
-
 export async function POST(request: NextRequest) {
   const rows = (await request.json()) as Record<string, unknown>[];
 
@@ -46,8 +42,7 @@ export async function POST(request: NextRequest) {
     importanceScore: row.importanceScore ? Number(row.importanceScore) : null,
     imageUrl: optionalString(row.imageUrl),
     tags: serializeMetadataField(row.tags),
-    politicalTopics: serializeMetadataAlias(row.topics, row.politicalTopics),
-    politicalRegions: serializeMetadataAlias(row.regions, row.politicalRegions),
+    regions: serializeMetadataField(row.regions),
     strategicInterpretation: optionalString(row.strategicInterpretation),
     digestDate: optionalString(row.digestDate) ?? today,
     createdAt: optionalString(row.createdAt) ?? now,
