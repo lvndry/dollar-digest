@@ -35,7 +35,12 @@ jobs:
         run: bun install -g jazz-ai
 
       - name: Run tech-news workflow
-        run: jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve
+        id: jazz
+        run: |
+          jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve \
+            | tee /tmp/jazz-output.txt
+          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
@@ -43,6 +48,42 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
+
+      - name: Write job summary
+        if: always()
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          OUTPUT_FILE="output/tech-news-${DATE}.json"
+
+          COUNT=0
+          if [ -f "$OUTPUT_FILE" ]; then
+            COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          COST="n/a"
+          TOKENS=""
+          SUMMARY='${{ steps.jazz.outputs.summary }}'
+          if [ -n "$SUMMARY" ]; then
+            RAW_COST=$(echo "$SUMMARY" | jq -r '.costUSD // empty')
+            if [ -n "$RAW_COST" ]; then
+              COST=$(printf '$%.4f' $RAW_COST)
+            fi
+            PROMPT=$(echo "$SUMMARY" | jq -r '.tokenUsage.promptTokens // empty')
+            COMPLETION=$(echo "$SUMMARY" | jq -r '.tokenUsage.completionTokens // empty')
+            if [ -n "$PROMPT" ] && [ -n "$COMPLETION" ]; then
+              TOKENS="${PROMPT} in / ${COMPLETION} out"
+            fi
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## Tech News — ${DATE}
+
+          | | |
+          |---|---|
+          | Articles inserted | ${COUNT} |
+          | Run cost | ${COST} |
+          | Tokens | ${TOKENS:-n/a} |
+          EOF
 
   political-news:
     name: Political News
@@ -62,7 +103,12 @@ jobs:
         run: bun install -g jazz-ai
 
       - name: Run political-news workflow
-        run: jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve
+        id: jazz
+        run: |
+          jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve \
+            | tee /tmp/jazz-output.txt
+          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
@@ -70,3 +116,39 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
+
+      - name: Write job summary
+        if: always()
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          OUTPUT_FILE="output/political-news-${DATE}.json"
+
+          COUNT=0
+          if [ -f "$OUTPUT_FILE" ]; then
+            COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          COST="n/a"
+          TOKENS=""
+          SUMMARY='${{ steps.jazz.outputs.summary }}'
+          if [ -n "$SUMMARY" ]; then
+            RAW_COST=$(echo "$SUMMARY" | jq -r '.costUSD // empty')
+            if [ -n "$RAW_COST" ]; then
+              COST=$(printf '$%.4f' $RAW_COST)
+            fi
+            PROMPT=$(echo "$SUMMARY" | jq -r '.tokenUsage.promptTokens // empty')
+            COMPLETION=$(echo "$SUMMARY" | jq -r '.tokenUsage.completionTokens // empty')
+            if [ -n "$PROMPT" ] && [ -n "$COMPLETION" ]; then
+              TOKENS="${PROMPT} in / ${COMPLETION} out"
+            fi
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## Political News — ${DATE}
+
+          | | |
+          |---|---|
+          | Articles inserted | ${COUNT} |
+          | Run cost | ${COST} |
+          | Tokens | ${TOKENS:-n/a} |
+          EOF

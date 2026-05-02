@@ -3,6 +3,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Article } from "@/lib/schema";
+import { SiteNav } from "@/components/SiteNav";
+import { ReadingProgress } from "@/components/ReadingProgress";
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
@@ -41,13 +43,7 @@ export async function generateMetadata({
       description: article.summary,
       type: "article",
       publishedTime: article.publishedAt,
-      images: [
-        {
-          url: `/article/${id}/opengraph-image`,
-          width: 1200,
-          height: 630,
-        },
-      ],
+      images: [{ url: `/article/${id}/opengraph-image`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
@@ -65,21 +61,21 @@ const BIAS_LABELS: Record<string, string> = {
   "far-right": "Far Right",
 };
 
-const BIAS_BG: Record<string, string> = {
-  "far-left": "bg-bias-far-left",
-  left: "bg-bias-left",
-  center: "bg-bias-center",
-  right: "bg-bias-right",
-  "far-right": "bg-bias-far-right",
+const BIAS_COLOR: Record<string, string> = {
+  "far-left": "var(--color-bias-far-left)",
+  left: "var(--color-bias-left)",
+  center: "var(--color-bias-center)",
+  right: "var(--color-bias-right)",
+  "far-right": "var(--color-bias-far-right)",
 };
 
-const SUB_BG: Record<string, string> = {
-  AI: "bg-sub-ai",
-  VC: "bg-sub-vc",
-  Research: "bg-sub-research",
-  Startup: "bg-sub-startup",
-  Product: "bg-sub-product",
-  Security: "bg-sub-security",
+const SUB_COLOR: Record<string, string> = {
+  AI: "var(--color-sub-ai)",
+  VC: "var(--color-sub-vc)",
+  Research: "var(--color-sub-research)",
+  Startup: "var(--color-sub-startup)",
+  Product: "var(--color-sub-product)",
+  Security: "var(--color-sub-security)",
 };
 
 export default async function ArticlePage({
@@ -92,64 +88,76 @@ export default async function ArticlePage({
 
   if (!article) notFound();
 
-  const badgeBase =
-    "font-ui text-[0.6rem] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-[2px] text-white";
+  const tagColor =
+    article.category === "politics"
+      ? article.bias
+        ? BIAS_COLOR[article.bias]
+        : "var(--ink-muted)"
+      : article.subcategory
+        ? (SUB_COLOR[article.subcategory] ?? "var(--color-sub-product)")
+        : "var(--ink-muted)";
+
+  const tagLabel =
+    article.category === "politics"
+      ? article.bias
+        ? BIAS_LABELS[article.bias]
+        : null
+      : (article.subcategory ?? null);
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body leading-[1.65]">
-      <div className="max-w-[720px] mx-auto px-[clamp(1.25rem,4vw,3rem)] py-16">
+    <div
+      style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
+    >
+      <ReadingProgress />
+      <SiteNav />
+
+      <article className="max-w-[680px] mx-auto px-6 pt-14 pb-24">
         {/* Back link */}
         <Link
           href="/"
-          className="font-ui text-[0.6rem] tracking-[0.1em] uppercase text-ink-muted hover:text-ink transition-colors mb-10 inline-block"
+          className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
+          style={{ color: "var(--ink-muted)" }}
         >
-          ← The Dollar Digest
+          ← Today&apos;s Digest
         </Link>
 
-        <div className="h-0.5 bg-ink mb-8" />
-
-        {article.imageUrl && (
-          <div className="w-full aspect-[16/9] overflow-hidden mb-8">
-            <Image
-              src={article.imageUrl}
-              alt={article.title}
-              width={1200}
-              height={675}
-              className="w-full h-full object-cover"
-              priority
-            />
-          </div>
-        )}
-
-        {/* Badge */}
-        <div className="flex items-center gap-3 mb-6">
-          {article.category === "tech" && article.subcategory && (
+        {/* Tag + reading time */}
+        <div className="flex items-center gap-3 mb-5">
+          {tagLabel && (
             <span
-              className={`${badgeBase} ${SUB_BG[article.subcategory] ?? "bg-sub-product"}`}
+              className="font-ui text-[0.575rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-[2px] text-white"
+              style={{ backgroundColor: tagColor }}
             >
-              {article.subcategory}
+              {tagLabel}
             </span>
           )}
-          {article.category === "politics" && article.bias && (
-            <span className={`${badgeBase} ${BIAS_BG[article.bias]}`}>
-              {BIAS_LABELS[article.bias]}
-            </span>
-          )}
-          {article.readingTimeMinutes && (
-            <span className="font-ui text-[0.6rem] text-ink-faint tracking-[0.06em]">
+          {article.readingTimeMinutes != null && (
+            <span
+              className="font-ui text-[0.575rem] tracking-[0.06em]"
+              style={{ color: "var(--ink-faint)" }}
+            >
               {article.readingTimeMinutes} min read
             </span>
           )}
         </div>
 
         {/* Headline */}
-        <h1 className="font-display font-bold text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.12] tracking-[-0.02em] text-ink mb-6">
+        <h1
+          className="font-display italic text-[clamp(2rem,5vw,3.25rem)] leading-[1.06] tracking-[-0.02em] mb-7"
+          style={{ color: "var(--ink)" }}
+        >
           {article.title}
         </h1>
 
-        <div className="flex items-center gap-2 font-ui text-[0.6rem] tracking-[0.08em] uppercase text-ink-faint mb-10">
-          <span className="text-ink-muted font-bold">{article.source}</span>
-          <span>·</span>
+        {/* Meta */}
+        <div
+          className="flex items-center gap-2 font-ui text-[0.6rem] tracking-[0.08em] uppercase mb-10"
+          style={{ color: "var(--ink-muted)" }}
+        >
+          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>
+            {article.source}
+          </span>
+          <span style={{ color: "var(--border-strong)" }}>·</span>
           <span>
             {new Date(article.publishedAt).toLocaleDateString("en-US", {
               year: "numeric",
@@ -159,27 +167,44 @@ export default async function ArticlePage({
           </span>
         </div>
 
-        <div className="h-px bg-rule mb-10" />
+        <div className="h-px mb-10" style={{ backgroundColor: "var(--border)" }} />
+
+        {/* Image */}
+        {article.imageUrl && (
+          <div className="w-full aspect-[16/9] overflow-hidden mb-10">
+            <Image
+              src={article.imageUrl}
+              alt={article.title}
+              width={1360}
+              height={765}
+              className="w-full h-full object-cover"
+              priority
+            />
+          </div>
+        )}
 
         {/* Summary */}
-        <p className="font-body text-ink-mid text-[1.0625rem] leading-[1.8]">
+        <p
+          className="font-body text-[1.0625rem] leading-[1.9]"
+          style={{ color: "var(--ink-mid)" }}
+        >
           {article.summary}
         </p>
 
         {/* Read original */}
         {article.sourceUrl && (
-          <div className="mt-12 pt-8 border-t border-rule">
+          <div className="mt-14 pt-10 border-t" style={{ borderColor: "var(--border)" }}>
             <a
               href={article.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-ui text-[0.6875rem] tracking-[0.08em] uppercase text-gold border border-gold px-5 py-2.5 hover:bg-gold hover:text-white transition-colors duration-150 inline-block"
+              className="btn-accent font-ui text-[0.6875rem] tracking-[0.08em] uppercase px-5 py-3 border inline-block"
             >
               Read full article at {article.source} →
             </a>
           </div>
         )}
-      </div>
+      </article>
     </div>
   );
 }
