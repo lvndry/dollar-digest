@@ -8,6 +8,20 @@
       "when": 1777751793632,
       "tag": "0000_loud_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777759405914,
+      "tag": "0001_bitter_lucky_pierre",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777759911233,
+      "tag": "0002_equal_darkhawk",
+      "breakpoints": true
     }
   ]
 }

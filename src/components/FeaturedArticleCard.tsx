@@ -1,6 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Article } from "@/lib/schema";
+import {
+  formatArticleSourceLabel,
+  parseArticleSources,
+  parseJsonStringArray,
+} from "@/lib/parse-article-metadata";
 
 const BIAS_LABELS: Record<string, string> = {
   "far-left": "Far Left",
@@ -44,6 +49,18 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
       : null
     : (article.subcategory ?? null);
 
+  const regionLabels = isPolitics ? parseJsonStringArray(article.regions) : [];
+  const deskRegion =
+    isPolitics && (article.primaryRegion?.trim() || regionLabels[0])
+      ? (article.primaryRegion?.trim() ?? regionLabels[0])
+      : null;
+  const articleSources = parseArticleSources(article.sources, {
+    name: article.source,
+    url: article.sourceUrl,
+    bias: article.bias,
+  });
+  const sourceLabel = formatArticleSourceLabel(articleSources, article.source);
+
   const publishedDate = new Date(article.publishedAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -84,13 +101,35 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
 
           {/* Overlaid content */}
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-            {tagLabel && (
-              <span
-                className="font-ui text-[0.6rem] tracking-[0.14em] uppercase block mb-3"
-                style={{ color: tagColor }}
-              >
-                {tagLabel}
-              </span>
+            {(tagLabel || deskRegion) && (
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
+                {tagLabel && (
+                  <span
+                    className="font-ui text-[0.6rem] tracking-[0.14em] uppercase"
+                    style={{ color: tagColor }}
+                  >
+                    {tagLabel}
+                  </span>
+                )}
+                {deskRegion && (
+                  <>
+                    {tagLabel && (
+                      <span
+                        className="font-ui text-[0.6rem]"
+                        style={{ color: "rgba(240,235,226,0.45)" }}
+                      >
+                        ·
+                      </span>
+                    )}
+                    <span
+                      className="font-ui text-[0.55rem] tracking-[0.12em] uppercase"
+                      style={{ color: "rgba(240,235,226,0.82)" }}
+                    >
+                      {deskRegion}
+                    </span>
+                  </>
+                )}
+              </div>
             )}
             <h2
               className="article-title-overlay font-display italic leading-[1.1]"
@@ -115,9 +154,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
           {article.summary}
         </p>
         <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase shrink-0 pt-1">
-          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>
-            {article.source}
-          </span>
+          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{sourceLabel}</span>
           <span style={{ color: "var(--ink-faint)" }}>·</span>
           <span style={{ color: "var(--ink-muted)" }}>{publishedDate}</span>
           {article.readingTimeMinutes != null && (

@@ -1,6 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Article } from "@/lib/schema";
+import {
+  formatArticleSourceLabel,
+  parseArticleSources,
+  parseJsonStringArray,
+} from "@/lib/parse-article-metadata";
 
 const BIAS_LABELS: Record<string, string> = {
   "far-left": "Far Left",
@@ -49,6 +54,18 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       : null
     : (article.subcategory ?? null);
 
+  const regionLabels = isPolitics ? parseJsonStringArray(article.regions) : [];
+  const deskRegion =
+    isPolitics && (article.primaryRegion?.trim() || regionLabels[0])
+      ? (article.primaryRegion?.trim() ?? regionLabels[0])
+      : null;
+  const articleSources = parseArticleSources(article.sources, {
+    name: article.source,
+    url: article.sourceUrl,
+    bias: article.bias,
+  });
+  const sourceLabel = formatArticleSourceLabel(articleSources, article.source);
+
   return (
     <article
       className="article-card flex flex-col fade-up"
@@ -88,14 +105,36 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
         </div>
       </Link>
 
-      {/* Tag */}
-      {tagLabel && (
-        <span
-          className="font-ui text-[0.575rem] tracking-[0.12em] uppercase mb-2 block"
-          style={{ color: tagColor }}
-        >
-          {tagLabel}
-        </span>
+      {/* Bias + primary region (politics desk lens) */}
+      {(tagLabel || deskRegion) && (
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
+          {tagLabel && (
+            <span
+              className="font-ui text-[0.575rem] tracking-[0.12em] uppercase"
+              style={{ color: tagColor }}
+            >
+              {tagLabel}
+            </span>
+          )}
+          {deskRegion && (
+            <>
+              {tagLabel && (
+                <span
+                  className="font-ui text-[0.575rem]"
+                  style={{ color: "var(--ink-faint)" }}
+                >
+                  ·
+                </span>
+              )}
+              <span
+                className="font-ui text-[0.575rem] tracking-[0.1em] uppercase"
+                style={{ color: "var(--ink-muted)" }}
+              >
+                {deskRegion}
+              </span>
+            </>
+          )}
+        </div>
       )}
 
       {/* Title */}
@@ -113,7 +152,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
 
       {/* Footer */}
       <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
-        <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{article.source}</span>
+        <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{sourceLabel}</span>
         <span style={{ color: "var(--ink-faint)" }}>·</span>
         <span style={{ color: "var(--ink-muted)" }}>
           {new Date(article.publishedAt).toLocaleDateString("en-US", {

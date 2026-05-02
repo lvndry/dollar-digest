@@ -17,7 +17,7 @@ export default function ArchivePage() {
 
       <div className="max-w-5xl mx-auto px-6 pt-16 pb-14 text-center">
         <h1
-          className="font-display italic text-[clamp(2.25rem,6vw,4.5rem)] tracking-[-0.025em] leading-[0.93] mb-6"
+          className="font-display italic text-[clamp(2.25rem,6vw,4.5rem)] tracking-tight leading-[0.93] mb-6"
           style={{ color: "var(--ink)" }}
         >
           Archive
