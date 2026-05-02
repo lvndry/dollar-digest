@@ -13,6 +13,10 @@ const eslintConfig = [
       "no-console": "warn",
     },
   },
+  {
+    files: ["scripts/**/*.{ts,js}"],
+    rules: { "no-console": "off" },
+  },
 ];
 
 export default eslintConfig;
