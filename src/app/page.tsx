@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
+import { DateCalendar } from "@/components/DateCalendar";
 import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -15,38 +17,70 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(): Promise<Article[]> {
+async function getArticles(date: string): Promise<Article[]> {
   try {
     const { db } = await import("@/lib/db");
     const { articles } = await import("@/lib/schema");
     const { desc, eq } = await import("drizzle-orm");
 
-    const today = new Date().toISOString().split("T")[0];
     const rows = await db
       .select()
       .from(articles)
-      .where(eq(articles.digestDate, today!))
+      .where(eq(articles.digestDate, date))
       .orderBy(desc(articles.importanceScore));
 
     if (rows.length > 0) return rows;
   } catch {
-    // DB not ready — use mock data
+    // DB not ready — fall through to mock data only for today
   }
 
-  const { mockArticles } = await import("@/lib/mock-data");
-  return mockArticles;
+  if (date === new Date().toISOString().split("T")[0]) {
+    const { mockArticles } = await import("@/lib/mock-data");
+    return mockArticles;
+  }
+
+  return [];
 }
 
-export default async function HomePage() {
-  const articles = await getArticles();
+async function getAvailableDates(): Promise<string[]> {
+  try {
+    const { db } = await import("@/lib/db");
+    const { articles } = await import("@/lib/schema");
+    const { desc } = await import("drizzle-orm");
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-US", {
+    const rows = await db
+      .selectDistinct({ digestDate: articles.digestDate })
+      .from(articles)
+      .orderBy(desc(articles.digestDate));
+
+    return rows.map((r) => r.digestDate);
+  } catch {
+    return [];
+  }
+}
+
+interface HomePageProps {
+  searchParams: Promise<{ date?: string }>;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const today = new Date().toISOString().split("T")[0]!;
+  const selectedDate = params.date ?? today;
+
+  const [articles, availableDates] = await Promise.all([
+    getArticles(selectedDate),
+    getAvailableDates(),
+  ]);
+
+  const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+
+  const isToday = selectedDate === today;
 
   return (
     <div
@@ -60,7 +94,7 @@ export default async function HomePage() {
           className="font-ui text-[0.6rem] tracking-[0.14em] uppercase mb-8"
           style={{ color: "var(--ink-muted)" }}
         >
-          {formattedDate}
+          {isToday ? `Today — ${displayDate}` : displayDate}
         </p>
         <h1
           className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-[-0.025em] leading-[0.93] mb-6"
@@ -74,13 +108,30 @@ export default async function HomePage() {
         >
           AI-curated news that respects your time and wallet
         </p>
-        <div className="mt-12 h-px" style={{ backgroundColor: "var(--border)" }} />
+
+        {/* Archive calendar */}
+        <Suspense>
+          <DateCalendar availableDates={availableDates} selectedDate={selectedDate} />
+        </Suspense>
+
+        <div className="mt-8 h-px" style={{ backgroundColor: "var(--border)" }} />
       </div>
 
       {/* Article grids */}
       <main className="max-w-5xl mx-auto px-6 pb-24">
-        <DigestGrid articles={articles} category="tech" label="Technology" />
-        <DigestGrid articles={articles} category="politics" label="Politics" />
+        {articles.length === 0 ? (
+          <p
+            className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            No digest available for this date.
+          </p>
+        ) : (
+          <>
+            <DigestGrid articles={articles} category="tech" label="Technology" />
+            <DigestGrid articles={articles} category="politics" label="Politics" />
+          </>
+        )}
       </main>
 
       <footer
@@ -91,7 +142,7 @@ export default async function HomePage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {today.getFullYear()} The Dollar Digest
+          © {new Date().getFullYear()} The Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"
