@@ -14,6 +14,4 @@ The digest is meant to feel like a morning paper: a fixed set of important stori
 2. **That batch is stored** as the official digest for that date. The website loads it by date and presents it as an editorial grid with a page per story (including share previews).
 3. **Reading today is free.** Signing in unlocks more; a small subscription opens the full archive so you can browse past digests like flipping through old editions.
 
-Developer setup, environment variables, and tooling: [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-The daily production run is defined in `.github/workflows/daily-digest.yml` (scheduled run plus manual trigger with optional date and category).
+The digest's AI is powered by [Jazz](https://github.com/lvndry/jazz).
