@@ -22,13 +22,10 @@ async function getArticles(): Promise<Article[]> {
       .where(eq(articles.digestDate, today!))
       .orderBy(desc(articles.importanceScore));
 
-    if (rows.length > 0) return rows;
+    return rows;
   } catch {
-    // DB not ready — use mock data
+    return [];
   }
-
-  const { mockArticles } = await import("@/lib/mock-data");
-  return mockArticles;
 }
 
 export default async function PoliticsPage() {
