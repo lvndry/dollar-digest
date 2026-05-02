@@ -9,11 +9,14 @@ export const metadata: Metadata = {
   title: "Today's Digest",
   description:
     "Today's most important tech and political stories — AI-curated, clearly sourced.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "The Dollar Digest — Today",
     description:
       "Today's most important tech and political stories — AI-curated, clearly sourced.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    images: [
+      { url: "/opengraph-image", width: 1200, height: 630, alt: "The Dollar Digest" },
+    ],
   },
 };
 
@@ -75,10 +78,29 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const isToday = selectedDate === today;
 
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "The Dollar Digest",
+    url: base,
+    description:
+      "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${base}/?date={date}` },
+      "query-input": "required name=date",
+    },
+  };
+
   return (
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteNav />
 
       {/* Masthead */}

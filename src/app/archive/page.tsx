@@ -3,7 +3,9 @@ import { SiteNav } from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "Archive",
-  description: "Past issues of The Dollar Digest.",
+  description: "Browse past issues of The Dollar Digest.",
+  alternates: { canonical: "/archive" },
+  robots: { index: false, follow: false },
 };
 
 export default function ArchivePage() {

@@ -6,7 +6,33 @@ import type { Article } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Politics",
   description:
-    "Today's most important political stories — clearly sourced, bias labeled.",
+    "Today's most important political stories — balanced coverage, bias-labeled sources, clearly sourced.",
+  alternates: { canonical: "/politics" },
+  keywords: [
+    "political news",
+    "US politics",
+    "international news",
+    "policy",
+    "elections",
+    "geopolitics",
+  ],
+  openGraph: {
+    title: "Politics · The Dollar Digest",
+    description:
+      "Today's most important political stories — balanced coverage, bias-labeled sources.",
+    images: [
+      {
+        url: "/politics/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "The Dollar Digest — Politics",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [{ url: "/politics/opengraph-image", alt: "The Dollar Digest — Politics" }],
+  },
 };
 
 async function getArticles(): Promise<Article[]> {

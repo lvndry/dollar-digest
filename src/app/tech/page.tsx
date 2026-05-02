@@ -5,7 +5,34 @@ import type { Article } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Technology",
-  description: "Today's most important tech stories — AI, startups, research and more.",
+  description:
+    "Today's most important tech stories — AI, startups, research, security and more. Curated daily by AI.",
+  alternates: { canonical: "/tech" },
+  keywords: [
+    "tech news",
+    "AI news",
+    "startup funding",
+    "cybersecurity",
+    "research papers",
+    "product launches",
+  ],
+  openGraph: {
+    title: "Technology · The Dollar Digest",
+    description:
+      "Today's most important tech stories — AI, startups, research, security and more.",
+    images: [
+      {
+        url: "/tech/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "The Dollar Digest — Technology",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [{ url: "/tech/opengraph-image", alt: "The Dollar Digest — Technology" }],
+  },
 };
 
 async function getArticles(): Promise<Article[]> {
