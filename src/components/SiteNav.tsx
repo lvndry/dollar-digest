@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { NextDigestCountdown } from "./NextDigestCountdown";
 
 const NAV_ITEMS = [
   { href: "/", label: "Today" },
@@ -53,6 +54,7 @@ export function SiteNav() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <NextDigestCountdown />
           <a
             href="https://buy.stripe.com/6oUbJ0cAI35JfkZ8qL67S00"
             target="_blank"
