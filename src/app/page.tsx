@@ -117,7 +117,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           {isToday ? `Today, ${displayDate}` : displayDate}
         </p>
         <h1
-          className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-[-0.025em] leading-[0.93] mb-6"
+          className="font-display italic text-[clamp(2.75rem,8vw,5.75rem)] tracking-tight leading-[0.93] mb-6"
           style={{ color: "var(--ink)" }}
         >
           The One Dollar Digest
