@@ -88,20 +88,18 @@ body {
   width: 100%;
 }
 
-/* Left accent bar — grows vertically on card hover */
-.card-accent {
+/* Bottom sweep line — grows left→right on card hover */
+.card-sweep {
   position: absolute;
-  left: 0;
-  top: 0;
   bottom: 0;
-  width: 2px;
+  left: 0;
+  height: 1px;
+  width: 0;
   background-color: var(--accent);
-  transform: scaleY(0);
-  transform-origin: top center;
-  transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.article-card:hover .card-accent {
-  transform: scaleY(1);
+.article-card:hover .card-sweep {
+  width: 100%;
 }
 
 /* Outline button that fills with accent on hover */

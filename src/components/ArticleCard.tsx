@@ -1,8 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Article } from "@/lib/schema";
-
-type Size = "featured" | "mid" | "small";
 
 const BIAS_LABELS: Record<string, string> = {
   "far-left": "Far Left",
@@ -29,19 +26,12 @@ const SUB_COLOR: Record<string, string> = {
   Security: "var(--color-sub-security)",
 };
 
-const TITLE_SIZE: Record<Size, string> = {
-  featured: "text-[clamp(1.625rem,3.5vw,2.5rem)] leading-[1.1]",
-  mid: "text-[clamp(1.1rem,2vw,1.375rem)] leading-[1.18]",
-  small: "text-[1rem] leading-[1.22]",
-};
-
 interface ArticleCardProps {
   article: Article;
-  size?: Size;
   index?: number;
 }
 
-export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardProps) {
+export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
   const isPolitics = article.category === "politics";
 
   const tagColor = isPolitics
@@ -58,34 +48,23 @@ export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardP
       : null
     : (article.subcategory ?? null);
 
+  const num = String(index + 1).padStart(2, "0");
+
   return (
     <article
-      className="article-card relative pl-4 fade-up"
-      style={{ animationDelay: `${index * 70}ms` }}
+      className="article-card relative flex flex-col border-t pb-8 pt-5 fade-up"
+      style={{ borderColor: "var(--border)", animationDelay: `${index * 60}ms` }}
     >
-      <div className="card-accent" />
+      <div className="card-sweep" />
 
-      {/* Image — featured and mid only */}
-      {article.imageUrl && size !== "small" && (
-        <div
-          className={[
-            "overflow-hidden mb-5",
-            size === "featured" ? "w-full aspect-[16/9]" : "w-full aspect-[3/2]",
-          ].join(" ")}
+      {/* Number + tag row */}
+      <div className="flex items-center justify-between mb-4">
+        <span
+          className="font-ui text-[0.625rem] tracking-[0.04em]"
+          style={{ color: "var(--ink-faint)" }}
         >
-          <Image
-            src={article.imageUrl}
-            alt={article.title}
-            width={size === "featured" ? 960 : 480}
-            height={size === "featured" ? 540 : 320}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.025]"
-            loading="lazy"
-          />
-        </div>
-      )}
-
-      {/* Tag row */}
-      <div className="flex items-center gap-3 mb-2.5">
+          {num}
+        </span>
         {tagLabel && (
           <span
             className="font-ui text-[0.575rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-[2px] text-white"
@@ -94,20 +73,12 @@ export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardP
             {tagLabel}
           </span>
         )}
-        {article.readingTimeMinutes != null && (
-          <span
-            className="font-ui text-[0.575rem] tracking-[0.06em]"
-            style={{ color: "var(--ink-faint)" }}
-          >
-            {article.readingTimeMinutes} min
-          </span>
-        )}
       </div>
 
       {/* Title */}
       <Link
         href={`/article/${article.id}`}
-        className={`article-title block font-display italic mb-2.5 ${TITLE_SIZE[size]}`}
+        className="article-title block font-display italic text-[1.0625rem] leading-[1.22] mb-3 flex-1"
         style={{ color: "var(--ink)" }}
       >
         {article.title}
@@ -115,19 +86,14 @@ export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardP
 
       {/* Summary */}
       <p
-        className={[
-          "font-body mb-4",
-          size === "featured"
-            ? "text-[0.9375rem] leading-[1.78]"
-            : "text-[0.875rem] leading-[1.65] line-clamp-3",
-        ].join(" ")}
+        className="font-body text-[0.8125rem] leading-[1.65] mb-5 line-clamp-3"
         style={{ color: "var(--ink-mid)" }}
       >
         {article.summary}
       </p>
 
       {/* Footer */}
-      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
+      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase mt-auto">
         <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{article.source}</span>
         <span style={{ color: "var(--border-strong)" }}>·</span>
         <span style={{ color: "var(--ink-muted)" }}>
@@ -136,6 +102,14 @@ export function ArticleCard({ article, size = "small", index = 0 }: ArticleCardP
             day: "numeric",
           })}
         </span>
+        {article.readingTimeMinutes != null && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span style={{ color: "var(--ink-muted)" }}>
+              {article.readingTimeMinutes} min
+            </span>
+          </>
+        )}
       </footer>
     </article>
   );
