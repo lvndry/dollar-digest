@@ -46,6 +46,12 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
+      - name: Configure Jazz search provider
+        run: |
+          jazz config set web_search.parallel.api_key "$PARALLEL_API_KEY"
+        env:
+          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+
       - name: Run tech-news workflow
         id: jazz
         run: |
@@ -131,6 +137,12 @@ jobs:
           else
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
+
+      - name: Configure Jazz search provider
+        run: |
+          jazz config set web_search.parallel.api_key "$PARALLEL_API_KEY"
+        env:
+          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
 
       - name: Run political-news workflow
         id: jazz

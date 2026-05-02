@@ -32,6 +32,19 @@ const rows = parsed.map((item, i) => ({
   readingTimeMinutes: item.readingTimeMinutes ? Number(item.readingTimeMinutes) : null,
   importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
   imageUrl: imageUrls[i] ?? null,
+  politicalTopics: Array.isArray(item.topics)
+    ? JSON.stringify(item.topics)
+    : item.politicalTopics != null
+      ? String(item.politicalTopics)
+      : null,
+  politicalRegions: Array.isArray(item.regions)
+    ? JSON.stringify(item.regions)
+    : item.politicalRegions != null
+      ? String(item.politicalRegions)
+      : null,
+  strategicInterpretation: item.strategicInterpretation
+    ? String(item.strategicInterpretation)
+    : null,
   digestDate,
   createdAt: now,
 }));

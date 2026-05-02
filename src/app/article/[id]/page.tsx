@@ -5,6 +5,21 @@ import Link from "next/link";
 import type { Article } from "@/lib/schema";
 import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
+import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { auth } from "@/auth";
+import { canAccessArchive, trialDaysRemaining } from "@/lib/access";
+
+function parsePoliticalTagColumn(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsedTags = JSON.parse(raw) as unknown;
+    return Array.isArray(parsedTags)
+      ? parsedTags.filter((tag): tag is string => typeof tag === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
@@ -101,6 +116,39 @@ export default async function ArticlePage({
 
   if (!article) notFound();
 
+  const today = new Date().toISOString().split("T")[0]!;
+  const isToday = article.digestDate === today;
+
+  if (!isToday) {
+    const session = await auth();
+    if (!canAccessArchive(session)) {
+      return (
+        <div
+          style={{
+            minHeight: "100vh",
+            backgroundColor: "var(--bg)",
+            color: "var(--ink)",
+          }}
+        >
+          <SiteNav />
+          <div className="max-w-[680px] mx-auto px-6 pt-14">
+            <Link
+              href="/"
+              className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-colors duration-150 inline-block mb-14"
+              style={{ color: "var(--ink-muted)" }}
+            >
+              ← Today&apos;s Digest
+            </Link>
+          </div>
+          <ArchivePaywall
+            isSignedIn={!!session?.user}
+            daysRemaining={trialDaysRemaining(session)}
+          />
+        </div>
+      );
+    }
+  }
+
   const tagColor =
     article.category === "politics"
       ? article.bias
@@ -116,6 +164,15 @@ export default async function ArticlePage({
         ? BIAS_LABELS[article.bias]
         : null
       : (article.subcategory ?? null);
+
+  const politicsTopics =
+    article.category === "politics"
+      ? parsePoliticalTagColumn(article.politicalTopics)
+      : [];
+  const politicsRegions =
+    article.category === "politics"
+      ? parsePoliticalTagColumn(article.politicalRegions)
+      : [];
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://dollardigest.com";
 
@@ -187,6 +244,33 @@ export default async function ArticlePage({
           {article.title}
         </h1>
 
+        {(politicsTopics.length > 0 || politicsRegions.length > 0) && (
+          <p
+            className="font-ui text-[0.65rem] leading-relaxed tracking-wider mb-7 -mt-4"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            {politicsTopics.length > 0 && (
+              <>
+                <span className="text-(--ink-faint) uppercase tracking-widest">
+                  Topics
+                </span>{" "}
+                {politicsTopics.join(" · ")}
+              </>
+            )}
+            {politicsTopics.length > 0 && politicsRegions.length > 0 && (
+              <span style={{ color: "var(--border-strong)" }}> · </span>
+            )}
+            {politicsRegions.length > 0 && (
+              <>
+                <span className="text-(--ink-faint) uppercase tracking-widest">
+                  Regions
+                </span>{" "}
+                {politicsRegions.join(" · ")}
+              </>
+            )}
+          </p>
+        )}
+
         <div
           className="flex items-center gap-2 font-ui text-[0.6rem] tracking-[0.08em] uppercase mb-10"
           style={{ color: "var(--ink-muted)" }}
@@ -225,6 +309,26 @@ export default async function ArticlePage({
         >
           {article.summary}
         </p>
+
+        {article.category === "politics" && article.strategicInterpretation && (
+          <section
+            className="mt-10 border-l pl-5"
+            style={{ borderColor: "var(--border-strong)" }}
+          >
+            <h2
+              className="font-ui text-[0.65rem] tracking-widest uppercase mb-3"
+              style={{ color: "var(--ink-faint)" }}
+            >
+              Strategic interpretation
+            </h2>
+            <p
+              className="font-body text-[0.98rem] leading-[1.8]"
+              style={{ color: "var(--ink-mid)" }}
+            >
+              {article.strategicInterpretation}
+            </p>
+          </section>
+        )}
 
         {article.sourceUrl && (
           <div className="mt-14 pt-10 border-t" style={{ borderColor: "var(--border)" }}>

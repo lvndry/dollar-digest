@@ -1,4 +1,9 @@
 {
+  "llmProvider": "openrouter",
+  "llmModel": "openai/gpt-oss-120b:free",
+  "web_search": {
+    "provider": "parallel"
+  },
   "storage": {
     "type": "file",
     "path": ".github"

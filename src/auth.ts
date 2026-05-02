@@ -3,6 +3,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Resend from "next-auth/providers/resend";
 import { db } from "@/lib/db";
 import { users, accounts, sessions, verificationTokens } from "@/lib/schema";
+import type { User } from "@/lib/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db, {
@@ -20,5 +21,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
     verifyRequest: "/login/verify",
+  },
+  callbacks: {
+    session({ session, user }) {
+      const u = user as User;
+      session.user.subscribed = u.subscribed ?? false;
+      session.user.createdAt = u.createdAt;
+      return session;
+    },
   },
 });
