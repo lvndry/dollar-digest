@@ -1,6 +1,14 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 
-const sqlite = new Database(process.env.DATABASE_URL ?? "./digest.db");
-export const db = drizzle(sqlite, { schema });
+const client = createClient(
+  process.env.TURSO_DATABASE_URL
+    ? {
+        url: process.env.TURSO_DATABASE_URL,
+        authToken: process.env.TURSO_AUTH_TOKEN,
+      }
+    : { url: "file:./digest.db" },
+);
+
+export const db = drizzle(client, { schema });

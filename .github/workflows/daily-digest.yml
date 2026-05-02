@@ -1,0 +1,60 @@
+name: Daily Digest
+
+on:
+  schedule:
+    # 07:00 UTC every day
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      category:
+        description: "Which workflow to run"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - both
+          - tech
+          - politics
+
+jobs:
+  tech-news:
+    name: Tech News
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'tech' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Research and ingest tech news
+        run: bun run scripts/research-tech.ts
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+
+  political-news:
+    name: Political News
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'politics' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Research and ingest political news
+        run: bun run scripts/research-politics.ts
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
