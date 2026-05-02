@@ -14,6 +14,7 @@ export const articles = sqliteTable("articles", {
   publishedAt: text("published_at").notNull(),
   readingTimeMinutes: integer("reading_time_minutes"),
   importanceScore: real("importance_score"),
+  imageUrl: text("image_url"),
   digestDate: text("digest_date").notNull(),
   createdAt: text("created_at").notNull(),
 });

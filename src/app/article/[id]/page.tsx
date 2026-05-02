@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Article } from "@/lib/schema";
@@ -106,6 +107,19 @@ export default async function ArticlePage({
         </Link>
 
         <div className="h-0.5 bg-ink mb-8" />
+
+        {article.imageUrl && (
+          <div className="w-full aspect-[16/9] overflow-hidden mb-8">
+            <Image
+              src={article.imageUrl}
+              alt={article.title}
+              width={1200}
+              height={675}
+              className="w-full h-full object-cover"
+              priority
+            />
+          </div>
+        )}
 
         {/* Badge */}
         <div className="flex items-center gap-3 mb-6">

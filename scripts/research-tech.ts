@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 import { chat, extractJson } from "./lib/openrouter";
+import { fetchOgImages } from "./lib/og-image";
 import { fetchFeed, filterRecent } from "./lib/rss";
 
 const MODEL = "deepseek/deepseek-v4-flash";
@@ -85,9 +86,17 @@ Importance scoring:
   ]);
 
   const parsed = extractJson(raw) as Record<string, unknown>[];
-  const now = new Date().toISOString();
 
-  const rows = parsed.map((item) => ({
+  console.log(`[tech-news] Fetching OG images for ${parsed.length} articles…`);
+  const imageUrls = await fetchOgImages(
+    parsed.map((item) => (item.sourceUrl ? String(item.sourceUrl) : null)),
+  );
+  console.log(
+    `[tech-news] Got ${imageUrls.filter(Boolean).length}/${parsed.length} images`,
+  );
+
+  const now = new Date().toISOString();
+  const rows = parsed.map((item, i) => ({
     title: String(item.title ?? ""),
     summary: String(item.summary ?? ""),
     source: String(item.source ?? ""),
@@ -98,6 +107,7 @@ Importance scoring:
     publishedAt: item.publishedAt ? String(item.publishedAt) : digestDate,
     readingTimeMinutes: item.readingTimeMinutes ? Number(item.readingTimeMinutes) : null,
     importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
+    imageUrl: imageUrls[i] ?? null,
     digestDate,
     createdAt: now,
   }));

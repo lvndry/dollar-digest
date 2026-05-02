@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Article } from "@/lib/schema";
 
@@ -65,6 +66,25 @@ export function ArticleCard({ article, size = "small" }: ArticleCardProps) {
 
   return (
     <article className={containerClass}>
+      {/* Image — full-width for featured, thumbnail for mid */}
+      {article.imageUrl && size !== "small" && (
+        <div
+          className={[
+            "overflow-hidden mb-4",
+            size === "featured" ? "w-full aspect-[16/9]" : "w-full aspect-[3/2]",
+          ].join(" ")}
+        >
+          <Image
+            src={article.imageUrl}
+            alt={article.title}
+            width={size === "featured" ? 900 : 480}
+            height={size === "featured" ? 506 : 320}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+            loading="lazy"
+          />
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-3">
         <div>
           {article.category === "tech" && article.subcategory && (
