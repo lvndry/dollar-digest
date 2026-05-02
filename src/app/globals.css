@@ -1,62 +1,146 @@
 @import "tailwindcss";
 
+@variant dark (&:is(.dark *));
+
 @theme {
-  /* Palette */
-  --color-paper: #f7f4ee;
-  --color-ink: #141210;
-  --color-ink-mid: #4a4640;
-  --color-ink-muted: #7a746e;
-  --color-ink-faint: #b0a99f;
-  --color-rule: #d8d2c8;
-  --color-rule-strong: #a09890;
-  --color-gold: #c4882a;
+  --font-display: var(--font-instrument), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-ui: var(--font-dm-mono), "Courier New", monospace;
 
-  /* Bias */
-  --color-bias-far-left: #1a2f7a;
-  --color-bias-left: #2558c8;
-  --color-bias-center: #2d7a52;
-  --color-bias-right: #c83030;
-  --color-bias-far-right: #7a1a1a;
+  --color-bias-far-left: #1a4fa0;
+  --color-bias-left: #2e76d6;
+  --color-bias-center: #2d8052;
+  --color-bias-right: #cc3030;
+  --color-bias-far-right: #8c1a1a;
 
-  /* Tech subcategories */
   --color-sub-ai: #6d28d9;
   --color-sub-vc: #0f7a50;
   --color-sub-research: #1565a8;
   --color-sub-startup: #c4621a;
   --color-sub-product: #0a7a7a;
   --color-sub-security: #a81515;
+}
 
-  /* Fonts */
-  --font-display: var(--font-fraunces), "Times New Roman", serif;
-  --font-body: var(--font-lora), Georgia, serif;
-  --font-ui: var(--font-space-mono), "Courier New", monospace;
+:root {
+  --bg: #f8f5f0;
+  --surface: #ffffff;
+  --ink: #1a1816;
+  --ink-mid: #574e47;
+  --ink-muted: #9c948a;
+  --ink-faint: #c4bcb2;
+  --accent: #3d6b5c;
+  --border: #e4ded6;
+  --border-strong: #c4beb6;
+}
+
+.dark {
+  --bg: #131210;
+  --surface: #1e1d1a;
+  --ink: #eae4da;
+  --ink-mid: #a09890;
+  --ink-muted: #6a6460;
+  --ink-faint: #2e2c28;
+  --accent: #68a890;
+  --border: #2c2a26;
+  --border-strong: #3c3834;
 }
 
 html {
+  background-color: var(--bg);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/*
-  Animated gold underline sweep on card title links.
-  Too complex to express cleanly in Tailwind utilities — kept here as a named component.
-*/
-.title-link {
-  position: relative;
-  text-decoration: none;
-  color: inherit;
+body {
+  background-color: var(--bg);
+  color: var(--ink);
 }
-.title-link::after {
+
+.theme-transitioning,
+.theme-transitioning * {
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease !important;
+}
+
+/* Article title hover — color shift + underline sweep */
+.article-title {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.article-title::after {
   content: "";
   position: absolute;
-  bottom: -2px;
+  bottom: -1px;
   left: 0;
   width: 0;
   height: 1px;
-  background-color: var(--color-gold);
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--accent);
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.title-link:hover::after {
+.article-title:hover {
+  color: var(--accent);
+}
+.article-title:hover::after {
   width: 100%;
+}
+
+/* Left accent bar — grows vertically on card hover */
+.card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.article-card:hover .card-accent {
+  transform: scaleY(1);
+}
+
+/* Outline button that fills with accent on hover */
+.btn-accent {
+  color: var(--accent);
+  border-color: var(--accent);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.btn-accent:hover {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+/* Staggered page-load entry animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.45s ease-out both;
+}
+
+/* Reading progress bar */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background-color: var(--accent);
+  transition: width 0.08s linear;
+  z-index: 60;
+  pointer-events: none;
 }

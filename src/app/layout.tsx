@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { Fraunces, Lora, Space_Mono } from "next/font/google";
+import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  axes: ["opsz", "SOFT", "WONK"],
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  variable: "--font-lora",
+  variable: "--font-instrument",
+  weight: ["400"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const spaceMono = Space_Mono({
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-space-mono",
-  weight: ["400", "700"],
+  variable: "--font-source-serif",
+  weight: ["300", "400", "600"],
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  variable: "--font-dm-mono",
+  weight: ["300", "400", "500"],
   display: "swap",
 });
 
@@ -48,10 +50,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${fraunces.variable} ${lora.variable} ${spaceMono.variable}`}>
-        {children}
-      </body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${instrumentSerif.variable} ${sourceSerif.variable} ${dmMono.variable}`}
+    >
+      <head>
+        {/* Runs before React hydration to avoid theme flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body className="font-body">{children}</body>
     </html>
   );
 }
