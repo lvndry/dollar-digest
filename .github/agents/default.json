@@ -2,11 +2,11 @@
   "id": "default",
   "name": "default",
   "description": "One Dollar Digest research agent",
-  "model": "openrouter/openai/gpt-oss-120b:free",
+  "model": "openrouter/owl-alpha",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "openai/gpt-oss-120b:free",
+    "llmModel": "openrouter/owl-alpha",
     "tools": [
       "web_search",
       "http_request",
