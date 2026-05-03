@@ -40,7 +40,7 @@ Store the output as `DIGEST_DATE`. Use it for every subsequent step:
 
 Before searching, generate a query plan for `DIGEST_DATE`.
 
-Create **14–28 targeted search queries**. Coverage has two axes **what the story is about** and **which region(s) it primarily concerns**. Nothing is “domestic US” by default; the **US** region is one peer among several.
+Create **15–30 targeted search queries**. Coverage has two axes **what the story is about** and **which region(s) it primarily concerns**. Nothing is “domestic US” by default; the US region is one peer among several.
 
 Each query must name a region and either `DIGEST_DATE`, “today”, or a concrete event. Include **at least two queries per region** across the digest plan.
 
@@ -48,9 +48,9 @@ Each query must name a region and either `DIGEST_DATE`, “today”, or a concre
 
 #### Step 2a — Delegate query bundles (one subagent per region)
 
-Spawn **7 subagents** when the platform allows, **one primary region per subagent**: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`. Each subagent owns only its region’s query bundle. **Always spawn all subagents in a single `spawn_subagent` call batch — never one at a time. Parallel execution is mandatory; sequential spawning defeats the purpose and wastes time.**
+Spawn subagents in parallel, **one primary region per subagent**: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`. Each subagent owns only its region’s query bundle.
 
-Each subagent must execute its bundle using `web_search`, open promising results with the HTTP fetch tool when available, and return only source-backed candidate stories.
+Each subagent must execute its bundle using `web_search`, open promising results with the web fetch tool, and return only source-backed candidate stories.
 
 Each subagent must return an array of zero or more candidates in this structure:
 
@@ -259,12 +259,11 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 
 - Run Phase 0 first — never assume the date
 - Generate fresh queries for each daily run
-- Use `web_search` for discovery and research — you have access, use it
-- Use `spawn_subagent` to execute query bundles when subagents have web-search/fetch access; otherwise execute those bundles in the main agent
+- Use `web_search` for discovery and research
 - Use the HTTP fetch tool to validate final source links and resolve canonical URLs
 - Prefer primary sources (official statements, press conferences, legislative text) over punditry
 - When in doubt about a fact, verify it across at least two independent sources
-- Be curious — if a story seems significant but you don't fully understand it, research until you do
+- Be curious - if a story seems significant but you don't fully understand it, research until you do
 
 **Never:**
 

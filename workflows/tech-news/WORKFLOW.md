@@ -75,7 +75,7 @@ Each query must include either `DIGEST_DATE`, a narrow time phrase such as "toda
 
 #### Step 2a — Delegate query bundles
 
-Spawn **3–5 subagents** and assign each a non-overlapping query bundle by subcategory. Each subagent must execute its assigned queries using `web_search`, open promising results with the HTTP fetch tool when available, and return only source-backed candidate stories. **Always spawn all subagents in a single batch — never one at a time. Parallel execution is mandatory.**
+Spawn subagents in parallel and assign each a non-overlapping query bundle by subcategory. Each subagent must execute its assigned queries using `web_search`, open promising results with the web fetch tool, and return only source-backed candidate stories.
 
 Each subagent must return an array of zero or more candidates in this structure:
 
@@ -237,13 +237,11 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 
 - Run Phase 0 first, never assume the date
 - Generate fresh queries for each daily run
-- Use `web_search` for discovery and research — you have access, use it
-- Use `spawn_subagent` to execute query bundles when subagents have web-search/fetch access; otherwise execute those bundles in the main agent
-- Use the HTTP fetch tool to validate final source links and resolve canonical URLs
+- Use the web fetch tool to validate final source links and resolve canonical URLs
 - Lead every summary with a concrete number or verifiable fact
 - Link to the primary source (paper, blog, disclosure) whenever possible
 - When in doubt about a technical detail, verify it across at least two independent sources
-- Be curious if a story seems significant but you don't fully understand the tech, research until you do
+- Be curious - if a story seems significant but you don't fully understand the tech, research until you do
 - Fail fast if you can't execute a query or in doubt, adapt the plan.
 
 **Never:**
