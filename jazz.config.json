@@ -7,5 +7,6 @@
   "storage": {
     "type": "file",
     "path": ".github"
-  }
+  },
+  "maxRetries": 8
 }
