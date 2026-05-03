@@ -117,7 +117,7 @@ body {
 }
 
 /* ── Buttons ──────────────────────────────────── */
-button {
+button:not(:disabled) {
   cursor: pointer;
 }
 
