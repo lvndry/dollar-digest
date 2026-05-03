@@ -124,7 +124,7 @@ export function DateCalendar({
         <div
           className="mt-4 mx-auto"
           style={{
-            maxWidth: "280px",
+            maxWidth: "308px",
             border: "1px solid var(--border)",
             borderRadius: "4px",
             padding: "16px",
@@ -202,10 +202,10 @@ export function DateCalendar({
                         : undefined
                   }
                   style={{
-                    height: "28px",
+                    height: "36px",
                     width: "100%",
                     borderRadius: "3px",
-                    fontSize: "0.5625rem",
+                    fontSize: "0.625rem",
                     fontFamily: "var(--font-ui)",
                     letterSpacing: "0.02em",
                     cursor: hasArticles && !isFuture ? "pointer" : "default",
