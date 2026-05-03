@@ -102,11 +102,13 @@ Each subagent must return an array of zero or more candidates in this structure:
 
 #### Step 2b — Deepen finalists
 
-From all subagent returns, collect all candidate stories — do not cap the list. When several candidates describe the same story or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
+From all subagent returns, collect all candidate stories without capping the list. When several candidates describe the same story or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
 
 - What is the primary source and exact announcement?
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
 - Is there independent confirmation from a reputable second source?
+
+When the merged candidate list is large, deepen in parallel — spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 Run additional searches or fetches as needed. If no source-backed answer is available after two attempts, skip the candidate. Never fabricate.
 
