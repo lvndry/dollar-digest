@@ -71,8 +71,8 @@ jobs:
           bun run db:push
           OUTPUT_FILE="output/tech-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
-            echo "No output file found, skipping insert"
-            exit 0
+            echo "::error::No output file found at $OUTPUT_FILE — workflow produced no articles"
+            exit 1
           fi
           bun ./scripts/insert-articles.ts "$OUTPUT_FILE"
         env:
@@ -164,8 +164,8 @@ jobs:
           bun run db:push
           OUTPUT_FILE="output/political-news-${DATE}.json"
           if [ ! -f "$OUTPUT_FILE" ]; then
-            echo "No output file found, skipping insert"
-            exit 0
+            echo "::error::No output file found at $OUTPUT_FILE — workflow produced no articles"
+            exit 1
           fi
           bun ./scripts/insert-articles.ts "$OUTPUT_FILE"
         env:

@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Today" },
   { href: "/tech", label: "Technology" },
   { href: "/politics", label: "Politics" },
-  { href: "/archive", label: "Archive" },
+  { href: "/bookmarks", label: "Bookmarks" },
 ];
 
 interface SiteNavProps {

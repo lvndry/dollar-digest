@@ -1,6 +1,6 @@
 {
   "llmProvider": "openrouter",
-  "llmModel": "openai/gpt-oss-120b:free",
+  "llmModel": "openrouter/owl-alpha",
   "web_search": {
     "provider": "parallel"
   },
