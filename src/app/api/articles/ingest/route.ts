@@ -21,6 +21,19 @@ function serializeMetadataField(value: unknown): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const ingestSecret = process.env.INGEST_SECRET;
+  if (!ingestSecret) {
+    return NextResponse.json(
+      { error: "Ingest endpoint not configured" },
+      { status: 503 },
+    );
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${ingestSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const rows = (await request.json()) as Record<string, unknown>[];
 
   if (!Array.isArray(rows) || rows.length === 0) {
