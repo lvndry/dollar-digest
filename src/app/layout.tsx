@@ -103,6 +103,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}`,
+          }}
+        />
+        <script
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id="89afba01-12f7-410e-a589-458e5faaf18e"
