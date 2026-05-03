@@ -110,9 +110,9 @@ body {
 /* ── Card image zoom on hover ─────────────────── */
 .card-image {
   transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
 }
 .article-card:hover .card-image {
+  will-change: transform;
   transform: scale(1.04);
 }
 
@@ -150,12 +150,21 @@ body {
   }
 }
 
-.fade-up {
-  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Elements are visible by default for reduced-motion users */
+.fade-up,
+.fade-in {
+  opacity: 1;
 }
 
-.fade-in {
-  animation: fadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Only run animations when user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .fade-up {
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 }
 
 /* ── Reading progress ─────────────────────────── */
