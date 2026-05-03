@@ -19,7 +19,8 @@
       "mkdir",
       "execute_command",
       "spawn_subagent",
-      "todo"
+      "todo",
+      "web_fetch"
     ]
   }
 }
