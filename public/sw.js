@@ -43,8 +43,8 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // Skip Next.js internals
-  if (url.pathname.startsWith("/_next/")) {
+  // Skip Next.js internals (but not /_next/image — those are dynamic and vary by width/quality)
+  if (url.pathname.startsWith("/_next/") && !url.pathname.startsWith("/_next/image")) {
     event.respondWith(
       caches.open(STATIC_CACHE_NAME).then((cache) =>
         cache.match(request).then(
@@ -66,7 +66,7 @@ self.addEventListener("fetch", (event) => {
       .then((response) => {
         if (response.ok) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)));
         }
         return response;
       })

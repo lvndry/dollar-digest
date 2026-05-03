@@ -63,4 +63,5 @@ export async function toggleBookmark(articleId: number) {
   }
 
   revalidatePath(`/article/${articleId}`);
+  revalidatePath("/bookmarks");
 }

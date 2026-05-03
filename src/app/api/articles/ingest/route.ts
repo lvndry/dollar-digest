@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import type { NewArticle } from "@/lib/schema";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { db } from "@/lib/db";
@@ -56,6 +57,8 @@ export async function POST(request: NextRequest) {
   });
 
   await db.insert(articles).values(prepared).onConflictDoNothing();
+
+  revalidateTag("articles");
 
   return NextResponse.json({ inserted: prepared.length });
 }
