@@ -1,5 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   const date = request.nextUrl.searchParams.get("date");
@@ -8,10 +11,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { eq } = await import("drizzle-orm");
-
     const rows = await db
       .select({ id: articles.id })
       .from(articles)
