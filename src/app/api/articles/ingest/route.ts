@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   await db.insert(articles).values(prepared).onConflictDoNothing();
 
-  revalidateTag("articles");
+  revalidateTag("articles", "default");
 
   return NextResponse.json({ inserted: prepared.length });
 }
