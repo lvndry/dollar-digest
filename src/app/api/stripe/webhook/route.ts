@@ -84,11 +84,9 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: `Webhook handler failed: ${message}` },
-      { status: 500 },
-    );
+    // eslint-disable-next-line no-console
+    console.error("Stripe webhook failed:", err);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
