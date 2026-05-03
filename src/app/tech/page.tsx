@@ -46,6 +46,7 @@ export default async function TechPage({ searchParams }: TechPageProps) {
 
   return (
     <div
+      className="digest-feed"
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
@@ -72,7 +73,7 @@ export default async function TechPage({ searchParams }: TechPageProps) {
         />
       </div>
 
-      <main className="max-w-5xl mx-auto px-6 pb-24">
+      <main className="mx-auto min-w-0 max-w-5xl px-6 pb-24">
         {!hasAccess ? (
           <ArchivePaywall isSignedIn={!!session?.user} />
         ) : categoryCount === 0 ? (

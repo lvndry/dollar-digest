@@ -67,7 +67,10 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
   });
 
   return (
-    <article className="article-card mb-10 fade-up" style={{ animationDelay: "0ms" }}>
+    <article
+      className="article-card mb-10 min-w-0 w-full max-sm:snap-start max-sm:scroll-mt-28 fade-up"
+      style={{ animationDelay: "0ms" }}
+    >
       {/* Panoramic hero image with overlaid title */}
       <Link href={`/article/${article.id}`} className="block relative overflow-hidden">
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
@@ -100,7 +103,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
           />
 
           {/* Overlaid content */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+          <div className="absolute bottom-0 left-0 right-0 min-w-0 p-6 md:p-8">
             {(tagLabel || deskRegion) && (
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
                 {tagLabel && (
@@ -132,7 +135,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
               </div>
             )}
             <h2
-              className="article-title-overlay font-display italic leading-[1.1]"
+              className="article-title-overlay break-words font-display italic leading-[1.1]"
               style={{
                 color: "#f0ebe2",
                 fontSize: "clamp(1.375rem, 3vw, 2.125rem)",
@@ -146,15 +149,20 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
       </Link>
 
       {/* Summary + metadata row */}
-      <div className="pt-4 pb-1 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+      <div className="flex min-w-0 flex-col gap-3 pt-4 pb-1 sm:flex-row sm:items-start sm:justify-between">
         <p
-          className="font-body text-[0.875rem] leading-[1.7] line-clamp-2 flex-1 max-w-2xl"
+          className="min-w-0 max-w-2xl flex-1 font-body text-[0.875rem] leading-[1.7] line-clamp-2"
           style={{ color: "var(--ink-mid)" }}
         >
           {article.summary}
         </p>
-        <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase shrink-0 pt-1">
-          <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{sourceLabel}</span>
+        <footer className="flex min-w-0 shrink-0 flex-wrap items-center gap-x-2 gap-y-1 pt-1 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
+          <span
+            className="min-w-0 break-words"
+            style={{ color: "var(--ink-mid)", fontWeight: 500 }}
+          >
+            {sourceLabel}
+          </span>
           <span style={{ color: "var(--ink-faint)" }}>·</span>
           <span style={{ color: "var(--ink-muted)" }}>{publishedDate}</span>
           {article.readingTimeMinutes != null && (

@@ -47,6 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <div
+      className="digest-feed"
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
       <script
@@ -118,7 +119,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       </div>
 
       {/* Article grids */}
-      <main className="max-w-5xl mx-auto px-6 pb-24">
+      <main className="mx-auto min-w-0 max-w-5xl px-6 pb-24">
         {!hasAccess ? (
           <ArchivePaywall isSignedIn={!!session?.user} />
         ) : !hasAnySection ? (
