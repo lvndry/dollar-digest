@@ -77,7 +77,7 @@ export default async function PoliticsPage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
+      <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
@@ -88,7 +88,7 @@ export default async function PoliticsPage() {
           className="font-display italic leading-[0.86] mb-12 fade-up"
           style={{
             color: "var(--ink)",
-            fontSize: "clamp(4rem, 11vw, 8.5rem)",
+            fontSize: "clamp(3rem, 9vw, 6rem)",
             letterSpacing: "-0.035em",
             animationDelay: "50ms",
           }}
