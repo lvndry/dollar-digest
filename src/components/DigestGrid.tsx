@@ -6,17 +6,19 @@ interface DigestGridProps {
   articles: Article[];
   category: "tech" | "politics";
   label: string;
+  articleLimit?: number;
 }
 
-export function DigestGrid({ articles, category, label }: DigestGridProps) {
+export function DigestGrid({ articles, category, label, articleLimit }: DigestGridProps) {
   const sorted = [...articles]
     .filter((a) => a.category === category)
-    .sort((a, b) => (b.importanceScore ?? 0) - (a.importanceScore ?? 0))
-    .slice(0, 7);
+    .sort((a, b) => (b.importanceScore ?? 0) - (a.importanceScore ?? 0));
+  const capped =
+    articleLimit != null && articleLimit >= 0 ? sorted.slice(0, articleLimit) : sorted;
 
-  if (sorted.length === 0) return null;
+  if (capped.length === 0) return null;
 
-  const [featured, ...rest] = sorted;
+  const [featured, ...rest] = capped;
 
   return (
     <section className="mb-28">

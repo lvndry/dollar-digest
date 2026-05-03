@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import { GlobalArchiveCalendar } from "@/components/GlobalArchiveCalendar";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
@@ -116,6 +117,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="font-body">
         <SessionProvider>
           <SiteNav session={session} />
+          <div className="max-w-5xl mx-auto px-6 text-center pb-2">
+            <GlobalArchiveCalendar />
+          </div>
           {children}
         </SessionProvider>
       </body>

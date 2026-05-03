@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { DateCalendar } from "@/components/DateCalendar";
 import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
-import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
+import { canAccessDigestDate } from "@/lib/access";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
@@ -40,28 +38,9 @@ async function getArticles(date: string): Promise<Article[]> {
   }
 }
 
-async function getAvailableDates(): Promise<string[]> {
-  try {
-    const rows = await db
-      .selectDistinct({ digestDate: articles.digestDate })
-      .from(articles)
-      .orderBy(desc(articles.digestDate));
-
-    return rows.map((r) => r.digestDate);
-  } catch {
-    return [];
-  }
-}
-
 const getCachedArticles = unstable_cache(
   (date: string) => getArticles(date),
   ["articles"],
-  { revalidate: 3600, tags: ["articles"] },
-);
-
-const getCachedAvailableDates = unstable_cache(
-  () => getAvailableDates(),
-  ["available-dates"],
   { revalidate: 3600, tags: ["articles"] },
 );
 
@@ -78,10 +57,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const session = await auth();
   const hasAccess = canAccessDigestDate(selectedDate, session);
 
-  const [articles, availableDates] = await Promise.all([
-    hasAccess ? getCachedArticles(selectedDate) : Promise.resolve([]),
-    getCachedAvailableDates(),
-  ]);
+  const articles = hasAccess ? await getCachedArticles(selectedDate) : [];
 
   const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long",
@@ -171,26 +147,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         )}
 
-        {/* Archive calendar */}
-        <Suspense
-          fallback={
-            <div className="mt-6">
-              <div
-                className="flex items-center gap-2 mx-auto font-ui text-[0.6rem] tracking-[0.12em] uppercase w-fit"
-                style={{ color: "var(--ink-muted)" }}
-              >
-                ▾ browse archive
-              </div>
-            </div>
-          }
-        >
-          <DateCalendar
-            availableDates={availableDates}
-            selectedDate={selectedDate}
-            canAccessArchive={canAccessArchive(session)}
-          />
-        </Suspense>
-
         <div
           className="mt-12 h-px fade-in"
           style={{ backgroundColor: "var(--border)", animationDelay: "260ms" }}
@@ -210,8 +166,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </p>
         ) : (
           <>
-            <DigestGrid articles={articles} category="tech" label="Technology" />
-            <DigestGrid articles={articles} category="politics" label="Politics" />
+            <DigestGrid
+              articles={articles}
+              category="tech"
+              label="Technology"
+              articleLimit={7}
+            />
+            <DigestGrid
+              articles={articles}
+              category="politics"
+              label="Politics"
+              articleLimit={7}
+            />
           </>
         )}
       </main>
