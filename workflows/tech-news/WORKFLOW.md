@@ -75,7 +75,7 @@ Each query must include either `DIGEST_DATE`, a narrow time phrase such as "toda
 
 #### Step 2a — Delegate query bundles
 
-Spawn **3–5 subagents** and assign each a non-overlapping query bundle by subcategory. Each subagent must execute its assigned queries using `web_search`, open promising results with the HTTP fetch tool when available, and return only source-backed candidate stories.
+Spawn **3–5 subagents** and assign each a non-overlapping query bundle by subcategory. Each subagent must execute its assigned queries using `web_search`, open promising results with the HTTP fetch tool when available, and return only source-backed candidate stories. **Always spawn all subagents in a single batch — never one at a time. Parallel execution is mandatory.**
 
 Each subagent must return an array of zero or more candidates in this structure:
 

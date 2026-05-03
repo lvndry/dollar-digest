@@ -48,7 +48,7 @@ Each query must name a region and either `DIGEST_DATE`, “today”, or a concre
 
 #### Step 2a — Delegate query bundles (one subagent per region)
 
-Spawn **7 subagents** when the platform allows, **one primary region per subagent**: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`. Each subagent owns only its region’s query bundle.
+Spawn **7 subagents** when the platform allows, **one primary region per subagent**: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`. Each subagent owns only its region’s query bundle. **Always spawn all subagents in a single `spawn_subagent` call batch — never one at a time. Parallel execution is mandatory; sequential spawning defeats the purpose and wastes time.**
 
 Each subagent must execute its bundle using `web_search`, open promising results with the HTTP fetch tool when available, and return only source-backed candidate stories.
 
