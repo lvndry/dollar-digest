@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
-import { auth } from "@/auth";
-import { canAccessDigestDate } from "@/lib/access";
-import { db } from "@/lib/db";
-import { articles } from "@/lib/schema";
-import type { Article } from "@/lib/schema";
-import { desc, eq } from "drizzle-orm";
+import { loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
   description:
@@ -24,50 +18,13 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(date: string): Promise<Article[]> {
-  try {
-    const rows = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.digestDate, date))
-      .orderBy(desc(articles.importanceScore));
-
-    return rows;
-  } catch {
-    return [];
-  }
-}
-
-const getCachedArticles = unstable_cache(
-  (date: string) => getArticles(date),
-  ["articles"],
-  { revalidate: 3600, tags: ["articles"] },
-);
-
 interface HomePageProps {
   searchParams: Promise<{ date?: string }>;
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = await searchParams;
-  const today = new Date().toISOString().split("T")[0]!;
-  const selectedDate = params.date ?? today;
-  const isToday = selectedDate === today;
-
-  const session = await auth();
-  const hasAccess = canAccessDigestDate(selectedDate, session);
-
-  const articles = hasAccess ? await getCachedArticles(selectedDate) : [];
-
-  const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const dateQuerySuffix =
-    selectedDate !== today ? `?date=${encodeURIComponent(selectedDate)}` : "";
+  const { session, isToday, hasAccess, articles, displayDate, dateQuerySuffix } =
+    await loadDigestDay(searchParams);
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
   const jsonLd = {

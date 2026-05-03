@@ -11,6 +11,13 @@ type ArchiveMeta = {
 
 const DIGEST_PATHS = new Set(["/", "/tech", "/politics"]);
 
+/** Hide archive strip on auth flows: `/login`, `/login/verify`, and optional top-level `/verify`. */
+function isAuthClutterPath(pathname: string): boolean {
+  if (pathname === "/login" || pathname.startsWith("/login/")) return true;
+  if (pathname === "/verify" || pathname.startsWith("/verify/")) return true;
+  return false;
+}
+
 function CalendarFallback() {
   return (
     <div className="mt-2">
@@ -44,7 +51,7 @@ function GlobalArchiveCalendarInner() {
     };
   }, []);
 
-  if (pathname.startsWith("/login")) return null;
+  if (isAuthClutterPath(pathname)) return null;
 
   if (!meta) return <CalendarFallback />;
 

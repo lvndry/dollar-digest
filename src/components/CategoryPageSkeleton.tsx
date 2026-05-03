@@ -8,7 +8,12 @@ export function CategoryPageSkeleton() {
         />
         <div
           className="mx-auto mb-8 rounded"
-          style={{ height: "72px", width: "300px", maxWidth: "90%", backgroundColor: "var(--surface)" }}
+          style={{
+            height: "72px",
+            width: "300px",
+            maxWidth: "90%",
+            backgroundColor: "var(--surface)",
+          }}
         />
         <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
       </div>
@@ -17,7 +22,11 @@ export function CategoryPageSkeleton() {
           <div className="mb-8">
             <div
               className="rounded"
-              style={{ height: "36px", width: "160px", backgroundColor: "var(--surface)" }}
+              style={{
+                height: "36px",
+                width: "160px",
+                backgroundColor: "var(--surface)",
+              }}
             />
             <div className="mt-4 h-px" style={{ backgroundColor: "var(--border)" }} />
           </div>
@@ -32,9 +41,30 @@ export function CategoryPageSkeleton() {
                   className="w-full rounded"
                   style={{ aspectRatio: "3/2", backgroundColor: "var(--surface)" }}
                 />
-                <div className="rounded" style={{ height: "14px", width: "60%", backgroundColor: "var(--surface)" }} />
-                <div className="rounded" style={{ height: "14px", width: "90%", backgroundColor: "var(--surface)" }} />
-                <div className="rounded" style={{ height: "10px", width: "40%", backgroundColor: "var(--surface)" }} />
+                <div
+                  className="rounded"
+                  style={{
+                    height: "14px",
+                    width: "60%",
+                    backgroundColor: "var(--surface)",
+                  }}
+                />
+                <div
+                  className="rounded"
+                  style={{
+                    height: "14px",
+                    width: "90%",
+                    backgroundColor: "var(--surface)",
+                  }}
+                />
+                <div
+                  className="rounded"
+                  style={{
+                    height: "10px",
+                    width: "40%",
+                    backgroundColor: "var(--surface)",
+                  }}
+                />
               </div>
             ))}
           </div>

@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
-import { auth } from "@/auth";
-import { canAccessDigestDate } from "@/lib/access";
-import { db } from "@/lib/db";
-import { articles } from "@/lib/schema";
-import type { Article } from "@/lib/schema";
-import { desc, eq } from "drizzle-orm";
+import { loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
   title: "Technology",
@@ -41,45 +35,13 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(date: string): Promise<Article[]> {
-  try {
-    const rows = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.digestDate, date))
-      .orderBy(desc(articles.importanceScore));
-    return rows;
-  } catch {
-    return [];
-  }
-}
-
-const getCachedArticles = unstable_cache(
-  (date: string) => getArticles(date),
-  ["articles-tech"],
-  { revalidate: 3600, tags: ["articles"] },
-);
-
 interface TechPageProps {
   searchParams: Promise<{ date?: string }>;
 }
 
 export default async function TechPage({ searchParams }: TechPageProps) {
-  const params = await searchParams;
-  const today = new Date().toISOString().split("T")[0]!;
-  const selectedDate = params.date ?? today;
-  const isToday = selectedDate === today;
-
-  const session = await auth();
-  const hasAccess = canAccessDigestDate(selectedDate, session);
-  const articles = hasAccess ? await getCachedArticles(selectedDate) : [];
-
-  const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const { session, isToday, hasAccess, articles, displayDate } =
+    await loadDigestDay(searchParams);
 
   return (
     <div
