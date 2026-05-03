@@ -116,7 +116,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       {/* Masthead */}
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
-          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
+          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-2 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
         >
           {isToday ? `Today · ${displayDate}` : displayDate}
