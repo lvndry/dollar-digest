@@ -240,7 +240,7 @@ export default async function ArticlePage({
       />
       <ReadingProgress />
 
-      <article className="max-w-[680px] mx-auto px-6 pt-14 pb-24">
+      <article className="mx-auto min-w-0 max-w-[680px] px-6 pt-14 pb-24">
         <div className="flex items-center justify-between mb-14">
           <Link
             href="/"
@@ -277,7 +277,7 @@ export default async function ArticlePage({
         </div>
 
         <h1
-          className="font-display italic text-[clamp(2rem,5vw,3.25rem)] leading-[1.06] tracking-[-0.02em] mb-7"
+          className="break-words font-display italic text-[clamp(2rem,5vw,3.25rem)] leading-[1.06] tracking-[-0.02em] mb-7"
           style={{ color: "var(--ink)" }}
         >
           {article.title}
@@ -387,13 +387,13 @@ export default async function ArticlePage({
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-ui text-[0.6875rem] tracking-[0.08em] uppercase px-5 py-3 border inline-flex justify-between gap-4 transition-colors duration-150"
+                    className="inline-flex min-w-0 max-w-full flex-wrap items-center justify-between gap-x-4 gap-y-1 border px-5 py-3 font-ui text-[0.6875rem] tracking-[0.08em] uppercase transition-colors duration-150"
                     style={{
                       borderColor: "var(--border)",
                       color: "var(--ink-mid)",
                     }}
                   >
-                    <span>{source.name}</span>
+                    <span className="min-w-0 break-words">{source.name}</span>
                     {source.bias && (
                       <span style={{ color: "var(--ink-faint)" }}>
                         {BIAS_LABELS[source.bias] ?? source.bias}

@@ -68,7 +68,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
 
   return (
     <article
-      className="article-card flex flex-col fade-up"
+      className="article-card flex min-w-0 w-full flex-col fade-up"
       style={{ animationDelay: `${index * 55}ms` }}
     >
       {/* Image */}
@@ -140,7 +140,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       {/* Title */}
       <Link
         href={`/article/${article.id}`}
-        className="article-title block font-display italic leading-[1.2] mb-3 flex-1"
+        className="article-title block min-w-0 break-words font-display italic leading-[1.2] mb-3 flex-1"
         style={{
           color: "var(--ink)",
           fontSize: "clamp(1rem, 1.5vw, 1.0625rem)",
@@ -151,8 +151,13 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       </Link>
 
       {/* Footer */}
-      <footer className="flex items-center gap-2 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
-        <span style={{ color: "var(--ink-mid)", fontWeight: 500 }}>{sourceLabel}</span>
+      <footer className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-ui text-[0.575rem] tracking-[0.06em] uppercase">
+        <span
+          className="min-w-0 break-words"
+          style={{ color: "var(--ink-mid)", fontWeight: 500 }}
+        >
+          {sourceLabel}
+        </span>
         <span style={{ color: "var(--ink-faint)" }}>·</span>
         <span style={{ color: "var(--ink-muted)" }}>
           {new Date(article.publishedAt).toLocaleDateString("en-US", {

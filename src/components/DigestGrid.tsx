@@ -60,7 +60,7 @@ export function DigestGrid({
       {featured && <FeaturedArticleCard article={featured} />}
 
       {/* Secondary articles */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7 gap-y-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7 gap-y-10 [&>*]:min-w-0">
         {rest.map((article, idx) => (
           <ArticleCard key={article.id} article={article} index={idx + 1} />
         ))}

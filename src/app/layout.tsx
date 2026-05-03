@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import { canAccessArchive } from "@/lib/access";
+import { getCachedAvailableDates } from "@/lib/available-digest-dates";
 import { GlobalArchiveCalendar } from "@/components/GlobalArchiveCalendar";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
@@ -90,6 +92,8 @@ export function generateMetadata(): Metadata {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  const availableDates = await getCachedAvailableDates();
+  const archiveAccess = canAccessArchive(session);
   return (
     <html
       lang="en"
@@ -118,7 +122,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SessionProvider>
           <SiteNav session={session} />
           <div className="max-w-5xl mx-auto px-6 text-center pb-2">
-            <GlobalArchiveCalendar />
+            <GlobalArchiveCalendar
+              availableDates={availableDates}
+              canAccessArchive={archiveAccess}
+            />
           </div>
           {children}
         </SessionProvider>
