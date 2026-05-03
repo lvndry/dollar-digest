@@ -5,6 +5,9 @@ import { auth } from "@/auth";
 import { canAccessArchive } from "@/lib/access";
 import { SiteNav } from "@/components/SiteNav";
 import { ArticleCard } from "@/components/ArticleCard";
+import { db } from "@/lib/db";
+import { bookmarks, articles } from "@/lib/schema";
+import { eq, desc, getTableColumns } from "drizzle-orm";
 
 export const metadata: Metadata = {
   title: "Bookmarks",
@@ -14,10 +17,6 @@ export default async function BookmarksPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   if (!canAccessArchive(session)) redirect("/");
-
-  const { db } = await import("@/lib/db");
-  const { bookmarks, articles } = await import("@/lib/schema");
-  const { eq, desc, getTableColumns } = await import("drizzle-orm");
 
   const savedArticles = await db
     .select(getTableColumns(articles))

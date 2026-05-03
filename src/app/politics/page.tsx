@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export const metadata: Metadata = {
   title: "Politics",
@@ -39,10 +42,6 @@ export const metadata: Metadata = {
 
 async function getArticles(): Promise<Article[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc, eq } = await import("drizzle-orm");
-
     const today = new Date().toISOString().split("T")[0];
     const rows = await db
       .select()

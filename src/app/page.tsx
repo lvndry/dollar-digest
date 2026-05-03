@@ -7,7 +7,10 @@ import { DateCalendar } from "@/components/DateCalendar";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
 import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export const metadata: Metadata = {
   description:
@@ -24,10 +27,6 @@ export const metadata: Metadata = {
 
 async function getArticles(date: string): Promise<Article[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc, eq } = await import("drizzle-orm");
-
     const rows = await db
       .select()
       .from(articles)
@@ -42,10 +41,6 @@ async function getArticles(date: string): Promise<Article[]> {
 
 async function getAvailableDates(): Promise<string[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc } = await import("drizzle-orm");
-
     const rows = await db
       .selectDistinct({ digestDate: articles.digestDate })
       .from(articles)

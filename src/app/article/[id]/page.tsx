@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { db } from "@/lib/db";
+import { articles, bookmarks } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
 import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
@@ -10,12 +12,10 @@ import { BookmarkButton } from "@/components/BookmarkButton";
 import { auth } from "@/auth";
 import { canAccessDigestDate, canAccessArchive } from "@/lib/access";
 import { parseArticleSources, parseJsonStringArray } from "@/lib/parse-article-metadata";
+import { and, eq } from "drizzle-orm";
 
 async function isArticleBookmarked(articleId: number, userId: string): Promise<boolean> {
   try {
-    const { db } = await import("@/lib/db");
-    const { bookmarks } = await import("@/lib/schema");
-    const { and, eq } = await import("drizzle-orm");
     const rows = await db
       .select()
       .from(bookmarks)
@@ -29,9 +29,6 @@ async function isArticleBookmarked(articleId: number, userId: string): Promise<b
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { eq } = await import("drizzle-orm");
     const rows = await db
       .select()
       .from(articles)
