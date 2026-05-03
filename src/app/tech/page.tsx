@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { db } from "@/lib/db";
-import { articles } from "@/lib/schema";
-import type { Article } from "@/lib/schema";
-import { desc, eq } from "drizzle-orm";
+import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
   title: "Technology",
@@ -38,36 +35,14 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(date: string): Promise<Article[]> {
-  try {
-    const rows = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.digestDate, date))
-      .orderBy(desc(articles.importanceScore));
-    return rows;
-  } catch {
-    return [];
-  }
+interface TechPageProps {
+  searchParams: Promise<{ date?: string }>;
 }
 
-const getCachedArticles = unstable_cache(
-  (date: string) => getArticles(date),
-  ["articles-tech"],
-  { revalidate: 3600, tags: ["articles"] },
-);
-
-export default async function TechPage() {
-  const today = new Date().toISOString().split("T")[0]!;
-  const articles = await getCachedArticles(today);
-
-  const todayDate = new Date();
-  const formattedDate = todayDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+export default async function TechPage({ searchParams }: TechPageProps) {
+  const { session, isToday, hasAccess, articles, displayDate } =
+    await loadDigestDay(searchParams);
+  const categoryCount = countDigestArticlesForCategory(articles, "tech");
 
   return (
     <div
@@ -78,7 +53,7 @@ export default async function TechPage() {
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
         >
-          {formattedDate}
+          {isToday ? `Today · ${displayDate}` : displayDate}
         </p>
         <h1
           className="font-display italic leading-[0.86] mb-12 fade-up"
@@ -98,7 +73,18 @@ export default async function TechPage() {
       </div>
 
       <main className="max-w-5xl mx-auto px-6 pb-24">
-        <DigestGrid articles={articles} category="tech" label="Technology" />
+        {!hasAccess ? (
+          <ArchivePaywall isSignedIn={!!session?.user} />
+        ) : categoryCount === 0 ? (
+          <p
+            className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            No digest available for this date.
+          </p>
+        ) : (
+          <DigestGrid articles={articles} category="tech" label="Technology" />
+        )}
       </main>
 
       <footer
@@ -109,7 +95,7 @@ export default async function TechPage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {todayDate.getFullYear()} The One Dollar Digest
+          © {new Date().getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

@@ -7,6 +7,7 @@ interface DateCalendarProps {
   availableDates: string[];
   selectedDate: string;
   canAccessArchive: boolean;
+  navigateBasePath?: string;
 }
 
 const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -20,6 +21,7 @@ export function DateCalendar({
   availableDates,
   selectedDate,
   canAccessArchive,
+  navigateBasePath = "/",
 }: DateCalendarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,7 +66,8 @@ export function DateCalendar({
       params.set("date", dateStr);
     }
     const query = params.toString();
-    router.push(query ? `/?${query}` : "/");
+    const base = navigateBasePath || "/";
+    router.push(query ? `${base}?${query}` : base);
     setOpen(false);
   }
 
