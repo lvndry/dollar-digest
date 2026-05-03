@@ -81,11 +81,13 @@ Each subagent must return an array of zero or more candidates in this structure:
 
 #### Step 2b — Deepen finalists
 
-From all subagent returns, identify **10–20 candidate stories** (dedupe the same event across subagents). When several candidates describe the same event or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
+From all subagent returns, collect all candidate stories without capping the list. When several candidates describe the same event or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
 
 - What exactly happened, where, and who made the decision or announcement?
 - What is the primary source: official statement, press release, court document, legislative text, Reuters, or AP?
 - How do credible sources from at least two different bias categories frame the event?
+
+When the merged candidate list is large, deepen in parallel — spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 Run additional searches or fetches as needed. If no source-backed answer is available after two attempts, skip the candidate. Never fabricate.
 
@@ -121,7 +123,7 @@ Rules of thumb:
 
 - **Favor stories with concrete, verified outcomes** over speculation or opinion
 - **For any story scoring ≥ 0.8**, verify coverage from at least two sources with different bias labels when available, put those sources in the same `sources` array, and output **one JSON object per event** to avoid duplicates
-- Do not pad — 6 really important stories beat 10 mediocre ones
+- Include every story that scores 0.5 or above — do not drop qualifying stories to hit a count; the search engine already limits discovery, so keep everything relevant that survives the bar
 - A story that only one outlet covers might still be important — don't discard it just because it's not everywhere
 
 ### Phase 5 — Label Source Bias
@@ -234,7 +236,7 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 - [ ] Phase 0 ran — DIGEST_DATE is confirmed
 - [ ] Fresh daily query plan generated with coverage across **all seven regions** and **all five political tags**
 - [ ] Subagents executed assigned **per-region** query bundles (or documented merges if below 7), or the main agent did the same if subagent web access was unavailable
-- [ ] 6–10 unique political events selected
+- [ ] All stories scoring ≥ 0.5 are included — no qualifying stories were dropped to hit a count
 - [ ] Each story has a concrete, verifiable outcome
 - [ ] Each story has non-empty `tags` and `regions` arrays with allowed enum strings only, and a valid `primaryRegion`
 - [ ] Each story has a grounded `strategicInterpretation` that explains incentives, leverage, signaling, likely counter-moves, or second-order effects without overstating certainty

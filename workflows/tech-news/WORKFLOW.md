@@ -102,11 +102,13 @@ Each subagent must return an array of zero or more candidates in this structure:
 
 #### Step 2b — Deepen finalists
 
-From all subagent returns, identify **20 candidate stories**. When several candidates describe the same story or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
+From all subagent returns, collect all candidate stories without capping the list. When several candidates describe the same story or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
 
 - What is the primary source and exact announcement?
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
 - Is there independent confirmation from a reputable second source?
+
+When the merged candidate list is large, deepen in parallel — spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 Run additional searches or fetches as needed. If no source-backed answer is available after two attempts, skip the candidate. Never fabricate.
 
@@ -127,7 +129,7 @@ Never output a `sourceUrl` or `sources[].url` that has failed fetch validation o
 
 ### Phase 4 — Select & Score
 
-From all verified research, select **8-10+ stories** for the final digest. Every selected story must have passed the same research and link-validation bar.
+From all verified research, include **every story that scores 0.5 or above** in the final digest — do not cap the count. If today's news cycle produces 30 qualifying stories, output all 30. Every selected story must have passed the same research and link-validation bar.
 
 Apply the importance score:
 
@@ -144,7 +146,7 @@ Rules of thumb:
 - **Favor stories with concrete numbers** (funding amounts, benchmark scores, user counts, revenue figures) over qualitative hype
 - **Prefer primary sources** — link to the paper PDF, not the Medium recap of the paper
 - **No duplicates** — if two outlets cover the same event, output one JSON object and include the verified coverage in its `sources` array
-- Do not pad — 8 really important stories beat 12 mediocre ones
+- Include every story that passes the 0.5 threshold — do not drop qualifying stories to hit a target number; the search engine already limits discovery, so keep everything relevant that survives the bar
 
 ### Phase 5 — Write & Output
 
@@ -213,6 +215,7 @@ The CI pipeline handles ingestion automatically after the workflow completes.
 - [ ] Phase 0 ran — DIGEST_DATE is confirmed
 - [ ] Fresh daily query plan generated with coverage across all subcategories
 - [ ] Subagents executed assigned query bundles, or the main agent did so with the same structure if subagent web access was unavailable
+- [ ] All stories scoring ≥ 0.5 are included — no qualifying stories were dropped to hit a count
 - [ ] Broad subcategory coverage
 - [ ] Each story has a non-empty `tags` array with allowed tag strings only
 - [ ] Each story has concrete numbers or verifiable outcomes
