@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DigestGrid } from "@/components/DigestGrid";
+import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
@@ -46,10 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   };
 
   return (
-    <div
-      className="digest-feed"
-      style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
-    >
+    <DigestFeedWrapper>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -186,6 +184,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </Link>
         </span>
       </footer>
-    </div>
+    </DigestFeedWrapper>
   );
 }

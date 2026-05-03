@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
+import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 
@@ -45,10 +46,7 @@ export default async function TechPage({ searchParams }: TechPageProps) {
   const categoryCount = countDigestArticlesForCategory(articles, "tech");
 
   return (
-    <div
-      className="digest-feed"
-      style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
-    >
+    <DigestFeedWrapper>
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
@@ -111,6 +109,6 @@ export default async function TechPage({ searchParams }: TechPageProps) {
           Powered by AI
         </span>
       </footer>
-    </div>
+    </DigestFeedWrapper>
   );
 }
