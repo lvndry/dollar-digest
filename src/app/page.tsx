@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
@@ -11,6 +12,8 @@ import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
 import { desc, eq } from "drizzle-orm";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   description:
@@ -52,6 +55,18 @@ async function getAvailableDates(): Promise<string[]> {
   }
 }
 
+const getCachedArticles = unstable_cache(
+  (date: string) => getArticles(date),
+  ["articles"],
+  { revalidate: 3600, tags: ["articles"] },
+);
+
+const getCachedAvailableDates = unstable_cache(
+  () => getAvailableDates(),
+  ["available-dates"],
+  { revalidate: 3600, tags: ["articles"] },
+);
+
 interface HomePageProps {
   searchParams: Promise<{ date?: string }>;
 }
@@ -66,8 +81,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const hasAccess = canAccessDigestDate(selectedDate, session);
 
   const [articles, availableDates] = await Promise.all([
-    hasAccess ? getArticles(selectedDate) : Promise.resolve([]),
-    getAvailableDates(),
+    hasAccess ? getCachedArticles(selectedDate) : Promise.resolve([]),
+    getCachedAvailableDates(),
   ]);
 
   const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {

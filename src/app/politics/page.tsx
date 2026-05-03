@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { SiteNav } from "@/components/SiteNav";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
 import { desc, eq } from "drizzle-orm";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Politics",
@@ -55,8 +58,13 @@ async function getArticles(): Promise<Article[]> {
   }
 }
 
+const getCachedArticles = unstable_cache(() => getArticles(), ["articles-politics"], {
+  revalidate: 3600,
+  tags: ["articles"],
+});
+
 export default async function PoliticsPage() {
-  const articles = await getArticles();
+  const articles = await getCachedArticles();
 
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
