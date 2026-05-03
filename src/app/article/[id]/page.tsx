@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { articles, bookmarks } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
@@ -27,7 +28,7 @@ async function isArticleBookmarked(articleId: number, userId: string): Promise<b
   }
 }
 
-async function getArticle(id: string): Promise<Article | null> {
+const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
     const rows = await db
       .select()
@@ -38,7 +39,7 @@ async function getArticle(id: string): Promise<Article | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function generateMetadata({
   params,
@@ -339,6 +340,7 @@ export default async function ArticlePage({
               alt={article.title}
               width={1360}
               height={765}
+              sizes="(max-width: 768px) 100vw, 680px"
               className="w-full h-full object-cover"
               priority
             />
