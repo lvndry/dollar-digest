@@ -68,7 +68,7 @@ export function FeaturedArticleCard({ article }: { article: Article }) {
 
   return (
     <article
-      className="article-card mb-10 min-w-0 w-full max-sm:snap-start max-sm:scroll-mt-28 fade-up"
+      className="article-card mb-10 min-w-0 w-full fade-up"
       style={{ animationDelay: "0ms" }}
     >
       {/* Panoramic hero image with overlaid title */}

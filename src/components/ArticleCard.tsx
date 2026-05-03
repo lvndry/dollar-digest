@@ -68,7 +68,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
 
   return (
     <article
-      className="article-card flex min-w-0 w-full flex-col fade-up max-sm:snap-start max-sm:scroll-mt-28"
+      className="article-card flex min-w-0 w-full flex-col fade-up"
       style={{ animationDelay: `${index * 55}ms` }}
     >
       {/* Image */}

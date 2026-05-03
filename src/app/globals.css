@@ -60,13 +60,6 @@ body {
   color: var(--ink);
 }
 
-/* Digest feed: vertical scroll-snap on small viewports (viewport is the scroll container) */
-@media (max-width: 639px) {
-  html:has(.digest-feed) {
-    scroll-snap-type: y proximity;
-  }
-}
-
 .theme-transitioning,
 .theme-transitioning * {
   transition:
