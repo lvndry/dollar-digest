@@ -6,8 +6,6 @@ import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
 import { desc, eq } from "drizzle-orm";
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = {
   title: "Politics",
   description:
@@ -42,31 +40,31 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(): Promise<Article[]> {
+async function getArticles(date: string): Promise<Article[]> {
   try {
-    const today = new Date().toISOString().split("T")[0];
     const rows = await db
       .select()
       .from(articles)
-      .where(eq(articles.digestDate, today!))
+      .where(eq(articles.digestDate, date))
       .orderBy(desc(articles.importanceScore));
-
     return rows;
   } catch {
     return [];
   }
 }
 
-const getCachedArticles = unstable_cache(() => getArticles(), ["articles-politics"], {
-  revalidate: 3600,
-  tags: ["articles"],
-});
+const getCachedArticles = unstable_cache(
+  (date: string) => getArticles(date),
+  ["articles-politics"],
+  { revalidate: 3600, tags: ["articles"] },
+);
 
 export default async function PoliticsPage() {
-  const articles = await getCachedArticles();
+  const today = new Date().toISOString().split("T")[0]!;
+  const articles = await getCachedArticles(today);
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-US", {
+  const todayDate = new Date();
+  const formattedDate = todayDate.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -113,7 +111,7 @@ export default async function PoliticsPage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {today.getFullYear()} The One Dollar Digest
+          © {todayDate.getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

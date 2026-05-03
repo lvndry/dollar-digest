@@ -12,8 +12,6 @@ import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
 import { desc, eq } from "drizzle-orm";
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = {
   description:
     "Today's most important tech and political stories, AI-curated and clearly sourced.",
