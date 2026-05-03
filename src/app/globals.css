@@ -117,6 +117,10 @@ body {
 }
 
 /* ── Buttons ──────────────────────────────────── */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 .btn-accent {
   color: var(--accent);
   border-color: var(--accent);

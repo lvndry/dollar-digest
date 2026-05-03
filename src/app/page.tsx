@@ -4,6 +4,7 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { DateCalendar } from "@/components/DateCalendar";
+import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
 import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
@@ -115,11 +116,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       {/* Masthead */}
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
-          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
+          className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-2 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
         >
           {isToday ? `Today · ${displayDate}` : displayDate}
         </p>
+
+        <div
+          className="flex justify-center mb-8 min-h-11 fade-in"
+          style={{ animationDelay: "20ms" }}
+        >
+          <NextDigestCountdown />
+        </div>
 
         <h1
           className="font-display italic leading-[0.86] mb-10 fade-up"
