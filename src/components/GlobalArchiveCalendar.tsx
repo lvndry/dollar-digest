@@ -20,7 +20,7 @@ function isAuthClutterPath(pathname: string): boolean {
 
 function CalendarFallback() {
   return (
-    <div className="mt-2">
+    <div className="mt-6">
       <div
         className="flex items-center gap-2 mx-auto font-ui text-[0.6rem] tracking-[0.12em] uppercase w-fit"
         style={{ color: "var(--ink-muted)" }}

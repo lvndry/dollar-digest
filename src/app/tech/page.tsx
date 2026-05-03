@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
-import { loadDigestDay } from "@/lib/digest-day";
+import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
   title: "Technology",
@@ -42,6 +42,7 @@ interface TechPageProps {
 export default async function TechPage({ searchParams }: TechPageProps) {
   const { session, isToday, hasAccess, articles, displayDate } =
     await loadDigestDay(searchParams);
+  const categoryCount = countDigestArticlesForCategory(articles, "tech");
 
   return (
     <div
@@ -74,7 +75,7 @@ export default async function TechPage({ searchParams }: TechPageProps) {
       <main className="max-w-5xl mx-auto px-6 pb-24">
         {!hasAccess ? (
           <ArchivePaywall isSignedIn={!!session?.user} />
-        ) : articles.length === 0 ? (
+        ) : categoryCount === 0 ? (
           <p
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
             style={{ color: "var(--ink-muted)" }}

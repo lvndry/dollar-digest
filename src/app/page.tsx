@@ -3,7 +3,7 @@ import Link from "next/link";
 import { DigestGrid } from "@/components/DigestGrid";
 import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
-import { loadDigestDay } from "@/lib/digest-day";
+import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
   description:
@@ -25,6 +25,10 @@ interface HomePageProps {
 export default async function HomePage({ searchParams }: HomePageProps) {
   const { session, isToday, hasAccess, articles, displayDate, dateQuerySuffix } =
     await loadDigestDay(searchParams);
+
+  const techCount = countDigestArticlesForCategory(articles, "tech");
+  const politicsCount = countDigestArticlesForCategory(articles, "politics");
+  const hasAnySection = techCount > 0 || politicsCount > 0;
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
   const jsonLd = {
@@ -117,7 +121,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <main className="max-w-5xl mx-auto px-6 pb-24">
         {!hasAccess ? (
           <ArchivePaywall isSignedIn={!!session?.user} />
-        ) : articles.length === 0 ? (
+        ) : !hasAnySection ? (
           <p
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
             style={{ color: "var(--ink-muted)" }}
@@ -126,20 +130,24 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </p>
         ) : (
           <>
-            <DigestGrid
-              articles={articles}
-              category="tech"
-              label="Technology"
-              articleLimit={7}
-              titleHref={`/tech${dateQuerySuffix}`}
-            />
-            <DigestGrid
-              articles={articles}
-              category="politics"
-              label="Politics"
-              articleLimit={7}
-              titleHref={`/politics${dateQuerySuffix}`}
-            />
+            {techCount > 0 && (
+              <DigestGrid
+                articles={articles}
+                category="tech"
+                label="Technology"
+                articleLimit={7}
+                titleHref={`/tech${dateQuerySuffix}`}
+              />
+            )}
+            {politicsCount > 0 && (
+              <DigestGrid
+                articles={articles}
+                category="politics"
+                label="Politics"
+                articleLimit={7}
+                titleHref={`/politics${dateQuerySuffix}`}
+              />
+            )}
           </>
         )}
       </main>

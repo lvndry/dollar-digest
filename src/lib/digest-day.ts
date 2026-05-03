@@ -31,6 +31,14 @@ export function formatDigestDisplayDate(selectedDate: string): string {
   });
 }
 
+/** Matches `DigestGrid` category filter — use for empty-state checks on category pages. */
+export function countDigestArticlesForCategory(
+  rows: Article[],
+  category: "tech" | "politics",
+): number {
+  return rows.filter((a) => a.category === category).length;
+}
+
 /** `?date=` for links from home to category tabs when viewing an archive day. */
 export function digestDateQuerySuffix(selectedDate: string, today: string): string {
   return selectedDate !== today ? `?date=${encodeURIComponent(selectedDate)}` : "";
