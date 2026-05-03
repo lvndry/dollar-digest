@@ -66,6 +66,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     day: "numeric",
   });
 
+  const dateQuerySuffix =
+    selectedDate !== today ? `?date=${encodeURIComponent(selectedDate)}` : "";
+
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -171,12 +174,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               category="tech"
               label="Technology"
               articleLimit={7}
+              titleHref={`/tech${dateQuerySuffix}`}
             />
             <DigestGrid
               articles={articles}
               category="politics"
               label="Politics"
               articleLimit={7}
+              titleHref={`/politics${dateQuerySuffix}`}
             />
           </>
         )}

@@ -7,7 +7,6 @@ interface DateCalendarProps {
   availableDates: string[];
   selectedDate: string;
   canAccessArchive: boolean;
-  /** Where `?date=` navigation applies; defaults to home. */
   navigateBasePath?: string;
 }
 

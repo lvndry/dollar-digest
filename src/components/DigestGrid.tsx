@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Article } from "@/lib/schema";
 import { ArticleCard } from "./ArticleCard";
 import { FeaturedArticleCard } from "./FeaturedArticleCard";
@@ -7,9 +8,16 @@ interface DigestGridProps {
   category: "tech" | "politics";
   label: string;
   articleLimit?: number;
+  titleHref?: string;
 }
 
-export function DigestGrid({ articles, category, label, articleLimit }: DigestGridProps) {
+export function DigestGrid({
+  articles,
+  category,
+  label,
+  articleLimit,
+  titleHref,
+}: DigestGridProps) {
   const sorted = [...articles]
     .filter((a) => a.category === category)
     .sort((a, b) => (b.importanceScore ?? 0) - (a.importanceScore ?? 0));
@@ -33,7 +41,17 @@ export function DigestGrid({ articles, category, label, articleLimit }: DigestGr
             lineHeight: "1",
           }}
         >
-          {label}
+          {titleHref ? (
+            <Link
+              href={titleHref}
+              className="transition-opacity duration-150 hover:opacity-70"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {label}
+            </Link>
+          ) : (
+            label
+          )}
         </h2>
         <div className="mt-4 h-px" style={{ backgroundColor: "var(--border)" }} />
       </div>
