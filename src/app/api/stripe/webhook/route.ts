@@ -37,50 +37,56 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const email = session.customer_details?.email ?? session.customer_email;
-      const customerId = stripeId(session.customer);
-      const subscriptionId = stripeId(session.subscription);
-      const subscription = subscriptionId
-        ? await stripe.subscriptions.retrieve(subscriptionId)
-        : null;
-      const subscriptionStatus = subscription?.status ?? null;
+  try {
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const email = session.customer_details?.email ?? session.customer_email;
+        const customerId = stripeId(session.customer);
+        const subscriptionId = stripeId(session.subscription);
+        const subscription = subscriptionId
+          ? await stripe.subscriptions.retrieve(subscriptionId)
+          : null;
+        const subscriptionStatus = subscription?.status ?? null;
 
-      if (email) {
-        await db
-          .update(users)
-          .set({
-            subscribed: subscriptionStatus
-              ? isActiveSubscription(subscriptionStatus)
-              : false,
-            stripeCustomerId: customerId,
-            stripeSubscriptionId: subscriptionId,
-            stripeSubscriptionStatus: subscriptionStatus,
-          })
-          .where(eq(users.email, email));
+        if (email) {
+          await db
+            .update(users)
+            .set({
+              subscribed: subscriptionStatus
+                ? isActiveSubscription(subscriptionStatus)
+                : false,
+              stripeCustomerId: customerId,
+              stripeSubscriptionId: subscriptionId,
+              stripeSubscriptionStatus: subscriptionStatus,
+            })
+            .where(eq(users.email, email));
+        }
+        break;
       }
-      break;
-    }
 
-    case "customer.subscription.updated":
-    case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription;
-      const customerId = stripeId(subscription.customer);
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = stripeId(subscription.customer);
 
-      if (customerId) {
-        await db
-          .update(users)
-          .set({
-            subscribed: isActiveSubscription(subscription.status),
-            stripeSubscriptionId: subscription.id,
-            stripeSubscriptionStatus: subscription.status,
-          })
-          .where(eq(users.stripeCustomerId, customerId));
+        if (customerId) {
+          await db
+            .update(users)
+            .set({
+              subscribed: isActiveSubscription(subscription.status),
+              stripeSubscriptionId: subscription.id,
+              stripeSubscriptionStatus: subscription.status,
+            })
+            .where(eq(users.stripeCustomerId, customerId));
+        }
+        break;
       }
-      break;
     }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("Stripe webhook failed:", err);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
