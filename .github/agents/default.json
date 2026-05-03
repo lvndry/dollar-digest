@@ -18,7 +18,8 @@
       "grep",
       "mkdir",
       "execute_command",
-      "spawn_subagent"
+      "spawn_subagent",
+      "todo"
     ]
   }
 }
