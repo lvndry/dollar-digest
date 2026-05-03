@@ -5,7 +5,13 @@ const STATIC_CACHE_NAME = "odd-static-v1";
 const PRECACHE_URLS = ["/", "/tech", "/politics"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url).catch(() => {}))),
+      ),
+  );
   self.skipWaiting();
 });
 
@@ -16,7 +22,10 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key !== CACHE_NAME && key !== STATIC_CACHE_NAME)
+            .filter(
+              (key) =>
+                key.startsWith("odd-") && key !== CACHE_NAME && key !== STATIC_CACHE_NAME,
+            )
             .map((key) => caches.delete(key)),
         ),
       ),
