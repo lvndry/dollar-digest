@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc, eq } = await import("drizzle-orm");
-
     const today = new Date().toISOString().split("T")[0];
     const rows = await db
       .select()

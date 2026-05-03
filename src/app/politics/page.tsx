@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { SiteNav } from "@/components/SiteNav";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export const metadata: Metadata = {
   title: "Politics",
@@ -37,30 +40,31 @@ export const metadata: Metadata = {
   },
 };
 
-async function getArticles(): Promise<Article[]> {
+async function getArticles(date: string): Promise<Article[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc, eq } = await import("drizzle-orm");
-
-    const today = new Date().toISOString().split("T")[0];
     const rows = await db
       .select()
       .from(articles)
-      .where(eq(articles.digestDate, today!))
+      .where(eq(articles.digestDate, date))
       .orderBy(desc(articles.importanceScore));
-
     return rows;
   } catch {
     return [];
   }
 }
 
-export default async function PoliticsPage() {
-  const articles = await getArticles();
+const getCachedArticles = unstable_cache(
+  (date: string) => getArticles(date),
+  ["articles-politics"],
+  { revalidate: 3600, tags: ["articles"] },
+);
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-US", {
+export default async function PoliticsPage() {
+  const today = new Date().toISOString().split("T")[0]!;
+  const articles = await getCachedArticles(today);
+
+  const todayDate = new Date();
+  const formattedDate = todayDate.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -71,9 +75,7 @@ export default async function PoliticsPage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <SiteNav />
-
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
+      <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
@@ -84,7 +86,7 @@ export default async function PoliticsPage() {
           className="font-display italic leading-[0.86] mb-12 fade-up"
           style={{
             color: "var(--ink)",
-            fontSize: "clamp(4rem, 11vw, 8.5rem)",
+            fontSize: "clamp(3rem, 9vw, 6rem)",
             letterSpacing: "-0.035em",
             animationDelay: "50ms",
           }}
@@ -109,7 +111,7 @@ export default async function PoliticsPage() {
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
           style={{ color: "var(--ink-faint)" }}
         >
-          © {today.getFullYear()} The One Dollar Digest
+          © {todayDate.getFullYear()} The One Dollar Digest
         </span>
         <span
           className="font-display italic text-[0.875rem]"

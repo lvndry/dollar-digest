@@ -1,4 +1,7 @@
 import type { MetadataRoute } from "next";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
+import { desc } from "drizzle-orm";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
@@ -10,10 +13,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc } = await import("drizzle-orm");
-
     const rows = await db
       .select({ id: articles.id, publishedAt: articles.publishedAt })
       .from(articles)

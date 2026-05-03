@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteNav } from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -32,7 +31,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function PrivacyPage() {
   return (
     <>
-      <SiteNav />
       <main className="max-w-2xl mx-auto px-6 py-16">
         <p
           className="font-ui text-[0.6rem] tracking-widest uppercase mb-2"

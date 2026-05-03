@@ -2,6 +2,9 @@ import { ImageResponse } from "next/og";
 import { auth } from "@/auth";
 import { canAccessDigestDate } from "@/lib/access";
 import type { Article } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export const alt = "Article";
 export const size = { width: 1200, height: 630 };
@@ -46,9 +49,6 @@ function getBadgeLabel(article: Article): string {
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { eq } = await import("drizzle-orm");
     const rows = await db
       .select()
       .from(articles)

@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
 import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
+import { db } from "@/lib/db";
+import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
+import { desc, eq } from "drizzle-orm";
 
 export const metadata: Metadata = {
   description:
@@ -24,10 +27,6 @@ export const metadata: Metadata = {
 
 async function getArticles(date: string): Promise<Article[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc, eq } = await import("drizzle-orm");
-
     const rows = await db
       .select()
       .from(articles)
@@ -42,10 +41,6 @@ async function getArticles(date: string): Promise<Article[]> {
 
 async function getAvailableDates(): Promise<string[]> {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { desc } = await import("drizzle-orm");
-
     const rows = await db
       .selectDistinct({ digestDate: articles.digestDate })
       .from(articles)
@@ -56,6 +51,18 @@ async function getAvailableDates(): Promise<string[]> {
     return [];
   }
 }
+
+const getCachedArticles = unstable_cache(
+  (date: string) => getArticles(date),
+  ["articles"],
+  { revalidate: 3600, tags: ["articles"] },
+);
+
+const getCachedAvailableDates = unstable_cache(
+  () => getAvailableDates(),
+  ["available-dates"],
+  { revalidate: 3600, tags: ["articles"] },
+);
 
 interface HomePageProps {
   searchParams: Promise<{ date?: string }>;
@@ -71,8 +78,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const hasAccess = canAccessDigestDate(selectedDate, session);
 
   const [articles, availableDates] = await Promise.all([
-    hasAccess ? getArticles(selectedDate) : Promise.resolve([]),
-    getAvailableDates(),
+    hasAccess ? getCachedArticles(selectedDate) : Promise.resolve([]),
+    getCachedAvailableDates(),
   ]);
 
   const displayDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
@@ -105,10 +112,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SiteNav />
-
       {/* Masthead */}
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
+      <div className="max-w-5xl mx-auto px-6 pt-12 pb-10 text-center">
         <p
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"
           style={{ color: "var(--ink-muted)", animationDelay: "0ms" }}
@@ -120,7 +125,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           className="font-display italic leading-[0.86] mb-10 fade-up"
           style={{
             color: "var(--ink)",
-            fontSize: "clamp(4rem, 11vw, 8.5rem)",
+            fontSize: "clamp(3rem, 9vw, 6rem)",
             letterSpacing: "-0.035em",
             animationDelay: "50ms",
           }}
@@ -159,7 +164,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         )}
 
         {/* Archive calendar */}
-        <Suspense>
+        <Suspense
+          fallback={
+            <div className="mt-6">
+              <div
+                className="flex items-center gap-2 mx-auto font-ui text-[0.6rem] tracking-[0.12em] uppercase w-fit"
+                style={{ color: "var(--ink-muted)" }}
+              >
+                ▾ browse archive
+              </div>
+            </div>
+          }
+        >
           <DateCalendar
             availableDates={availableDates}
             selectedDate={selectedDate}

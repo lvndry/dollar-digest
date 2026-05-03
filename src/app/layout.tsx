@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
+import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -21,7 +23,7 @@ const sourceSerif = Source_Serif_4({
 const dmMono = DM_Mono({
   subsets: ["latin"],
   variable: "--font-dm-mono",
-  weight: ["300", "400", "500"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -85,7 +87,8 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
   return (
     <html
       lang="en"
@@ -100,13 +103,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')})}`,
+          }}
+        />
+        <script
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id="89afba01-12f7-410e-a589-458e5faaf18e"
         />
       </head>
       <body className="font-body">
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <SiteNav session={session} />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

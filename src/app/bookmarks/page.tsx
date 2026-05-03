@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { canAccessArchive } from "@/lib/access";
-import { SiteNav } from "@/components/SiteNav";
 import { ArticleCard } from "@/components/ArticleCard";
+import { db } from "@/lib/db";
+import { bookmarks, articles } from "@/lib/schema";
+import { eq, desc, getTableColumns } from "drizzle-orm";
 
 export const metadata: Metadata = {
   title: "Bookmarks",
@@ -14,10 +16,6 @@ export default async function BookmarksPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   if (!canAccessArchive(session)) redirect("/");
-
-  const { db } = await import("@/lib/db");
-  const { bookmarks, articles } = await import("@/lib/schema");
-  const { eq, desc, getTableColumns } = await import("drizzle-orm");
 
   const savedArticles = await db
     .select(getTableColumns(articles))
@@ -30,8 +28,6 @@ export default async function BookmarksPage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <SiteNav />
-
       <div className="max-w-5xl mx-auto px-6 pt-16 pb-24">
         <div className="mb-12">
           <p

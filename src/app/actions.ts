@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import { auth } from "@/auth";
 import { canAccessArchive } from "@/lib/access";
+import { db } from "@/lib/db";
+import { bookmarks } from "@/lib/schema";
+import { and, eq } from "drizzle-orm";
 
 export async function createCheckoutSession() {
   const session = await auth();
@@ -39,10 +42,6 @@ export async function toggleBookmark(articleId: number) {
   if (!session?.user?.id) redirect("/login");
   if (!canAccessArchive(session)) redirect("/");
 
-  const { db } = await import("@/lib/db");
-  const { bookmarks } = await import("@/lib/schema");
-  const { and, eq } = await import("drizzle-orm");
-
   const existing = await db
     .select()
     .from(bookmarks)
@@ -64,4 +63,5 @@ export async function toggleBookmark(articleId: number) {
   }
 
   revalidatePath(`/article/${articleId}`);
+  revalidatePath("/bookmarks");
 }

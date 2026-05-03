@@ -2,20 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { cache } from "react";
+import { db } from "@/lib/db";
+import { articles, bookmarks } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
-import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { BookmarkButton } from "@/components/BookmarkButton";
 import { auth } from "@/auth";
 import { canAccessDigestDate, canAccessArchive } from "@/lib/access";
 import { parseArticleSources, parseJsonStringArray } from "@/lib/parse-article-metadata";
+import { and, eq } from "drizzle-orm";
 
 async function isArticleBookmarked(articleId: number, userId: string): Promise<boolean> {
   try {
-    const { db } = await import("@/lib/db");
-    const { bookmarks } = await import("@/lib/schema");
-    const { and, eq } = await import("drizzle-orm");
     const rows = await db
       .select()
       .from(bookmarks)
@@ -27,11 +27,8 @@ async function isArticleBookmarked(articleId: number, userId: string): Promise<b
   }
 }
 
-async function getArticle(id: string): Promise<Article | null> {
+const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
-    const { db } = await import("@/lib/db");
-    const { articles } = await import("@/lib/schema");
-    const { eq } = await import("drizzle-orm");
     const rows = await db
       .select()
       .from(articles)
@@ -41,7 +38,7 @@ async function getArticle(id: string): Promise<Article | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function generateMetadata({
   params,
@@ -170,7 +167,6 @@ export default async function ArticlePage({
           color: "var(--ink)",
         }}
       >
-        <SiteNav />
         <div className="max-w-[680px] mx-auto px-6 pt-14">
           <Link
             href="/"
@@ -243,7 +239,6 @@ export default async function ArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ReadingProgress />
-      <SiteNav />
 
       <article className="max-w-[680px] mx-auto px-6 pt-14 pb-24">
         <div className="flex items-center justify-between mb-14">
@@ -342,6 +337,7 @@ export default async function ArticlePage({
               alt={article.title}
               width={1360}
               height={765}
+              sizes="(max-width: 768px) 100vw, 680px"
               className="w-full h-full object-cover"
               priority
             />
