@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { SiteNav } from "@/components/SiteNav";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
@@ -78,8 +77,6 @@ export default async function PoliticsPage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <SiteNav />
-
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
         <p
           className="font-ui text-[0.575rem] tracking-[0.24em] uppercase mb-10 fade-in"

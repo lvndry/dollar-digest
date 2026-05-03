@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
+import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -85,7 +87,8 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
   return (
     <html
       lang="en"
@@ -106,7 +109,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-body">
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <SiteNav session={session} />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

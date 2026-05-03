@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
-import { SiteNav } from "@/components/SiteNav";
 import { DateCalendar } from "@/components/DateCalendar";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
@@ -115,8 +114,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SiteNav />
-
       {/* Masthead */}
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
         <p

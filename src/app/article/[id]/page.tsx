@@ -6,7 +6,6 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { articles, bookmarks } from "@/lib/schema";
 import type { Article } from "@/lib/schema";
-import { SiteNav } from "@/components/SiteNav";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { BookmarkButton } from "@/components/BookmarkButton";
@@ -168,7 +167,6 @@ export default async function ArticlePage({
           color: "var(--ink)",
         }}
       >
-        <SiteNav />
         <div className="max-w-[680px] mx-auto px-6 pt-14">
           <Link
             href="/"
@@ -241,7 +239,6 @@ export default async function ArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ReadingProgress />
-      <SiteNav />
 
       <article className="max-w-[680px] mx-auto px-6 pt-14 pb-24">
         <div className="flex items-center justify-between mb-14">

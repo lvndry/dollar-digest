@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SiteNav } from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "Archive",
@@ -13,8 +12,6 @@ export default function ArchivePage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <SiteNav />
-
       <div className="max-w-5xl mx-auto px-6 pt-16 pb-14 text-center">
         <h1
           className="font-display italic text-[clamp(2.25rem,6vw,4.5rem)] tracking-tight leading-[0.93] mb-6"

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SiteNav } from "@/components/SiteNav";
 import { sendContactMessage } from "./actions";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -21,7 +20,6 @@ export default function ContactPage() {
 
   return (
     <>
-      <SiteNav />
       <main
         className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
         style={{ backgroundColor: "var(--bg)" }}

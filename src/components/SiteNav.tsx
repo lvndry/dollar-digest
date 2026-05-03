@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 import { ThemeToggle } from "./ThemeToggle";
 import { MobileTabBar } from "./MobileTabBar";
 import { createCheckoutSession } from "@/app/actions";
@@ -15,9 +16,12 @@ const NAV_ITEMS = [
   { href: "/archive", label: "Archive" },
 ];
 
-export function SiteNav() {
+interface SiteNavProps {
+  session: Session | null;
+}
+
+export function SiteNav({ session }: SiteNavProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
   useSwipeNavigation();
 
   return (

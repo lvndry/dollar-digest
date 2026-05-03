@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { canAccessArchive } from "@/lib/access";
-import { SiteNav } from "@/components/SiteNav";
 import { ArticleCard } from "@/components/ArticleCard";
 import { db } from "@/lib/db";
 import { bookmarks, articles } from "@/lib/schema";
@@ -29,8 +28,6 @@ export default async function BookmarksPage() {
     <div
       style={{ minHeight: "100vh", backgroundColor: "var(--bg)", color: "var(--ink)" }}
     >
-      <SiteNav />
-
       <div className="max-w-5xl mx-auto px-6 pt-16 pb-24">
         <div className="mb-12">
           <p
