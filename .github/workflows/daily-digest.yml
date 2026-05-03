@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'tech' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses:  actions/checkout@v6
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'politics' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses:  actions/checkout@v6
 
       - uses: oven-sh/setup-bun@v2
         with:
