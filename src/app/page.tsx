@@ -4,6 +4,7 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { DigestGrid } from "@/components/DigestGrid";
 import { DateCalendar } from "@/components/DateCalendar";
+import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { auth } from "@/auth";
 import { canAccessArchive, canAccessDigestDate } from "@/lib/access";
@@ -120,6 +121,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         >
           {isToday ? `Today · ${displayDate}` : displayDate}
         </p>
+
+        <div
+          className="flex justify-center mb-8 min-h-11 fade-in"
+          style={{ animationDelay: "20ms" }}
+        >
+          <NextDigestCountdown />
+        </div>
 
         <h1
           className="font-display italic leading-[0.86] mb-10 fade-up"
