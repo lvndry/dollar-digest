@@ -1,9 +1,13 @@
 /// <reference types="bun-types" />
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test, setSystemTime } from "bun:test";
 import { canAccessArchive, canAccessDigestDate, trialDaysRemaining } from "./access";
 import type { Session } from "next-auth";
 
 const TRIAL_MS = 3 * 24 * 60 * 60 * 1000;
+const FIXED_NOW = new Date("2026-05-03T12:00:00.000Z");
+
+beforeAll(() => setSystemTime(FIXED_NOW));
+afterAll(() => setSystemTime());
 
 function makeSession(overrides: {
   subscribed?: boolean;
@@ -16,7 +20,7 @@ function makeSession(overrides: {
       subscribed: overrides.subscribed ?? false,
       createdAt: overrides.createdAt ?? null,
     },
-    expires: new Date(Date.now() + 86400_000).toISOString(),
+    expires: new Date(FIXED_NOW.getTime() + 86400_000).toISOString(),
   };
 }
 
@@ -31,13 +35,13 @@ describe("canAccessArchive", () => {
   });
 
   test("returns true for user within trial window", () => {
-    const createdAt = new Date(Date.now() - TRIAL_MS + 60_000);
+    const createdAt = new Date(FIXED_NOW.getTime() - TRIAL_MS + 60_000);
     const session = makeSession({ subscribed: false, createdAt });
     expect(canAccessArchive(session)).toBe(true);
   });
 
   test("returns false for user past trial window", () => {
-    const createdAt = new Date(Date.now() - TRIAL_MS - 1000);
+    const createdAt = new Date(FIXED_NOW.getTime() - TRIAL_MS - 1000);
     const session = makeSession({ subscribed: false, createdAt });
     expect(canAccessArchive(session)).toBe(false);
   });
@@ -49,7 +53,7 @@ describe("canAccessArchive", () => {
 });
 
 describe("canAccessDigestDate", () => {
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = FIXED_NOW.toISOString().split("T")[0]!;
 
   test("today's digest is always accessible without session", () => {
     expect(canAccessDigestDate(today, null)).toBe(true);
@@ -65,13 +69,13 @@ describe("canAccessDigestDate", () => {
   });
 
   test("past date is accessible during trial", () => {
-    const createdAt = new Date(Date.now() - TRIAL_MS + 60_000);
+    const createdAt = new Date(FIXED_NOW.getTime() - TRIAL_MS + 60_000);
     const session = makeSession({ subscribed: false, createdAt });
     expect(canAccessDigestDate("2024-01-01", session)).toBe(true);
   });
 
   test("past date is inaccessible after trial expires", () => {
-    const createdAt = new Date(Date.now() - TRIAL_MS - 1000);
+    const createdAt = new Date(FIXED_NOW.getTime() - TRIAL_MS - 1000);
     const session = makeSession({ subscribed: false, createdAt });
     expect(canAccessDigestDate("2024-01-01", session)).toBe(false);
   });
@@ -88,19 +92,19 @@ describe("trialDaysRemaining", () => {
   });
 
   test("returns 3 at the start of the trial", () => {
-    const createdAt = new Date(Date.now() - 60_000);
+    const createdAt = new Date(FIXED_NOW.getTime() - 60_000);
     const session = makeSession({ createdAt });
     expect(trialDaysRemaining(session)).toBe(3);
   });
 
   test("returns 0 after trial expires", () => {
-    const createdAt = new Date(Date.now() - TRIAL_MS - 1000);
+    const createdAt = new Date(FIXED_NOW.getTime() - TRIAL_MS - 1000);
     const session = makeSession({ createdAt });
     expect(trialDaysRemaining(session)).toBe(0);
   });
 
   test("returns 1 with one day remaining", () => {
-    const createdAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 60_000);
+    const createdAt = new Date(FIXED_NOW.getTime() - 2 * 24 * 60 * 60 * 1000 - 60_000);
     const session = makeSession({ createdAt });
     expect(trialDaysRemaining(session)).toBe(1);
   });
