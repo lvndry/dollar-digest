@@ -21,7 +21,7 @@ const sourceSerif = Source_Serif_4({
 const dmMono = DM_Mono({
   subsets: ["latin"],
   variable: "--font-dm-mono",
-  weight: ["300", "400", "500"],
+  weight: ["400"],
   display: "swap",
 });
 
