@@ -127,7 +127,7 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
                 </span>
               )}
               <span
-                className="font-ui text-[0.575rem] tracking-[0.1em] uppercase"
+                className="font-ui text-[0.575rem] tracking-widest uppercase"
                 style={{ color: "var(--ink-muted)" }}
               >
                 {deskRegion}

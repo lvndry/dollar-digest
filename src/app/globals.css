@@ -117,6 +117,10 @@ body {
 }
 
 /* ── Buttons ──────────────────────────────────── */
+button {
+  cursor: pointer;
+}
+
 .btn-accent {
   color: var(--accent);
   border-color: var(--accent);

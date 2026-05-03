@@ -50,7 +50,7 @@ export function SiteNav({ session }: SiteNavProps) {
               <Link
                 key={href}
                 href={href}
-                className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-opacity duration-150"
+                className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150"
                 style={{
                   color: active ? "var(--ink)" : "var(--ink-muted)",
                   fontWeight: active ? "500" : "400",
@@ -70,7 +70,7 @@ export function SiteNav({ session }: SiteNavProps) {
                 <form action={createCheckoutSession}>
                   <button
                     type="submit"
-                    className="font-ui text-[0.6rem] tracking-[0.1em] uppercase px-3 py-1.5 transition-opacity duration-150 hover:opacity-70"
+                    className="font-ui text-[0.6rem] tracking-widest uppercase px-3 py-1.5 transition-opacity duration-150 hover:opacity-70"
                     style={{
                       color: "var(--bg)",
                       backgroundColor: "var(--accent)",
@@ -82,7 +82,7 @@ export function SiteNav({ session }: SiteNavProps) {
               )}
               <button
                 onClick={() => signOut({ redirectTo: "/" })}
-                className="font-ui text-[0.6rem] tracking-[0.1em] uppercase transition-opacity duration-150 hover:opacity-60"
+                className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150 hover:opacity-60"
                 style={{ color: "var(--ink-muted)" }}
               >
                 Sign out
@@ -91,7 +91,7 @@ export function SiteNav({ session }: SiteNavProps) {
           ) : (
             <Link
               href="/login"
-              className="hidden sm:inline-block font-ui text-[0.6rem] tracking-[0.1em] uppercase px-4 py-2 transition-opacity duration-150 hover:opacity-75"
+              className="hidden sm:inline-block font-ui text-[0.6rem] tracking-widest uppercase px-4 py-2 transition-opacity duration-150 hover:opacity-75"
               style={{
                 color: "var(--bg)",
                 backgroundColor: "var(--ink)",
