@@ -2,8 +2,10 @@ name: Daily Digest
 
 on:
   schedule:
-    # 06:00 UTC every day
-    - cron: "0 6 * * *"
+    # 04:30 UTC — European morning
+    - cron: "30 4 * * *"
+    # 12:30 UTC — US morning
+    - cron: "30 12 * * *"
   workflow_dispatch:
     inputs:
       category:

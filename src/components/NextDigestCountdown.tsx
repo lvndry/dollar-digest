@@ -4,12 +4,23 @@ import { useEffect, useRef, useState } from "react";
 
 type Phase = "countdown" | "building";
 
+const DAILY_SLOTS: [number, number][] = [
+  [4, 30],
+  [12, 30],
+];
+
 function getNextRunDate(): Date {
   const now = new Date();
-  const next = new Date(now);
-  next.setUTCHours(6, 0, 0, 0);
-  if (now >= next) next.setUTCDate(next.getUTCDate() + 1);
-  return next;
+  for (const [hour, minute] of DAILY_SLOTS) {
+    const candidate = new Date(now);
+    candidate.setUTCHours(hour, minute, 0, 0);
+    if (now < candidate) return candidate;
+  }
+  // Both slots passed today — return first slot tomorrow
+  const tomorrow = new Date(now);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  tomorrow.setUTCHours(DAILY_SLOTS[0]![0], DAILY_SLOTS[0]![1], 0, 0);
+  return tomorrow;
 }
 
 function getNextRunMs(): number {
@@ -121,7 +132,7 @@ export function NextDigestCountdown() {
     <span
       className="font-ui text-[0.575rem] tracking-[0.08em] tabular-nums flex flex-col items-center text-center leading-normal"
       style={{ color: "var(--ink-faint)" }}
-      title={`Next AI digest run at ${nextLocalTime} (06:00 UTC)`}
+      title={`Next AI digest run at ${nextLocalTime} (4:30am & 12:30pm UTC daily)`}
     >
       <span>next digest at {nextLocalTime}</span>
       <span>in {formatCountdown(remaining)}</span>

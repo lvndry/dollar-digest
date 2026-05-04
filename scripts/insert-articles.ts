@@ -4,6 +4,22 @@ import { articles } from "@/lib/schema";
 import { fetchOgImages } from "./lib/og-image";
 import { readFileSync } from "fs";
 
+function normalizeUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    // Normalize protocol and drop tracking params
+    parsed.protocol = "https:";
+    parsed.hostname = parsed.hostname.replace(/^www\./, "");
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (/^utm_|^fbclid$|^gclid$|^ref$/.test(key)) parsed.searchParams.delete(key);
+    }
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return url;
+  }
+}
+
 const filePath = process.argv[2];
 if (!filePath) {
   console.error("Usage: bun ./scripts/insert-articles.ts <file.json>");
@@ -44,7 +60,7 @@ const rows = parsed.map((item, i) => {
     title: String(item.title ?? ""),
     summary: String(item.summary ?? ""),
     source: optionalString(item.source) ?? primarySource?.name ?? "",
-    sourceUrl: optionalString(item.sourceUrl) ?? primarySource?.url ?? null,
+    sourceUrl: normalizeUrl(optionalString(item.sourceUrl) ?? primarySource?.url ?? null),
     sources: sources.length > 0 ? JSON.stringify(sources) : null,
     category: String(item.category ?? "tech") as "tech" | "politics",
     subcategory: item.subcategory ? String(item.subcategory) : null,
@@ -70,5 +86,20 @@ const rows = parsed.map((item, i) => {
   };
 });
 
-await db.insert(articles).values(rows);
-console.log(`[insert] Inserted ${rows.length} articles for ${digestDate} ✓`);
+// Deduplicate within the batch by normalized title before hitting the DB
+const seenTitles = new Set<string>();
+const dedupedRows = rows.filter((row) => {
+  const key = row.title.toLowerCase().trim();
+  if (seenTitles.has(key)) return false;
+  seenTitles.add(key);
+  return true;
+});
+
+if (dedupedRows.length < rows.length) {
+  console.log(`[insert] Dropped ${rows.length - dedupedRows.length} in-batch duplicates`);
+}
+
+const result = await db.insert(articles).values(dedupedRows).onConflictDoNothing();
+console.log(
+  `[insert] Inserted ${result.rowsAffected} / ${dedupedRows.length} articles for ${digestDate} ✓`,
+);
