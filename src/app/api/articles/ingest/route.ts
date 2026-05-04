@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import type { NewArticle } from "@/lib/schema";
+import { shouldKeepArticleForDigestDate } from "@/lib/article-date-filter";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
@@ -49,6 +50,9 @@ export async function POST(request: NextRequest) {
   const today = now.split("T")[0];
 
   const prepared: NewArticle[] = rows.flatMap((row) => {
+    const digestDate = optionalString(row.digestDate) ?? today;
+    if (!shouldKeepArticleForDigestDate(row, digestDate)) return [];
+
     const sources = normalizeArticleSources(row);
     const primarySource = sources[0];
     const sourceUrl = optionalString(row.sourceUrl) ?? primarySource?.url ?? null;
@@ -75,7 +79,7 @@ export async function POST(request: NextRequest) {
         regions: serializeMetadataField(row.regions),
         primaryRegion: optionalString(row.primaryRegion),
         strategicInterpretation: optionalString(row.strategicInterpretation),
-        digestDate: optionalString(row.digestDate) ?? today,
+        digestDate,
         createdAt: optionalString(row.createdAt) ?? now,
       },
     ];

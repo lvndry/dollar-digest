@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { shouldKeepArticleForDigestDate } from "@/lib/article-date-filter";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { articles } from "@/lib/schema";
 import { fetchOgImages } from "./lib/og-image";
@@ -53,7 +54,13 @@ console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} i
 const now = new Date().toISOString();
 
 let skippedNoUrl = 0;
+let skippedOffDate = 0;
 const rows = parsed.flatMap((item, i) => {
+  if (!shouldKeepArticleForDigestDate(item, digestDate)) {
+    skippedOffDate++;
+    return [];
+  }
+
   const sources = normalizedSources[i] ?? [];
   const primarySource = sources[0];
   const sourceUrl = normalizeUrl(
@@ -101,6 +108,8 @@ const rows = parsed.flatMap((item, i) => {
 
 if (skippedNoUrl > 0)
   console.log(`[insert] Skipped ${skippedNoUrl} articles with no source URL`);
+if (skippedOffDate > 0)
+  console.log(`[insert] Skipped ${skippedOffDate} articles outside ${digestDate}`);
 
 // Deduplicate within the batch by normalized title before hitting the DB
 const seenTitles = new Set<string>();
@@ -120,7 +129,7 @@ if (dedupedRows.length === 0) {
   console.log(`[insert] No articles to insert for ${digestDate} — all duplicates`);
   writeFileSync(
     "/tmp/insert-stats.json",
-    JSON.stringify({ inserted: 0, skippedNoUrl, skippedDuplicates }),
+    JSON.stringify({ inserted: 0, skippedNoUrl, skippedOffDate, skippedDuplicates }),
   );
   process.exit(0);
 }
@@ -135,5 +144,5 @@ console.log(
 );
 writeFileSync(
   "/tmp/insert-stats.json",
-  JSON.stringify({ inserted, skippedNoUrl, skippedDuplicates }),
+  JSON.stringify({ inserted, skippedNoUrl, skippedOffDate, skippedDuplicates }),
 );
