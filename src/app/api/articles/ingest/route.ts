@@ -85,9 +85,17 @@ export async function POST(request: NextRequest) {
     ];
   });
 
-  await db.insert(articles).values(prepared).onConflictDoNothing();
+  const seenTitles = new Set<string>();
+  const deduped = prepared.filter((row) => {
+    const key = row.title.toLowerCase().trim();
+    if (seenTitles.has(key)) return false;
+    seenTitles.add(key);
+    return true;
+  });
+
+  await db.insert(articles).values(deduped).onConflictDoNothing();
 
   revalidateTag("articles", "default");
 
-  return NextResponse.json({ inserted: prepared.length });
+  return NextResponse.json({ inserted: deduped.length });
 }
