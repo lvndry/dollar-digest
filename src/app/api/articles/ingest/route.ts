@@ -49,6 +49,8 @@ export async function POST(request: NextRequest) {
   const today = now.split("T")[0];
 
   const prepared: NewArticle[] = rows.flatMap((row) => {
+    const digestDate = optionalString(row.digestDate) ?? today;
+
     const sources = normalizeArticleSources(row);
     const primarySource = sources[0];
     const sourceUrl = optionalString(row.sourceUrl) ?? primarySource?.url ?? null;
@@ -75,15 +77,23 @@ export async function POST(request: NextRequest) {
         regions: serializeMetadataField(row.regions),
         primaryRegion: optionalString(row.primaryRegion),
         strategicInterpretation: optionalString(row.strategicInterpretation),
-        digestDate: optionalString(row.digestDate) ?? today,
+        digestDate,
         createdAt: optionalString(row.createdAt) ?? now,
       },
     ];
   });
 
-  await db.insert(articles).values(prepared).onConflictDoNothing();
+  const seenTitles = new Set<string>();
+  const deduped = prepared.filter((row) => {
+    const key = row.title.toLowerCase().trim();
+    if (seenTitles.has(key)) return false;
+    seenTitles.add(key);
+    return true;
+  });
+
+  await db.insert(articles).values(deduped).onConflictDoNothing();
 
   revalidateTag("articles", "default");
 
-  return NextResponse.json({ inserted: prepared.length });
+  return NextResponse.json({ inserted: deduped.length });
 }
