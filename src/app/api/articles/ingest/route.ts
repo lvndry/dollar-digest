@@ -48,30 +48,37 @@ export async function POST(request: NextRequest) {
   const now = new Date().toISOString();
   const today = now.split("T")[0];
 
-  const prepared: NewArticle[] = rows.map((row) => {
+  const prepared: NewArticle[] = rows.flatMap((row) => {
     const sources = normalizeArticleSources(row);
     const primarySource = sources[0];
+    const sourceUrl = optionalString(row.sourceUrl) ?? primarySource?.url ?? null;
 
-    return {
-      title: String(row.title ?? ""),
-      summary: String(row.summary ?? ""),
-      source: optionalString(row.source) ?? primarySource?.name ?? "",
-      sourceUrl: optionalString(row.sourceUrl) ?? primarySource?.url ?? null,
-      sources: sources.length > 0 ? JSON.stringify(sources) : null,
-      category: String(row.category ?? "tech") as "tech" | "politics",
-      subcategory: optionalString(row.subcategory),
-      bias: ((row.bias ?? primarySource?.bias) as NewArticle["bias"]) ?? null,
-      publishedAt: optionalString(row.publishedAt) ?? today,
-      readingTimeMinutes: row.readingTimeMinutes ? Number(row.readingTimeMinutes) : null,
-      importanceScore: row.importanceScore ? Number(row.importanceScore) : null,
-      imageUrl: optionalString(row.imageUrl),
-      tags: serializeMetadataField(row.tags),
-      regions: serializeMetadataField(row.regions),
-      primaryRegion: optionalString(row.primaryRegion),
-      strategicInterpretation: optionalString(row.strategicInterpretation),
-      digestDate: optionalString(row.digestDate) ?? today,
-      createdAt: optionalString(row.createdAt) ?? now,
-    };
+    if (!sourceUrl) return [];
+
+    return [
+      {
+        title: String(row.title ?? ""),
+        summary: String(row.summary ?? ""),
+        source: optionalString(row.source) ?? primarySource?.name ?? "",
+        sourceUrl,
+        sources: sources.length > 0 ? JSON.stringify(sources) : null,
+        category: String(row.category ?? "tech") as "tech" | "politics",
+        subcategory: optionalString(row.subcategory),
+        bias: ((row.bias ?? primarySource?.bias) as NewArticle["bias"]) ?? null,
+        publishedAt: optionalString(row.publishedAt) ?? today,
+        readingTimeMinutes: row.readingTimeMinutes
+          ? Number(row.readingTimeMinutes)
+          : null,
+        importanceScore: row.importanceScore ? Number(row.importanceScore) : null,
+        imageUrl: optionalString(row.imageUrl),
+        tags: serializeMetadataField(row.tags),
+        regions: serializeMetadataField(row.regions),
+        primaryRegion: optionalString(row.primaryRegion),
+        strategicInterpretation: optionalString(row.strategicInterpretation),
+        digestDate: optionalString(row.digestDate) ?? today,
+        createdAt: optionalString(row.createdAt) ?? now,
+      },
+    ];
   });
 
   await db.insert(articles).values(prepared).onConflictDoNothing();
