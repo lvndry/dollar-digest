@@ -2,7 +2,6 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import type { NewArticle } from "@/lib/schema";
-import { shouldKeepArticleForDigestDate } from "@/lib/article-date-filter";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
 
   const prepared: NewArticle[] = rows.flatMap((row) => {
     const digestDate = optionalString(row.digestDate) ?? today;
-    if (!shouldKeepArticleForDigestDate(row, digestDate)) return [];
 
     const sources = normalizeArticleSources(row);
     const primarySource = sources[0];
