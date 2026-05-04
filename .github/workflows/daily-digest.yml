@@ -125,6 +125,15 @@ jobs:
             COUNT=$(jq 'length' "$OUTPUT_FILE")
           fi
 
+          INSERTED="n/a"
+          SKIPPED_NO_URL="n/a"
+          SKIPPED_DUPES="n/a"
+          if [ -f /tmp/insert-stats.json ]; then
+            INSERTED=$(jq -r '.inserted' /tmp/insert-stats.json)
+            SKIPPED_NO_URL=$(jq -r '.skippedNoUrl' /tmp/insert-stats.json)
+            SKIPPED_DUPES=$(jq -r '.skippedDuplicates' /tmp/insert-stats.json)
+          fi
+
           COST="n/a"
           TOKENS=""
           SUMMARY='${{ steps.jazz.outputs.summary }}'
@@ -145,7 +154,10 @@ jobs:
 
           | | |
           |---|---|
-          | Articles inserted | ${COUNT} |
+          | Articles fetched | ${COUNT} |
+          | Articles inserted | ${INSERTED} |
+          | Skipped (no URL) | ${SKIPPED_NO_URL} |
+          | Skipped (duplicate) | ${SKIPPED_DUPES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF
@@ -218,6 +230,15 @@ jobs:
             COUNT=$(jq 'length' "$OUTPUT_FILE")
           fi
 
+          INSERTED="n/a"
+          SKIPPED_NO_URL="n/a"
+          SKIPPED_DUPES="n/a"
+          if [ -f /tmp/insert-stats.json ]; then
+            INSERTED=$(jq -r '.inserted' /tmp/insert-stats.json)
+            SKIPPED_NO_URL=$(jq -r '.skippedNoUrl' /tmp/insert-stats.json)
+            SKIPPED_DUPES=$(jq -r '.skippedDuplicates' /tmp/insert-stats.json)
+          fi
+
           COST="n/a"
           TOKENS=""
           SUMMARY='${{ steps.jazz.outputs.summary }}'
@@ -238,7 +259,10 @@ jobs:
 
           | | |
           |---|---|
-          | Articles inserted | ${COUNT} |
+          | Articles fetched | ${COUNT} |
+          | Articles inserted | ${INSERTED} |
+          | Skipped (no URL) | ${SKIPPED_NO_URL} |
+          | Skipped (duplicate) | ${SKIPPED_DUPES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF

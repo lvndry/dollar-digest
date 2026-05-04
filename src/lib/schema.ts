@@ -14,7 +14,7 @@ export const articles = sqliteTable(
     title: text("title").notNull(),
     summary: text("summary").notNull(),
     source: text("source").notNull(),
-    sourceUrl: text("source_url"),
+    sourceUrl: text("source_url").notNull(),
     sources: text("sources"),
     category: text("category", { enum: ["tech", "politics"] }).notNull(),
     subcategory: text("subcategory"),
