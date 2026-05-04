@@ -99,6 +99,11 @@ if (dedupedRows.length < rows.length) {
   console.log(`[insert] Dropped ${rows.length - dedupedRows.length} in-batch duplicates`);
 }
 
+if (dedupedRows.length === 0) {
+  console.log(`[insert] No articles to insert for ${digestDate} — all duplicates`);
+  process.exit(0);
+}
+
 const result = await db.insert(articles).values(dedupedRows).onConflictDoNothing();
 console.log(
   `[insert] Inserted ${result.rowsAffected} / ${dedupedRows.length} articles for ${digestDate} ✓`,
