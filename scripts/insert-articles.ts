@@ -2,7 +2,23 @@ import { db } from "@/lib/db";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { articles } from "@/lib/schema";
 import { fetchOgImages } from "./lib/og-image";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
+
+function normalizeUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    // Normalize protocol and drop tracking params
+    parsed.protocol = "https:";
+    parsed.hostname = parsed.hostname.replace(/^www\./, "");
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (/^utm_|^fbclid$|^gclid$|^ref$/.test(key)) parsed.searchParams.delete(key);
+    }
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return url;
+  }
+}
 
 const filePath = process.argv[2];
 if (!filePath) {
@@ -36,39 +52,88 @@ console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} i
 
 const now = new Date().toISOString();
 
-const rows = parsed.map((item, i) => {
+let skippedNoUrl = 0;
+const rows = parsed.flatMap((item, i) => {
   const sources = normalizedSources[i] ?? [];
   const primarySource = sources[0];
+  const sourceUrl = normalizeUrl(
+    optionalString(item.sourceUrl) ?? primarySource?.url ?? null,
+  );
 
-  return {
-    title: String(item.title ?? ""),
-    summary: String(item.summary ?? ""),
-    source: optionalString(item.source) ?? primarySource?.name ?? "",
-    sourceUrl: optionalString(item.sourceUrl) ?? primarySource?.url ?? null,
-    sources: sources.length > 0 ? JSON.stringify(sources) : null,
-    category: String(item.category ?? "tech") as "tech" | "politics",
-    subcategory: item.subcategory ? String(item.subcategory) : null,
-    bias:
-      ((item.bias ?? primarySource?.bias) as
-        | "far-left"
-        | "left"
-        | "center"
-        | "right"
-        | "far-right") ?? null,
-    publishedAt: item.publishedAt ? String(item.publishedAt) : digestDate,
-    readingTimeMinutes: item.readingTimeMinutes ? Number(item.readingTimeMinutes) : null,
-    importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
-    imageUrl: imageUrls[i] ?? null,
-    tags: serializeMetadataField(item.tags),
-    regions: serializeMetadataField(item.regions),
-    primaryRegion: item.primaryRegion ? String(item.primaryRegion) : null,
-    strategicInterpretation: item.strategicInterpretation
-      ? String(item.strategicInterpretation)
-      : null,
-    digestDate,
-    createdAt: now,
-  };
+  if (!sourceUrl) {
+    skippedNoUrl++;
+    return [];
+  }
+
+  return [
+    {
+      title: String(item.title ?? ""),
+      summary: String(item.summary ?? ""),
+      source: optionalString(item.source) ?? primarySource?.name ?? "",
+      sourceUrl,
+      sources: sources.length > 0 ? JSON.stringify(sources) : null,
+      category: String(item.category ?? "tech") as "tech" | "politics",
+      subcategory: item.subcategory ? String(item.subcategory) : null,
+      bias:
+        ((item.bias ?? primarySource?.bias) as
+          | "far-left"
+          | "left"
+          | "center"
+          | "right"
+          | "far-right") ?? null,
+      publishedAt: item.publishedAt ? String(item.publishedAt) : digestDate,
+      readingTimeMinutes: item.readingTimeMinutes
+        ? Number(item.readingTimeMinutes)
+        : null,
+      importanceScore: item.importanceScore ? Number(item.importanceScore) : null,
+      imageUrl: imageUrls[i] ?? null,
+      tags: serializeMetadataField(item.tags),
+      regions: serializeMetadataField(item.regions),
+      primaryRegion: item.primaryRegion ? String(item.primaryRegion) : null,
+      strategicInterpretation: item.strategicInterpretation
+        ? String(item.strategicInterpretation)
+        : null,
+      digestDate,
+      createdAt: now,
+    },
+  ];
 });
 
-await db.insert(articles).values(rows);
-console.log(`[insert] Inserted ${rows.length} articles for ${digestDate} ✓`);
+if (skippedNoUrl > 0)
+  console.log(`[insert] Skipped ${skippedNoUrl} articles with no source URL`);
+
+// Deduplicate within the batch by normalized title before hitting the DB
+const seenTitles = new Set<string>();
+const dedupedRows = rows.filter((row) => {
+  const key = row.title.toLowerCase().trim();
+  if (seenTitles.has(key)) return false;
+  seenTitles.add(key);
+  return true;
+});
+
+const skippedDuplicates = rows.length - dedupedRows.length;
+if (skippedDuplicates > 0) {
+  console.log(`[insert] Dropped ${skippedDuplicates} in-batch duplicates`);
+}
+
+if (dedupedRows.length === 0) {
+  console.log(`[insert] No articles to insert for ${digestDate} — all duplicates`);
+  writeFileSync(
+    "/tmp/insert-stats.json",
+    JSON.stringify({ inserted: 0, skippedNoUrl, skippedDuplicates }),
+  );
+  process.exit(0);
+}
+
+const result = await db.insert(articles).values(dedupedRows).onConflictDoNothing();
+const inserted = result.rowsAffected;
+const skippedConflicts = dedupedRows.length - inserted;
+if (skippedConflicts > 0)
+  console.log(`[insert] Skipped ${skippedConflicts} already-stored articles`);
+console.log(
+  `[insert] Inserted ${inserted} / ${dedupedRows.length} articles for ${digestDate} ✓`,
+);
+writeFileSync(
+  "/tmp/insert-stats.json",
+  JSON.stringify({ inserted, skippedNoUrl, skippedDuplicates }),
+);

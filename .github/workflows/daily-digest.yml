@@ -2,8 +2,10 @@ name: Daily Digest
 
 on:
   schedule:
-    # 06:00 UTC every day
-    - cron: "0 6 * * *"
+    # 04:30 UTC — European morning
+    - cron: "30 4 * * *"
+    # 12:30 UTC — US morning
+    - cron: "30 12 * * *"
   workflow_dispatch:
     inputs:
       category:
@@ -59,7 +61,7 @@ jobs:
     name: Tech News
     runs-on: ubuntu-latest
     needs: setup-db
-    if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'tech' }}
+    if: ${{ github.event_name == 'schedule' || inputs.category == '' || inputs.category == 'both' || inputs.category == 'tech' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -123,6 +125,15 @@ jobs:
             COUNT=$(jq 'length' "$OUTPUT_FILE")
           fi
 
+          INSERTED="n/a"
+          SKIPPED_NO_URL="n/a"
+          SKIPPED_DUPES="n/a"
+          if [ -f /tmp/insert-stats.json ]; then
+            INSERTED=$(jq -r '.inserted' /tmp/insert-stats.json)
+            SKIPPED_NO_URL=$(jq -r '.skippedNoUrl' /tmp/insert-stats.json)
+            SKIPPED_DUPES=$(jq -r '.skippedDuplicates' /tmp/insert-stats.json)
+          fi
+
           COST="n/a"
           TOKENS=""
           SUMMARY='${{ steps.jazz.outputs.summary }}'
@@ -143,7 +154,10 @@ jobs:
 
           | | |
           |---|---|
-          | Articles inserted | ${COUNT} |
+          | Articles fetched | ${COUNT} |
+          | Articles inserted | ${INSERTED} |
+          | Skipped (no URL) | ${SKIPPED_NO_URL} |
+          | Skipped (duplicate) | ${SKIPPED_DUPES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF
@@ -152,7 +166,7 @@ jobs:
     name: Political News
     runs-on: ubuntu-latest
     needs: setup-db
-    if: ${{ github.event_name == 'schedule' || inputs.category == 'both' || inputs.category == 'politics' }}
+    if: ${{ github.event_name == 'schedule' || inputs.category == '' || inputs.category == 'both' || inputs.category == 'politics' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -216,6 +230,15 @@ jobs:
             COUNT=$(jq 'length' "$OUTPUT_FILE")
           fi
 
+          INSERTED="n/a"
+          SKIPPED_NO_URL="n/a"
+          SKIPPED_DUPES="n/a"
+          if [ -f /tmp/insert-stats.json ]; then
+            INSERTED=$(jq -r '.inserted' /tmp/insert-stats.json)
+            SKIPPED_NO_URL=$(jq -r '.skippedNoUrl' /tmp/insert-stats.json)
+            SKIPPED_DUPES=$(jq -r '.skippedDuplicates' /tmp/insert-stats.json)
+          fi
+
           COST="n/a"
           TOKENS=""
           SUMMARY='${{ steps.jazz.outputs.summary }}'
@@ -236,7 +259,10 @@ jobs:
 
           | | |
           |---|---|
-          | Articles inserted | ${COUNT} |
+          | Articles fetched | ${COUNT} |
+          | Articles inserted | ${INSERTED} |
+          | Skipped (no URL) | ${SKIPPED_NO_URL} |
+          | Skipped (duplicate) | ${SKIPPED_DUPES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `articles_source_url_digest_date_unique` ON `articles` (`source_url`,`digest_date`);
