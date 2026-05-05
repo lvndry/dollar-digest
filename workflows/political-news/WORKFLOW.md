@@ -21,7 +21,7 @@ Follow this sequence **every run**. Do not skip steps.
 
 ### Phase 1 — Political Query Coverage
 
-Create **15–30 targeted search queries**. Coverage has two axes **what the story is about** and **which region(s) it primarily concerns**. Nothing is “domestic US” by default; the US region is one peer among several.
+Create search queries. Coverage has two axes **what the story is about** and **which region(s) it primarily concerns**. Nothing is “domestic US” by default; the US region is one peer among several.
 
 Each query must name a region and either `DIGEST_DATE`, “today”, or a concrete event. Include **at least two queries per region** across the digest plan. The shared skill controls the `web_search` date-window arguments.
 
@@ -29,7 +29,7 @@ Each query must name a region and either `DIGEST_DATE`, “today”, or a concre
 
 #### Step 2a — Bundle by region
 
-Use one primary region per bundle: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`. Each bundle owns only its region’s query set.
+Use one primary region per bundle: `US`, `China`, `BRICS`, `Europe`, `Africa`, `Asia`, `South America`, `Middle East`. Each bundle owns only its region’s query set.
 
 Each subagent must return an array of zero or more candidates in this structure:
 
@@ -48,8 +48,7 @@ Each subagent must return an array of zero or more candidates in this structure:
         "bias": "far-left | left | center | right | far-right"
       }
     ],
-    "issueDate": "YYYY-MM-DD if the search result or fetched page exposes it; omit if unavailable",
-    "publishedAt": "YYYY-MM-DD or full ISO timestamp if found",
+    "publishedAt": "YYYY-MM-DD",
     "keyFacts": ["fact with who/what/where/outcome", "fact with evidence"],
     "crossSpectrumNotes": "How credible sources with different leanings frame the same event, if available",
     "credibilityNotes": "Primary source, wire service, reputable outlet, or reason to distrust/skip"
@@ -61,7 +60,7 @@ Each subagent must return an array of zero or more candidates in this structure:
 
 #### Step 2b — Deepen finalists
 
-From all subagent returns, collect all candidate stories without capping the list. When several candidates describe the same event or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer **2–3 specific research questions** before selection, such as:
+From all subagent returns, collect all candidate stories without capping the list. When several candidates describe the same event or topic, merge them into one candidate and combine their verified `sources` instead of keeping duplicate entries. For each candidate that might reach the final digest, answer 2–3 specific research questions before selection, such as:
 
 - What exactly happened, where, and who made the decision or announcement?
 - What is the primary source: official statement, press release, court document, legislative text, Reuters, or AP?
@@ -127,10 +126,15 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each fina
 - **Policy** — legislation, executive orders, regulation, major government decisions
 - **Elections** — campaigns, polls, results, party leadership, referendums
 - **Diplomacy** — treaties, summits, sanctions, war/peace, bilateral or bloc relations
-- **Courts** — rulings, indictments, constitutional issues, major legal proceedings
-- **Political economy** — budgets, trade, energy, industrial policy, macro-political moves
+- **Economy** — fiscal policy, trade, tariffs, budgets, central bank decisions, economic data
+- **Security** — military, defense, intelligence, terrorism, cyber attacks, border security
+- **Justice** — courts, prosecutions, constitutional rulings, human rights, rule of law
+- **Corruption** — scandals, investigations, impeachments, misconduct by officials
+- **Protest** — civil unrest, demonstrations, strikes, social movements, crackdowns
+- **Energy** — oil, gas, renewables, energy policy, climate agreements, resource disputes
+- **Surveillance** — state surveillance, censorship, press freedom, digital authoritarianism
 
-**Region tags** (use these exact strings in `regions` arrays; pick every region materially involved, often 1–2, sometimes more for summits or wars):
+**Region** (use these exact strings in `regions` arrays; pick every region materially involved, often 1–2, sometimes more for summits or wars):
 
 - **US** — United States federal/state politics and US-centric outcomes
 - **China** — PRC politics, policy, and cross-strait issues where China is a primary actor
@@ -139,6 +143,7 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each fina
 - **Africa** — African Union and national politics on the continent
 - **Asia** — Asia-Pacific **excluding** stories already tagged **only** as **China** when the lens is purely PRC-internal; use **Asia** for Japan, Korea, India, ASEAN, Oceania regional politics, etc.
 - **South America** — Latin America south of Panama (Mercosur, Andean states, Brazil when the story is regional not only BRICS-bloc)
+- **Middle East** — Middle Eastern countries and regional blocs, including Israel, Palestine, Gulf states, Iran, Turkey, Levant, and North Africa when framed through MENA (Middle East and North Africa) regional politics
 
 - **`tags`**: non-empty array; values must be chosen dynamically from the tag list using exact strings. Do not default to `Policy` / `Diplomacy`; pick the tags that actually explain the story.
 - **`regions`**: non-empty array; values must be chosen dynamically from the region list in Phase 1 using exact strings. Do not default to `US` / `Europe`; tag the region(s) materially involved in the story.
@@ -155,16 +160,6 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each fina
 - Remaining sentences = source-backed context, institutional consequences, affected groups, and cross-spectrum framing when relevant
 - No adjectives that express opinion ("controversial", "surprising", "dramatic")
 - Keep the summary factual. Put strategic/game-theory analysis in `strategicInterpretation`, not mixed into the core summary.
-
-**Tag definitions (reference):**
-
-| Topic                 | Covers                                                                    |
-| --------------------- | ------------------------------------------------------------------------- |
-| **Policy**            | Legislation, executive orders, regulation, major government decisions     |
-| **Elections**         | Campaigns, polls, results, party leadership, referendums                  |
-| **Diplomacy**         | Treaties, summits, sanctions, conflict and peace processes, alliances     |
-| **Courts**            | Rulings, indictments, constitutional issues, major legal proceedings      |
-| **Political economy** | Budgets, trade, energy, industrial policy, macro-political economic moves |
 
 ---
 

@@ -31,13 +31,14 @@ Create **10–20 targeted search queries** across these domains:
 - **Industry** — CEO announcements, executive moves, company strategy, earnings, layoffs
 - **Policy & Law** — tech regulation, antitrust, data privacy laws, government rulings on tech companies
 - **Venture Capital** — funding rounds, acquisitions, valuations, exits, investor activity
+- **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
+- **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
 
 Also maintain **topic tags** for each candidate and final story. `subcategory` is the one primary editorial bucket; `tags` are multi-select descriptors that help explain what the story is really about.
 
 Use these exact tag strings when they apply:
 
 - **AI** — artificial intelligence, model behavior, agent systems, evaluation
-- **Models** — foundation model releases, benchmarks, training, inference quality
 - **Infrastructure** — chips, GPUs, cloud, data centers, networking, compute markets
 - **Research** — papers, labs, academic findings, technical breakthroughs
 - **Security** — vulnerabilities, breaches, malware, CVEs, patches, threat intelligence
@@ -46,11 +47,10 @@ Use these exact tag strings when they apply:
 - **Product** — user-facing launches, feature releases, platform changes
 - **Enterprise** — B2B software, CIO/CTO adoption, workplace technology
 - **Consumer** — consumer apps, devices, social platforms, creator tools
-- **Open source** — OSS releases, licenses, maintainers, ecosystem governance
 - **Policy** — regulation, antitrust, data privacy, government action affecting tech
-- **OSS** — foundations (CNCF, Apache, LF), flagship libraries and runtimes, license disputes, maintainer handoffs, package-registry or dependency-supply-chain incidents
-
-Include at least one query for each subcategory. The shared skill controls the `web_search` date-window arguments.
+- **OSS** — Open Source, Github, Linux, Foundations, Github trends
+- **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
+- **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
 
 ### Phase 2 — Tech Candidate Research
 
@@ -64,8 +64,8 @@ Each subagent must return an array of zero or more candidates in this structure:
 [
   {
     "candidateTitle": "Working title",
-    "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy",
-    "tags": ["AI", "Models", "Infrastructure"],
+    "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | ...",
+    "tags": ["AI", "Infrastructure", ...],
     "sources": [
       {
         "name": "Publication or primary source",
@@ -73,8 +73,7 @@ Each subagent must return an array of zero or more candidates in this structure:
         "sourceStatus": "2xx | redirected-to-2xx | unverified | failed"
       }
     ],
-    "issueDate": "YYYY-MM-DD if the search result or fetched page exposes it; omit if unavailable",
-    "publishedAt": "YYYY-MM-DD or full ISO timestamp if found",
+    "publishedAt": "YYYY-MM-DD",
     "keyFacts": ["fact with number/name/outcome", "fact with evidence"],
     "whyItMatters": "One sentence",
     "credibilityNotes": "Primary source, wire service, reputable outlet, or reason to distrust/skip"
@@ -90,7 +89,7 @@ From all subagent returns, collect all candidate stories without capping the lis
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
 - Is there independent confirmation from a reputable second source?
 
-When the merged candidate list is large, deepen in parallel — spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
+When the merged candidate list is large, deepen in parallel spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 ### Phase 3 — Select & Score
 
@@ -108,10 +107,10 @@ Apply the importance score:
 Rules of thumb:
 
 - **Aim for broad coverage** — aim for at least 6 of the 8 subcategories to be represented. If a category is empty, do a dedicated search before accepting it's a quiet day
-- **Favor stories with concrete numbers** (funding amounts, benchmark scores, user counts, revenue figures) over qualitative hype
+- **Favor stories with concrete numbers** over qualitative hype
 - **Prefer primary sources** — link to the paper PDF, not the Medium recap of the paper
 - **No duplicates** — if two outlets cover the same event, output one JSON object and include the verified coverage in its `sources` array
-- Include every story that passes the 0.5 threshold — do not drop qualifying stories to hit a target number; the search engine already limits discovery, so keep everything relevant that survives the bar
+- Include every story that passes the 0.5 threshold — do not drop qualifying stories
 
 ### Phase 4 — Write & Output
 
@@ -120,13 +119,15 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each final sto
 ```json
 {
   "category": "tech",
-  "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy",
-  "tags": ["AI", "Models", "Infrastructure"]
+  "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | Hardware | Developer Tools",
+  "tags": ["AI", "Models", "Infrastructure"],
+  "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
 }
 ```
 
 - **`subcategory`**: exactly one primary editorial bucket.
 - **`tags`**: non-empty array; use exact strings from the tag list above, usually 1–4 tags. Tags may overlap with `subcategory`, but should add useful detail rather than repeat it mechanically.
+- **`technicalSignificance`**: required for every story. Clearly separate interpretation from fact.
 
 **Summary writing rules:**
 
@@ -135,21 +136,6 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each final sto
 - Remaining sentences = source-backed context, market impact, technical implications, and why a professional reader should care
 - Be precise — "$450M Series B at a $2.8B valuation" not "a big funding round"
 - No editorial hype ("game-changing", "revolutionary", "stunning") — let the facts speak
-
-**Subcategory definitions (reference):**
-
-| Subcategory  | Covers                                                                       |
-| ------------ | ---------------------------------------------------------------------------- |
-| **AI**       | Model releases, benchmarks, AI safety, foundation models, inference hardware |
-| **Research** | Academic papers, university studies, lab discoveries, preprints              |
-| **Startup**  | Early-stage companies, pivots, launches, founder stories                     |
-| **Product**  | Feature releases, redesigns, platform changes at established companies       |
-| **Security** | Vulnerabilities, breaches, patches, threat research, CVEs                    |
-| **Industry** | CEO announcements, executive moves, company strategy, earnings, layoffs      |
-| **Policy**   | Tech regulation, antitrust, data privacy laws, government rulings on tech    |
-| **VC**       | Funding rounds, acquisitions, valuations, exits, investor activity           |
-
----
 
 ## Quality Checklist (verify before finishing)
 
