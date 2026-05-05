@@ -27,7 +27,7 @@ Run this command first:
 echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 ```
 
-Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. The wider window is for discovery; final selection still belongs to `DIGEST_DATE`.
+Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. The wider window is for discovery; final selection still belongs to the last 24 hours from `DIGEST_DATE`.
 
 ---
 
@@ -266,7 +266,7 @@ Before finishing, verify:
 - [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
 - [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
-- [ ] `publishedAt` reflects the source article date; `digestDate` equals `DIGEST_DATE`
+- [ ] `publishedAt` reflects the source article date;
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
 - [ ] The output file was written to the category-specific path
