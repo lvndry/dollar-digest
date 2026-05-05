@@ -64,14 +64,12 @@ export default async function PoliticsPage({ searchParams }: PoliticsPageProps) 
     ),
   ).sort();
 
-  const displayArticles =
-    currentFilter && hasAccess
-      ? articles.filter((a) => {
-          if (a.category !== "politics") return false;
-          if (a.primaryRegion?.trim() === currentFilter) return true;
-          return parseJsonStringArray(a.regions).some((r) => r.trim() === currentFilter);
-        })
-      : articles;
+  const displayArticles = articles.filter((a) => {
+    if (a.category !== "politics") return false;
+    if (!currentFilter) return true;
+    if (a.primaryRegion?.trim() === currentFilter) return true;
+    return parseJsonStringArray(a.regions).some((r) => r.trim() === currentFilter);
+  });
 
   return (
     <DigestFeedWrapper>

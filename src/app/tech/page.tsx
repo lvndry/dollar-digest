@@ -56,12 +56,11 @@ export default async function TechPage({ searchParams }: TechPageProps) {
     ),
   ).sort();
 
-  const displayArticles =
-    currentFilter && hasAccess
-      ? articles.filter(
-          (a) => a.category === "tech" && a.subcategory?.trim() === currentFilter,
-        )
-      : articles;
+  const displayArticles = articles.filter(
+    (a) =>
+      a.category === "tech" &&
+      (!currentFilter || a.subcategory?.trim() === currentFilter),
+  );
 
   return (
     <DigestFeedWrapper>
