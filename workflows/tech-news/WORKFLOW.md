@@ -89,7 +89,7 @@ From all subagent returns, collect all candidate stories without capping the lis
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
 - Is there independent confirmation from a reputable second source?
 
-When the merged candidate list is large, deepen in parallel spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
+When the merged candidate list is large, deepen in parallel, spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 ### Phase 3 — Select & Score
 
@@ -120,7 +120,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each final sto
 {
   "category": "tech",
   "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | Hardware | Developer Tools",
-  "tags": ["AI", "Models", "Infrastructure"],
+  "tags": ["AI","Infrastructure", ...],
   "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
 }
 ```
