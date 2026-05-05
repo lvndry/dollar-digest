@@ -1,7 +1,7 @@
 ---
 name: daily-digest-workflow
 description: Shared operating policy for One Dollar Digest Jazz workflows. Use when running or authoring scheduled digest workflows that gather articles, validate sources, and write digest JSON.
-tagline: Shared policy for scheduled One Dollar Digest workflows.
+tagline: Deep research policy for scheduled One Dollar Digest workflows.
 triggers:
   - daily digest
   - digest workflow
@@ -9,7 +9,7 @@ triggers:
   - SEARCH_FROM_DATE
 ---
 
-# Daily Digest Workflow
+# Daily Digest Workflow — Deep Research
 
 This skill is mandatory shared policy for every One Dollar Digest workflow. Category-specific `WORKFLOW.md` instructions extend this policy; they do not replace it.
 
@@ -17,11 +17,9 @@ This skill is mandatory shared policy for every One Dollar Digest workflow. Cate
 
 You are running inside an automated CI pipeline. No user is present and no one will respond. Complete the workflow from start to finish without asking for confirmation or approval.
 
-All tools are available and functional: `web_search`, `http_request`, `spawn_subagent`, `write_file`, and `execute_command` all work normally in this environment. Do not assume any tool is unavailable without actually attempting to call it.
+---
 
-If every `web_search` call returns a hard error, output an empty array `[]` and stop. Empty result sets are not hard errors; adapt the queries and continue.
-
-## Required Date Setup
+## Phase 0 — Environment Setup
 
 Run this command first:
 
@@ -29,19 +27,40 @@ Run this command first:
 echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 ```
 
-Store the output as `DIGEST_DATE`.
+Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. The wider window is for discovery; final selection still belongs to the last 24 hours from `DIGEST_DATE`.
 
-Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. Use the wider discovery window for search, but final selection still belongs to `DIGEST_DATE`.
+---
 
-## Search Rules
+## Phase 1 — Research Planning
 
-After `DIGEST_DATE` and `SEARCH_FROM_DATE` are set, generate a fresh query plan for `DIGEST_DATE`. Do not reuse yesterday's queries without adapting them to the date and current news cycle.
+Before running any search, write a research plan.
 
-Category-specific workflows define the required coverage dimensions, query counts, and query bundle ownership. Apply those category rules while following the shared search-window rules below.
+The plan must contain:
 
-Delegate discovery in parallel by spawning subagents for non-overlapping query bundles. Use judgment to choose the number of subagents based on the workflow's coverage dimensions, query count, and complexity. Each subagent owns its assigned bundle and must return only source-backed candidates in the category-specific candidate shape.
+### 1a — Coverage map
 
-Every `web_search` call must pass date arguments as top-level tool arguments:
+List every dimension that must be covered for the topic to be considered complete. Category-specific workflows define these dimensions; this policy requires that they are written down explicitly before any work begins. A dimension is a distinct angle, region, subcategory, or theme — not a query. Each dimension gets its own query bundle in Phase 2.
+
+### 1b — Initial query set
+
+For each dimension, write at least 5 targeted search queries. Each query must:
+
+- Name a specific actor, product, event, region, or technical term
+- Mention `DIGEST_DATE`, "today", or a concrete recent event
+- Not be reused from a previous run without adapting it to the current news cycle
+
+Write at least one "surprise" query per dimension — something that would catch a story you wouldn't have thought to search for.
+
+### 1c — Depth signals
+
+Define the conditions that trigger going deeper on a story. At minimum:
+
+- Importance score ≥ 0.8
+- A key fact is contested, vague, or sourced only from a secondary outlet
+- The article references a document (paper, filing, ruling, press release) that has not yet been fetched
+- The primary "source" is an aggregator, newsletter recap, or tweet rather than the originating publication
+
+All `web_search` calls must pass date arguments as top-level tool arguments:
 
 ```json
 {
@@ -53,48 +72,129 @@ Every `web_search` call must pass date arguments as top-level tool arguments:
 }
 ```
 
-Do not rely on putting dates only in query text. Query text can mention `DIGEST_DATE`, "today", or a concrete event, but the actual discovery window must come from `fromDate` and `toDate`.
+Do not rely on putting dates only in query text.
 
-When spawning subagents, explicitly pass `DIGEST_DATE` and `SEARCH_FROM_DATE` and require them to use this same `web_search` shape, defensive date filtering, source validation, and no-fabrication rules.
+---
 
-## Defensive Date Filtering
+## Phase 2 — Parallel Discovery
 
-After each search bundle, do a defensive date-filtering pass before returning or selecting candidates:
+Spawn one subagent per coverage dimension. Each subagent owns its assigned dimension and must not search outside it. Pass `DIGEST_DATE`, `SEARCH_FROM_DATE`, and the assigned query bundle explicitly to every subagent.
 
-- If the search result or fetched page exposes an issue/publication date, record it as `issueDate`
-- Keep candidates whose `issueDate` equals `DIGEST_DATE`
-- Drop candidates whose `issueDate` is before or after `DIGEST_DATE`
-- If no usable issue date is available, keep the candidate for deeper verification rather than discarding it prematurely
+Each subagent follows this internal sequence:
 
-If a search result has `publishedDate` before or after `DIGEST_DATE`, treat it as background unless the fetched source page clearly shows the story was published or materially updated on `DIGEST_DATE`.
+### Step 2a — Search
 
-Set `digestDate` to `DIGEST_DATE` in every final article JSON object. Set `publishedAt` to the source article's real publication or last-updated date when available. Use `DIGEST_DATE` only when the source page clearly confirms the story belongs to that date but does not expose a more precise timestamp.
+Run the assigned queries. Collect all results within the date window. Note empty results but do not stop, adapt the queries and try again with different phrasing before giving up on a dimension.
 
-## Research And Source Validation
+### Step 2b — Fetch and read content
 
-Prefer primary and canonical sources: official statements, company blogs, papers, filings, advisories, court or government documents, Reuters/AP, or original reporting from reputable outlets.
+For every promising result, fetch the full article using `web_fetch` or `http_request`. **Do not rely on search result snippets.** Read the actual page. Extract:
 
-Before writing final JSON, validate every final `sourceUrl` and every `sources[].url`:
+- The core claim or announcement (one sentence)
+- Key facts with concrete evidence: numbers, names, dates, outcomes
+- Who is affected and in what way
+- Any referenced primary sources not yet fetched (papers, filings, official statements, company blogs)
+- Confidence level: `high` (primary source, wire service, official statement) | `medium` (reputable outlet, corroborated by a second source) | `low` (single secondary outlet, unverified claim)
 
-- Use the HTTP fetch tool whenever available
-- Always fetch redirects, aggregators, tag pages, shortened URLs, uncertain links, and search-result URLs
-- Follow redirects and use the final canonical URL when the fetched page resolves successfully
-- Confirm the final page returns a successful response (`2xx`)
-- Confirm the page is not a 404, soft-404, blocked error page, search page, homepage, unrelated live blog, or unrelated article
-- Confirm the fetched page title/body matches the story, source, and publication date
-- Replace invalid links with a working canonical source; if no working source can be verified, skip the story
+### Step 2c — Generate follow-up queries
 
-Never output an unverified, failed, homepage, search-result, soft-404, or unrelated `sourceUrl` or `sources[].url`.
+After reading each article, if confidence is `low` or a primary source is referenced but not yet fetched, generate targeted follow-up queries. Examples:
 
-## Candidate Handling
+- `site:arxiv.org <paper title>` to reach the actual paper
+- `site:sec.gov <company name> filing` to reach the regulatory document
+- `"<exact quote or product name>" announcement` to find the canonical press release
+- `<competitor or analyst name> response to <event>` to find corroboration or contradiction
 
-Collect source-backed candidates without capping the list. Merge duplicate coverage of the same event into one candidate or final story, combining verified sources in one `sources` array.
+Return these queries in the candidate payload. **Do not run them inside Phase 2** — context deepening happens in Phase 3.
 
-For each candidate that might reach the final digest, answer two or three concrete research questions before selection. If no source-backed answer is available after two attempts, skip the candidate. Never fabricate.
+### Step 2d — Return shape
 
-Include every story that passes the category-specific importance threshold. Do not drop qualifying stories just to hit a target count; the search engine already limits discovery.
+```json
+{
+  "candidates": [
+    {
+      "candidateTitle": "Working title",
+      "coreClaimOneSentence": "The core fact in one sentence",
+      "keyFacts": ["fact with who/what/where/outcome", "fact with evidence"],
+      "sources": [
+        {
+          "name": "Publication or primary source",
+          "url": "Fetched URL",
+          "sourceStatus": "2xx | redirected-to-2xx | unverified | failed",
+          "confidence": "high | medium | low"
+        }
+      ],
+      "publishedAt": "YYYY-MM-DD",
+      "needsDeepening": true,
+      "deepeningReason": "Why this story needs more context",
+      "followUpQueries": ["targeted follow-up query 1", "targeted follow-up query 2"]
+    }
+  ]
+}
+```
 
-## Output Contract
+Set `needsDeepening: true` when any depth signal from Phase 1 applies to this candidate.
+
+---
+
+## Phase 3 — Context Deepening
+
+After all discovery subagents return, collect the full candidate list. For each candidate where `needsDeepening: true`:
+
+1. Run the `followUpQueries` using the same `fromDate`/`toDate` search shape
+2. Fetch any referenced primary sources found
+3. Update `keyFacts`, `sources`, and `confidence` with what was found
+4. Set `needsDeepening: false` once confidence reaches `high` or `medium` with at least two independent sources, or once follow-up searches return no new information
+
+**Repeat** until no candidates remain with `needsDeepening: true` and unrun queries, or until searches stop producing new information.
+
+**Adaptive depth rules:**
+
+| Importance | Depth behavior                                                  |
+| ---------- | --------------------------------------------------------------- |
+| ≥ 0.8      | Run all follow-up rounds until high confidence or no new signal |
+| 0.5 – 0.8  | One follow-up round is sufficient                               |
+| < 0.5      | Skip deepening entirely                                         |
+
+When the candidate list is large, spawn deepening subagents in parallel — assign batches of candidates to separate subagents to stay within the iteration budget.
+
+---
+
+## Phase 4 — Candidate Consolidation
+
+Merge all candidates that describe the same event into one entry. Combine their `sources` arrays. Never keep two JSON objects for the same underlying event.
+
+For each consolidated candidate, verify before moving to scoring:
+
+- What exactly happened, who did it, and what was the concrete outcome?
+- What is the highest-confidence source in the `sources` array?
+- Is anything still uncertain that the final summary must not assert as fact?
+
+If no source-backed answer is available after two attempts, skip the candidate. Never fabricate.
+
+---
+
+## Phase 5 — Select & Score
+
+Apply the importance score defined by the category-specific workflow. Include every story that reaches the category's minimum threshold. Do not drop qualifying stories to hit a target count — the search engine already limits discovery.
+
+---
+
+## Phase 6 — Source Validation
+
+Before writing final JSON, validate every `sourceUrl` and every `sources[].url`:
+
+- Fetch redirects, aggregators, shortened URLs, and any link you are uncertain about
+- Follow redirects to the final canonical URL
+- Confirm the page returns a `2xx` response
+- Confirm the page title and body match the story, publication, and date
+- Replace invalid links with a working canonical source; if none can be verified, skip the story
+
+Never output an unverified, failed, soft-404, homepage, search-result, or unrelated URL.
+
+---
+
+## Phase 7 — Output
 
 Write the full JSON array to the category-specific output file:
 
@@ -102,23 +202,23 @@ Write the full JSON array to the category-specific output file:
 output/<workflow-name>-DIGEST_DATE.json
 ```
 
-Final objects must include these shared fields unless a category-specific workflow explicitly says otherwise:
+Final objects must include these shared fields:
 
 ```json
 {
-  "title": "Concise, specific headline",
-  "summary": "Source-backed summary",
+  "title": "Concise, specific headline — no clickbait, no editorial spin",
+  "summary": "Source-backed factual summary. See summary writing rules below.",
   "source": "Primary publication name",
   "sourceUrl": "Primary canonical article URL",
   "sources": [
     {
-      "name": "Primary or corroborating publication name",
+      "name": "Publication or primary source name",
       "url": "Canonical article URL"
     }
   ],
   "issueDate": "YYYY-MM-DD if known; omit if unavailable",
   "category": "tech | politics | category-specific value",
-  "publishedAt": "Actual source publication/update date, preferably ISO format",
+  "publishedAt": "YYYY-MM-DD",
   "digestDate": "DIGEST_DATE",
   "readingTimeMinutes": 3,
   "importanceScore": 0.85
@@ -127,17 +227,47 @@ Final objects must include these shared fields unless a category-specific workfl
 
 Only output valid JSON arrays in files. Console progress logs are fine.
 
+### Summary writing rules
+
+The `summary` field is the primary analytical payload. Adapt its depth and focus to the story type:
+
+| Story type                      | What the summary must answer                                            |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| Research / academic paper       | What was found, how it was measured, and what it changes or enables     |
+| Product launch / feature        | What shipped, for whom, and what concrete capability it adds or removes |
+| Security vulnerability / breach | What was exposed, how, affected scope, and remediation status           |
+| Funding / acquisition           | Who, how much, at what valuation, and what the capital is for           |
+| Policy / regulation             | What rule was proposed or enacted, who it applies to, and when          |
+| Executive / personnel           | Who moved where and what strategic shift the move signals               |
+| Geopolitical / diplomatic       | What decision was made, by whom, and what the immediate consequence is  |
+
+Shared rules across all types:
+
+- First sentence = the core fact (who did what, with what concrete result)
+- Second sentence = the key number, consequence, or technical detail that makes the story worth reading
+- Remaining sentences = source-backed context, affected parties, and anything that was uncertain or contested during research — resolved as a fact, or flagged as unconfirmed
+- No adjectives that express opinion ("controversial", "surprising", "game-changing", "stunning")
+- Do not assert as fact anything that reached the final article with `confidence: low` — use "reportedly", "according to", or "unconfirmed"
+
+---
+
 ## Shared Quality Checklist
 
 Before finishing, verify:
 
-- Phase 0 ran and `DIGEST_DATE` is confirmed
-- `SEARCH_FROM_DATE` is two calendar days before `DIGEST_DATE`
-- Every `web_search` call used `fromDate: SEARCH_FROM_DATE` and `toDate: DIGEST_DATE`
-- Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
-- Stories without a usable issue date were kept only after source verification
-- Every final `sourceUrl` and `sources[].url` was fetched or otherwise validated
-- Multi-source stories use one entry with a non-empty `sources` array
-- `publishedAt` reflects the source article date; `digestDate` equals `DIGEST_DATE`
-- JSON is valid and complete
-- The output file was written to the category-specific path
+- [ ] Phase 0 ran and `DIGEST_DATE` is confirmed
+- [ ] `SEARCH_FROM_DATE` is two calendar days before `DIGEST_DATE`
+- [ ] A written research plan was produced before any search (Phase 1)
+- [ ] Every coverage dimension had at least two queries, including a "surprise" query
+- [ ] Every `web_search` call used `fromDate: SEARCH_FROM_DATE` and `toDate: DIGEST_DATE`
+- [ ] Each discovery subagent fetched and read full article content — not just search snippets
+- [ ] Every candidate with `needsDeepening: true` was processed in Phase 3
+- [ ] No candidate with `confidence: low` reached the final output without a hedged summary
+- [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
+- [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
+- [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
+- [ ] `publishedAt` reflects the source article date;
+- [ ] Summary depth matches the story type per the table above
+- [ ] JSON is valid and complete
+- [ ] The output file was written to the category-specific path
+- [ ] The category-specific quality checklist (from the loaded `WORKFLOW.md`) is also satisfied

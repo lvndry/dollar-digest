@@ -16,8 +16,12 @@ async function getAvailableDates(): Promise<string[]> {
   }
 }
 
+/** Refresh at most every 2 hours. Ingestions purge this cache immediately via the 'articles' tag. */
 export const getCachedAvailableDates = unstable_cache(
-  () => getAvailableDates(),
+  getAvailableDates,
   ["available-dates"],
-  { revalidate: 3600, tags: ["articles"] },
+  {
+    revalidate: 7200,
+    tags: ["articles"],
+  },
 );
