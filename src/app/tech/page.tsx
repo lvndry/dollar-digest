@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
+import { FilterBar } from "@/components/FilterBar";
 import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
@@ -37,13 +38,29 @@ export const metadata: Metadata = {
 };
 
 interface TechPageProps {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; filter?: string }>;
 }
 
 export default async function TechPage({ searchParams }: TechPageProps) {
   const { session, isToday, hasAccess, articles, displayDate } =
     await loadDigestDay(searchParams);
+  const { filter: currentFilter } = await searchParams;
+
   const categoryCount = countDigestArticlesForCategory(articles, "tech");
+
+  const filterOptions = Array.from(
+    new Set(
+      articles
+        .filter((a) => a.category === "tech" && a.subcategory)
+        .map((a) => a.subcategory!.trim()),
+    ),
+  ).sort();
+
+  const displayArticles = articles.filter(
+    (a) =>
+      a.category === "tech" &&
+      (!currentFilter || a.subcategory?.trim() === currentFilter),
+  );
 
   return (
     <DigestFeedWrapper>
@@ -82,7 +99,13 @@ export default async function TechPage({ searchParams }: TechPageProps) {
             No digest available for this date.
           </p>
         ) : (
-          <DigestGrid articles={articles} category="tech" label="Technology" />
+          <>
+            <FilterBar
+              filterOptions={filterOptions}
+              currentFilter={currentFilter ?? null}
+            />
+            <DigestGrid articles={displayArticles} category="tech" label="Technology" />
+          </>
         )}
       </main>
 

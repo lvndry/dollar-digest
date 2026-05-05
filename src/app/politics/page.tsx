@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { DigestGrid } from "@/components/DigestGrid";
+import { FilterBar } from "@/components/FilterBar";
 import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
+import { parseJsonStringArray } from "@/lib/parse-article-metadata";
 
 export const metadata: Metadata = {
   title: "Politics",
@@ -39,13 +41,35 @@ export const metadata: Metadata = {
 };
 
 interface PoliticsPageProps {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; filter?: string }>;
 }
 
 export default async function PoliticsPage({ searchParams }: PoliticsPageProps) {
   const { session, isToday, hasAccess, articles, displayDate } =
     await loadDigestDay(searchParams);
+  const { filter: currentFilter } = await searchParams;
+
   const categoryCount = countDigestArticlesForCategory(articles, "politics");
+
+  const filterOptions = Array.from(
+    new Set(
+      articles
+        .filter((a) => a.category === "politics")
+        .flatMap((a) => [
+          ...(a.primaryRegion ? [a.primaryRegion] : []),
+          ...parseJsonStringArray(a.regions),
+        ])
+        .map((v) => v.trim())
+        .filter(Boolean),
+    ),
+  ).sort();
+
+  const displayArticles = articles.filter((a) => {
+    if (a.category !== "politics") return false;
+    if (!currentFilter) return true;
+    if (a.primaryRegion?.trim() === currentFilter) return true;
+    return parseJsonStringArray(a.regions).some((r) => r.trim() === currentFilter);
+  });
 
   return (
     <DigestFeedWrapper>
@@ -84,7 +108,13 @@ export default async function PoliticsPage({ searchParams }: PoliticsPageProps) 
             No digest available for this date.
           </p>
         ) : (
-          <DigestGrid articles={articles} category="politics" label="Politics" />
+          <>
+            <FilterBar
+              filterOptions={filterOptions}
+              currentFilter={currentFilter ?? null}
+            />
+            <DigestGrid articles={displayArticles} category="politics" label="Politics" />
+          </>
         )}
       </main>
 
