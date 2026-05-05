@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
         regions: serializeMetadataField(row.regions),
         primaryRegion: optionalString(row.primaryRegion),
         strategicInterpretation: optionalString(row.strategicInterpretation),
+        technicalSignificance: optionalString(row.technicalSignificance),
         digestDate,
         createdAt: optionalString(row.createdAt) ?? now,
       },

@@ -371,6 +371,26 @@ export default async function ArticlePage({
           </section>
         )}
 
+        {article.category === "tech" && article.technicalSignificance && (
+          <section
+            className="mt-10 border-l pl-5"
+            style={{ borderColor: "var(--border-strong)" }}
+          >
+            <h2
+              className="font-ui text-[0.65rem] tracking-widest uppercase mb-3"
+              style={{ color: "var(--ink-faint)" }}
+            >
+              Technical significance
+            </h2>
+            <p
+              className="font-body text-[0.98rem] leading-[1.8]"
+              style={{ color: "var(--ink-mid)" }}
+            >
+              {article.technicalSignificance}
+            </p>
+          </section>
+        )}
+
         {articleSources.some((source) => source.url) && (
           <div className="mt-14 pt-10 border-t" style={{ borderColor: "var(--border)" }}>
             <h2

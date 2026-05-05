@@ -29,6 +29,7 @@ export const articles = sqliteTable(
     regions: text("regions"),
     primaryRegion: text("primary_region"),
     strategicInterpretation: text("strategic_interpretation"),
+    technicalSignificance: text("technical_significance"),
     digestDate: text("digest_date").notNull(),
     createdAt: text("created_at").notNull(),
   },
