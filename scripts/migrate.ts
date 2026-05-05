@@ -14,35 +14,37 @@ async function main() {
   if (!url) throw new Error("TURSO_DATABASE_URL is not set");
 
   const client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
-  const db = drizzle(client);
+  try {
+    const db = drizzle(client);
 
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS __drizzle_migrations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      hash TEXT NOT NULL,
-      created_at INTEGER
-    )
-  `);
+    await client.execute(`
+      CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        hash TEXT NOT NULL,
+        created_at INTEGER
+      )
+    `);
 
-  const { rows } = await client.execute(
-    "SELECT COUNT(*) AS count FROM __drizzle_migrations",
-  );
-  const count = Number(rows[0][0]);
-
-  if (count === 0) {
-    await client.execute({
-      sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
-      args: ["bootstrapped-0004", LAST_PUSHED_MIGRATION_TIMESTAMP],
-    });
-    console.log(
-      "Migration tracking bootstrapped: migrations 0000-0004 marked as already applied",
+    const { rows } = await client.execute(
+      "SELECT COUNT(*) AS count FROM __drizzle_migrations",
     );
+    const count = Number(rows[0][0]);
+
+    if (count === 0) {
+      await client.execute({
+        sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
+        args: ["bootstrapped-0004", LAST_PUSHED_MIGRATION_TIMESTAMP],
+      });
+      console.log(
+        "Migration tracking bootstrapped: migrations 0000-0004 marked as already applied",
+      );
+    }
+
+    await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    console.log("Migrations applied successfully");
+  } finally {
+    client.close();
   }
-
-  await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
-  console.log("Migrations applied successfully");
-
-  client.close();
 }
 
 main().catch((err) => {

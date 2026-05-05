@@ -49,7 +49,7 @@ For each dimension, write at least 5 targeted search queries. Each query must:
 - Mention `DIGEST_DATE`, "today", or a concrete recent event
 - Not be reused from a previous run without adapting it to the current news cycle
 
-Write at least one "surprise" query per dimension - something that would catch a story you wouldn't have thought to search for.
+Write at least one "surprise" query per dimension — something that would catch a story you wouldn't have thought to search for.
 
 ### 1c — Depth signals
 

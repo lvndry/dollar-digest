@@ -16,33 +16,12 @@ async function getAvailableDates(): Promise<string[]> {
   }
 }
 
-/** When we have digest dates, refresh at most every 2 hours. */
-const REVALIDATE_SECONDS_WHEN_HAS_DATES = 7200;
-/** When the digest is still empty, re-check the DB often so new ingests show up quickly. */
-const REVALIDATE_SECONDS_WHEN_EMPTY = 60;
-
-const getAvailableDatesLongTtl = unstable_cache(
+/** Refresh at most every 2 hours. Ingestions purge this cache immediately via the 'articles' tag. */
+export const getCachedAvailableDates = unstable_cache(
   getAvailableDates,
-  ["available-dates", "long"],
+  ["available-dates"],
   {
-    revalidate: REVALIDATE_SECONDS_WHEN_HAS_DATES,
+    revalidate: 7200,
     tags: ["articles"],
   },
 );
-
-const getAvailableDatesShortTtlWhenEmpty = unstable_cache(
-  getAvailableDates,
-  ["available-dates", "empty"],
-  {
-    revalidate: REVALIDATE_SECONDS_WHEN_EMPTY,
-    tags: ["articles"],
-  },
-);
-
-export async function getCachedAvailableDates(): Promise<string[]> {
-  const fromLongTtl = await getAvailableDatesLongTtl();
-  if (fromLongTtl.length > 0) {
-    return fromLongTtl;
-  }
-  return getAvailableDatesShortTtlWhenEmpty();
-}

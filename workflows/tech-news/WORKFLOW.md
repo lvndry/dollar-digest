@@ -89,7 +89,7 @@ From all subagent returns, collect all candidate stories without capping the lis
 - What concrete number, benchmark, funding amount, CVE, user count, or outcome verifies the story?
 - Is there independent confirmation from a reputable second source?
 
-When the merged candidate list is large, deepen in parallel, spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
+When the merged candidate list is large, deepen in parallel — spawn subagents to research batches of candidates simultaneously rather than sequentially, to stay within the iteration budget.
 
 ### Phase 3 — Select & Score
 
