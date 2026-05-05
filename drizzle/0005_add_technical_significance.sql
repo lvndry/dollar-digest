@@ -1,1 +1,0 @@
-ALTER TABLE `articles` ADD `technical_significance` text;
