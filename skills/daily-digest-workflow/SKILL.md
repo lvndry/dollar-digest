@@ -275,7 +275,7 @@ Before finishing, verify:
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
 - [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
 - [ ] `publishedAt` reflects the source article date
-- [ ] Every story has `publishedAt >= SELECT_FROM_DATE` (`T-1`) — no exceptions for importance score
+- [ ] Every story has `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` (24–48 hour selection window) — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
 - [ ] The output file was written to the category-specific path
