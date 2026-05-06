@@ -7,6 +7,7 @@ triggers:
   - digest workflow
   - DIGEST_DATE
   - SEARCH_FROM_DATE
+  - SELECT_FROM_DATE
 ---
 
 # Daily Digest Workflow — Deep Research
@@ -27,7 +28,12 @@ Run this command first:
 echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 ```
 
-Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. The wider window is for discovery; final selection still belongs to the last 24 hours from `DIGEST_DATE`.
+Store the output as `DIGEST_DATE`. Compute two date bounds:
+
+- `SEARCH_FROM_DATE` = two calendar days before `DIGEST_DATE` (`T-2`). Used as `fromDate` in all `web_search` calls — this wider window ensures discovery lags don't cause stories to be missed.
+- `SELECT_FROM_DATE` = one calendar day before `DIGEST_DATE` (`T-1`). This is the hard lower bound for the final output.
+
+**Hard date rule:** Any article whose `publishedAt` is before `SELECT_FROM_DATE` must be discarded from the final output — regardless of importance score, significance, or how few articles a dimension produced. There are no exceptions. The wider `SEARCH_FROM_DATE` window is for search only; it never relaxes the selection cutoff.
 
 ---
 
@@ -162,6 +168,8 @@ When the candidate list is large, spawn deepening subagents in parallel — assi
 
 ## Phase 4 — Candidate Consolidation
 
+**Date gate (run first):** Before any merging or scoring, discard every candidate where `publishedAt` < `SELECT_FROM_DATE`. Do not attempt to keep them, adjust their score, or move them to a separate list. Delete them. A story from outside the `T-1` window is a search false positive — not a digest article.
+
 Merge all candidates that describe the same event into one entry. Combine their `sources` arrays. Never keep two JSON objects for the same underlying event.
 
 For each consolidated candidate, verify before moving to scoring:
@@ -266,7 +274,8 @@ Before finishing, verify:
 - [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
 - [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
-- [ ] `publishedAt` reflects the source article date;
+- [ ] `publishedAt` reflects the source article date
+- [ ] Every story has `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` (24–48 hour selection window) — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
 - [ ] The output file was written to the category-specific path
