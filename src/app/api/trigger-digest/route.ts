@@ -20,37 +20,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let category: Category = "both";
-  let date = "";
+  const body = (await req.json().catch(() => ({}))) || {};
 
-  try {
-    const body = await req.json().catch(() => ({}));
-    if (body.category && VALID_CATEGORIES.includes(body.category)) {
-      category = body.category;
-    }
-    if (typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
-      date = body.date;
-    }
-  } catch {
-    // no body is fine, use defaults
+  let category: Category = "both";
+  if (body.category && VALID_CATEGORIES.includes(body.category)) {
+    category = body.category;
+  }
+
+  let date = "";
+  if (typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
+    date = body.date;
   }
 
   const inputs: Record<string, string> = { category };
   if (date) inputs.date = date;
 
-  const response = await fetch(
-    "https://api.github.com/repos/lvndry/one-dollar-digest/actions/workflows/daily-digest.yml/dispatches",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${ghToken}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Content-Type": "application/json",
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+
+  let response: Response;
+  try {
+    response = await fetch(
+      "https://api.github.com/repos/lvndry/one-dollar-digest/actions/workflows/daily-digest.yml/dispatches",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${ghToken}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ref: "main", inputs }),
+        signal: controller.signal,
       },
-      body: JSON.stringify({ ref: "main", inputs }),
-    },
-  );
+    );
+  } catch {
+    return NextResponse.json({ error: "GitHub API request timed out" }, { status: 504 });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const text = await response.text();
