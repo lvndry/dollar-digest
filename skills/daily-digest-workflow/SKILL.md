@@ -27,7 +27,9 @@ Run this command first:
 echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 ```
 
-Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`. The wider window is for discovery; final selection still belongs to the last 24 hours from `DIGEST_DATE`.
+Store the output as `DIGEST_DATE`. Compute `SEARCH_FROM_DATE` as two calendar days before `DIGEST_DATE`, formatted `YYYY-MM-DD`.
+
+**Hard date rule:** `SEARCH_FROM_DATE` is the strict lower bound for every article in the final output. Any article whose `publishedAt` is before `SEARCH_FROM_DATE` must be discarded — regardless of how high its importance score is, how significant the story is, or how few articles a dimension has produced. There are no exceptions to this rule.
 
 ---
 
@@ -162,6 +164,8 @@ When the candidate list is large, spawn deepening subagents in parallel — assi
 
 ## Phase 4 — Candidate Consolidation
 
+**Date gate (run first):** Before any merging or scoring, discard every candidate where `publishedAt` < `SEARCH_FROM_DATE`. Do not attempt to keep them, adjust their score, or move them to a separate list. Delete them. A January story discovered in a May search is not a digest article — it is a false positive from the search engine.
+
 Merge all candidates that describe the same event into one entry. Combine their `sources` arrays. Never keep two JSON objects for the same underlying event.
 
 For each consolidated candidate, verify before moving to scoring:
@@ -266,7 +270,8 @@ Before finishing, verify:
 - [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
 - [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
-- [ ] `publishedAt` reflects the source article date;
+- [ ] `publishedAt` reflects the source article date
+- [ ] Every story has `publishedAt >= SEARCH_FROM_DATE` — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
 - [ ] The output file was written to the category-specific path
