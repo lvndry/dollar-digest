@@ -137,3 +137,17 @@ writeFileSync(
   "/tmp/insert-stats.json",
   JSON.stringify({ inserted, skippedNoUrl, skippedDuplicates }),
 );
+
+const revalidateUrl = process.env.REVALIDATE_URL;
+const ingestSecret = process.env.INGEST_SECRET;
+if (revalidateUrl && ingestSecret) {
+  try {
+    await fetch(revalidateUrl, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${ingestSecret}` },
+    });
+    console.log("[insert] Cache revalidated ✓");
+  } catch (err) {
+    console.warn("[insert] Cache revalidation failed (non-fatal):", err);
+  }
+}

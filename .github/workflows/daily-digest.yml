@@ -109,6 +109,8 @@ jobs:
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+          REVALIDATE_URL: https://www.onedollardigest.com/api/revalidate
 
       - name: Write job summary
         if: always()
@@ -217,6 +219,8 @@ jobs:
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+          REVALIDATE_URL: https://www.onedollardigest.com/api/revalidate
 
       - name: Write job summary
         if: always()
