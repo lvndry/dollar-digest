@@ -261,6 +261,8 @@ Shared rules across all types:
 
 ## Shared Quality Checklist
 
+**Loop rule:** If you make any edit to the output file while working through this checklist, restart the checklist from the top immediately. Only declare the workflow complete when you can pass through every item below without making any changes to the file.
+
 Before finishing, verify:
 
 - [ ] Phase 0 ran and `DIGEST_DATE` is confirmed
