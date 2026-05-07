@@ -165,6 +165,8 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each fina
 
 ## Quality Checklist (verify before finishing)
 
+**Loop rule:** If you make any edit to the output file while working through this checklist, restart the checklist from the top immediately. Only declare the workflow complete when you can pass through every item below without making any changes to the file.
+
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
 - [ ] Fresh daily query plan generated with coverage across **all seven regions** and **all five political tags**
 - [ ] Subagents executed assigned **per-region** query bundles (or documented merges if below 7), or the main agent did the same if subagent web access was unavailable
