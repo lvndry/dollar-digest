@@ -84,6 +84,8 @@ Do not rely on putting dates only in query text.
 
 ## Phase 2 — Parallel Discovery
 
+> **Budget allocation:** Phases 1–2 should consume at most 40% of your total iteration budget. If you are at 40% and discovery is incomplete, return what you have — consolidation and output are more important than exhaustive discovery.
+
 Spawn one subagent per coverage dimension. Each subagent owns its assigned dimension and must not search outside it. Pass `DIGEST_DATE`, `SEARCH_FROM_DATE`, and the assigned query bundle explicitly to every subagent.
 
 Each subagent follows this internal sequence:
@@ -141,6 +143,9 @@ Return these queries in the candidate payload. **Do not run them inside Phase 2*
 
 Set `needsDeepening: true` when any depth signal from Phase 1 applies to this candidate.
 
+> **Checkpoint:** After all Phase 2 subagents return, write:
+> `write_file("output/.checkpoint-{workflow-name}-{DIGEST_DATE}-phase2.json", JSON.stringify({ phase: 2, candidateCount: N, timestamp: new Date().toISOString() }))`
+
 ---
 
 ## Phase 3 — Context Deepening
@@ -163,6 +168,9 @@ After all discovery subagents return, collect the full candidate list. For each 
 | < 0.5      | Skip deepening entirely                                         |
 
 When the candidate list is large, spawn deepening subagents in parallel — assign batches of candidates to separate subagents to stay within the iteration budget.
+
+> **Checkpoint:** After all deepening is complete and before Phase 4, write:
+> `write_file("output/.checkpoint-{workflow-name}-{DIGEST_DATE}-phase3.json", JSON.stringify({ phase: 3, finalCandidateCount: N, timestamp: new Date().toISOString() }))`
 
 ---
 
@@ -259,6 +267,29 @@ Shared rules across all types:
 
 ---
 
+## Phase 8 — JSON Serialization (Mandatory Final Step)
+
+**Do not skip this phase. It runs after Phase 7 regardless of how the output was assembled.**
+
+After all research and scoring is complete and you have a final list of articles in any intermediate format:
+
+1. Call `spawn_subagent` with `persona: "researcher"` and the following task:
+
+   > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
+   >
+   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sourceUrl` (URL string), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
+   > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`, `sources` (array of {name, url}).
+   >
+   > Article data: [paste all articles in any readable format]"
+
+2. The formatting subagent writes the JSON to the output file.
+
+3. Verify the output with: `jq . <output-file> >/dev/null` — must exit 0.
+
+**Why a separate subagent:** The research phases accumulate a long context that creates formatting pressure. A fresh subagent with a short, focused context produces structurally correct JSON at near-100% reliability.
+
+---
+
 ## Shared Quality Checklist
 
 **Loop rule:** If you make any edit to the output file while working through this checklist, restart the checklist from the top immediately. Only declare the workflow complete when you can pass through every item below without making any changes to the file.
@@ -280,5 +311,6 @@ Before finishing, verify:
 - [ ] Every story has `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` (24–48 hour selection window) — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
+- [ ] Output file passes `jq . <output-file> >/dev/null` with exit code 0 (valid JSON syntax confirmed before declaring done)
 - [ ] The output file was written to the category-specific path
 - [ ] The category-specific quality checklist (from the loaded `WORKFLOW.md`) is also satisfied
