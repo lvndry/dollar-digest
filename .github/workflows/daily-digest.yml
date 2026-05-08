@@ -78,11 +78,15 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      - name: Configure Jazz search provider
+      - name: Configure Jazz search providers
         run: |
-          jazz config set web_search.parallel.api_key "$PARALLEL_API_KEY"
+          jazz config set web_search.exa.api_key "$EXA_API_KEY"
+          if [ -n "$BRAVE_API_KEY" ]; then
+            jazz config set web_search.brave.api_key "$BRAVE_API_KEY"
+          fi
         env:
-          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
 
       - name: Run tech-news workflow
         id: jazz
@@ -93,7 +97,7 @@ jobs:
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -188,11 +192,15 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      - name: Configure Jazz search provider
+      - name: Configure Jazz search providers
         run: |
-          jazz config set web_search.parallel.api_key "$PARALLEL_API_KEY"
+          jazz config set web_search.exa.api_key "$EXA_API_KEY"
+          if [ -n "$BRAVE_API_KEY" ]; then
+            jazz config set web_search.brave.api_key "$BRAVE_API_KEY"
+          fi
         env:
-          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
 
       - name: Run political-news workflow
         id: jazz
@@ -203,7 +211,7 @@ jobs:
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          PARALLEL_API_KEY: ${{ secrets.PARALLEL_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
