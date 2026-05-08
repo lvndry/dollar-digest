@@ -49,14 +49,14 @@ if (!validation.success) {
   );
   console.error(`[insert] Schema validation failed — ${errors.length} issue(s):`);
   errors.forEach((err) => console.error(`  • ${err}`));
-  const errorsFile = filePath.replace(/\.json$/, ".errors.json");
+  const errorsFile = filePath.replace(/\.json$/i, "") + ".errors.json";
   writeFileSync(errorsFile, JSON.stringify({ file: filePath, errors }, null, 2));
   console.error(`[insert] Errors written to ${errorsFile}`);
   process.exit(1);
 }
 console.log(`[insert] Schema validation passed (${parsed.length} articles)`);
 
-const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})\.json$/);
+const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})(?:\.json)?$/i);
 const digestDate = dateMatch?.[1] ?? new Date().toISOString().split("T")[0]!;
 
 function optionalString(value: unknown): string | null {
