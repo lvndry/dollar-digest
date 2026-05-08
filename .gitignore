@@ -14,3 +14,4 @@ tsconfig.tsbuildinfo
 .cursor
 .worktrees
 next-env.d.ts
+superpowers/

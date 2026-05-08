@@ -40,7 +40,8 @@
     "react-dom": "^19.2.5",
     "resend": "^6.12.2",
     "stripe": "^22.1.0",
-    "tailwindcss": "^4.2.4"
+    "tailwindcss": "^4.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

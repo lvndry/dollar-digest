@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { articles } from "@/lib/schema";
 import { fetchOgImages } from "./lib/og-image";
+import { ArticleArraySchema } from "./lib/article-schema";
 import { readFileSync, writeFileSync } from "fs";
 import { jsonrepair } from "jsonrepair";
 
@@ -33,9 +34,29 @@ try {
   parsed = JSON.parse(raw) as Record<string, unknown>[];
 } catch {
   console.warn("[insert] JSON parse failed, attempting repair…");
-  parsed = JSON.parse(jsonrepair(raw)) as Record<string, unknown>[];
+  try {
+    parsed = JSON.parse(jsonrepair(raw)) as Record<string, unknown>[];
+  } catch {
+    console.error("[insert] JSON is unrecoverable even after repair");
+    process.exit(1);
+  }
 }
-const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})\.json$/);
+
+const validation = ArticleArraySchema.safeParse(parsed);
+if (!validation.success) {
+  const errors = validation.error.issues.map(
+    (issue) => `[${issue.path.join(".")}] ${issue.message}`,
+  );
+  console.error(`[insert] Schema validation failed — ${errors.length} issue(s):`);
+  errors.forEach((err) => console.error(`  • ${err}`));
+  const errorsFile = filePath.replace(/\.json$/i, "") + ".errors.json";
+  writeFileSync(errorsFile, JSON.stringify({ file: filePath, errors }, null, 2));
+  console.error(`[insert] Errors written to ${errorsFile}`);
+  process.exit(1);
+}
+console.log(`[insert] Schema validation passed (${parsed.length} articles)`);
+
+const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})(?:\.json)?$/i);
 const digestDate = dateMatch?.[1] ?? new Date().toISOString().split("T")[0]!;
 
 function optionalString(value: unknown): string | null {

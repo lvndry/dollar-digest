@@ -47,17 +47,35 @@ The plan must contain:
 
 List every dimension that must be covered for the topic to be considered complete. Category-specific workflows define these dimensions; this policy requires that they are written down explicitly before any work begins. A dimension is a distinct angle, region, subcategory, or theme — not a query. Each dimension gets its own query bundle in Phase 2.
 
-### 1b — Initial query set
+### 1b — Landscape Discovery
 
-For each dimension, write at least 5 targeted search queries. Each query must:
+Before writing targeted queries, run a broad discovery sweep to understand what is actually in the news today. Run all dimensions **in parallel** — one or two broad searches per dimension using queries like "top [dimension] news today `DIGEST_DATE`" or "latest [dimension] developments `DIGEST_DATE`". Do not go deep; the goal is a topic map, not research.
 
-- Name a specific actor, product, event, region, or technical term
+For each dimension, extract:
+
+- 3–5 headline events or stories that appear significant
+- Key actors, institutions, or entities mentioned
+- Any story that surfaces in two or more dimensions — mark it as a **cross-dimension signal**
+
+If a dimension returns fewer than three distinct stories, flag it as **sparse** — Step 1c must add one broader fallback query for that dimension.
+
+Output: an internal topic map listing discovered topics per dimension and any cross-dimension signals. Use this in Step 1c to write targeted queries.
+
+### 1c — Targeted query set
+
+Using the topic map from Step 1b, write at least 5 targeted search queries per dimension. Each query must:
+
+- Name a specific actor, product, event, region, or technical term discovered in Step 1b
 - Mention `DIGEST_DATE`, "today", or a concrete recent event
 - Not be reused from a previous run without adapting it to the current news cycle
 
-Write at least one "surprise" query per dimension — something that would catch a story you wouldn't have thought to search for.
+Additional rules:
 
-### 1c — Depth signals
+- **Cross-dimension signals** get at least one query per involved dimension, framed through each dimension's lens
+- **Sparse dimensions** get one broader fallback query (e.g. "political developments [region] this week") in addition to the targeted ones
+- Write at least one "surprise" query per dimension — something that would catch a story the discovery sweep may have missed
+
+### 1d — Depth signals
 
 Define the conditions that trigger going deeper on a story. At minimum:
 
@@ -73,8 +91,8 @@ All `web_search` calls must pass date arguments as top-level tool arguments:
   "query": "Describe the research goal and mention DIGEST_DATE",
   "searchQueries": ["concise keyword phrase"],
   "fromDate": "SEARCH_FROM_DATE",
-  "toDate": "DIGEST_DATE",
-  "maxResults": 30
+  "toDate": "DIGEST_DATE"
+  // add other params exposed by the tool as needed (e.g. sourceType, searchDepth)
 }
 ```
 
@@ -83,6 +101,8 @@ Do not rely on putting dates only in query text.
 ---
 
 ## Phase 2 — Parallel Discovery
+
+> **Budget allocation:** Phases 1–2 should consume at most 40% of your total iteration budget. If you are at 40% and discovery is incomplete, return what you have — consolidation and output are more important than exhaustive discovery.
 
 Spawn one subagent per coverage dimension. Each subagent owns its assigned dimension and must not search outside it. Pass `DIGEST_DATE`, `SEARCH_FROM_DATE`, and the assigned query bundle explicitly to every subagent.
 
@@ -141,6 +161,9 @@ Return these queries in the candidate payload. **Do not run them inside Phase 2*
 
 Set `needsDeepening: true` when any depth signal from Phase 1 applies to this candidate.
 
+> **Checkpoint:** After all Phase 2 subagents return, write:
+> `write_file("output/.checkpoint-{workflow-name}-{DIGEST_DATE}-phase2.json", JSON.stringify({ phase: 2, candidateCount: N, timestamp: new Date().toISOString() }))`
+
 ---
 
 ## Phase 3 — Context Deepening
@@ -163,6 +186,9 @@ After all discovery subagents return, collect the full candidate list. For each 
 | < 0.5      | Skip deepening entirely                                         |
 
 When the candidate list is large, spawn deepening subagents in parallel — assign batches of candidates to separate subagents to stay within the iteration budget.
+
+> **Checkpoint:** After all deepening is complete and before Phase 4, write:
+> `write_file("output/.checkpoint-{workflow-name}-{DIGEST_DATE}-phase3.json", JSON.stringify({ phase: 3, finalCandidateCount: N, timestamp: new Date().toISOString() }))`
 
 ---
 
@@ -259,6 +285,29 @@ Shared rules across all types:
 
 ---
 
+## Phase 8 — JSON Serialization (Mandatory Final Step)
+
+**Do not skip this phase. It runs after Phase 7 regardless of how the output was assembled.**
+
+After all research and scoring is complete and you have a final list of articles in any intermediate format:
+
+1. Call `spawn_subagent` and pass the following task:
+
+   > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
+   >
+   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sourceUrl` (URL string), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
+   > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`, `sources` (array of {name, url}).
+   >
+   > Article data: [paste all articles in any readable format]"
+
+2. The formatting subagent writes the JSON to the output file.
+
+3. Verify the output with: `jq . <output-file> >/dev/null` — must exit 0.
+
+**Why a separate subagent:** The research phases accumulate a long context that creates formatting pressure. A fresh subagent with a short, focused context produces structurally correct JSON at near-100% reliability.
+
+---
+
 ## Shared Quality Checklist
 
 **Loop rule:** If you make any edit to the output file while working through this checklist, restart the checklist from the top immediately. Only declare the workflow complete when you can pass through every item below without making any changes to the file.
@@ -267,8 +316,11 @@ Before finishing, verify:
 
 - [ ] Phase 0 ran and `DIGEST_DATE` is confirmed
 - [ ] `SEARCH_FROM_DATE` is two calendar days before `DIGEST_DATE`
-- [ ] A written research plan was produced before any search (Phase 1)
-- [ ] Every coverage dimension had at least two queries, including a "surprise" query
+- [ ] A written coverage map was produced before any search (Phase 1a)
+- [ ] Landscape discovery ran in parallel across all dimensions (Phase 1b)
+- [ ] Cross-dimension signals identified and queried from each involved dimension's lens
+- [ ] Sparse dimensions flagged and given broader fallback queries
+- [ ] Every coverage dimension had at least five targeted queries, including a "surprise" query (Phase 1c)
 - [ ] Every `web_search` call used `fromDate: SEARCH_FROM_DATE` and `toDate: DIGEST_DATE`
 - [ ] Each discovery subagent fetched and read full article content — not just search snippets
 - [ ] Every candidate with `needsDeepening: true` was processed in Phase 3
@@ -280,5 +332,6 @@ Before finishing, verify:
 - [ ] Every story has `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` (24–48 hour selection window) — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above
 - [ ] JSON is valid and complete
+- [ ] Output file passes `jq . <output-file> >/dev/null` with exit code 0 (valid JSON syntax confirmed before declaring done)
 - [ ] The output file was written to the category-specific path
 - [ ] The category-specific quality checklist (from the loaded `WORKFLOW.md`) is also satisfied
