@@ -47,6 +47,11 @@ Use these exact strings; pick every tag that clearly applies to the story (usual
 - **Protest** — civil unrest, demonstrations, strikes, social movements, crackdowns
 - **Energy** — oil, gas, renewables, energy policy, climate agreements, resource disputes
 - **Surveillance** — state surveillance, censorship, press freedom, digital authoritarianism
+- **Immigration** — border policy, asylum, deportations, migration flows, refugee crises
+- **Trade** — tariffs, trade deals, export controls, trade bloc negotiations
+- **Climate** — climate agreements, COPs, green policy, climate litigation, net-zero commitments
+- **Health** — pandemic response, public health policy, drug pricing, healthcare legislation
+- **Media** — media ownership, propaganda, disinformation, state media, press crackdowns
 
 Do not default to `Policy` / `Diplomacy` — pick the tags that actually explain the story.
 
@@ -110,7 +115,7 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
 
 Field rules:
 
-- **`tags`**: non-empty array; exact strings from the tag list; usually 1–3. Do not default to `Policy` / `Diplomacy`.
+- **`tags`**: non-empty array; exact strings from the tag list; usually 1–3, max 4. Do not default to `Policy` / `Diplomacy`.
 - **`regions`**: non-empty array; exact strings from the dimension list; tag every region materially involved.
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`sources`**: each entry requires a defensible `bias` label.
