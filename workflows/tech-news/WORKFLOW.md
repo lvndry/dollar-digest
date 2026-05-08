@@ -24,20 +24,35 @@ Search must be **international in scope, with priority given to the US, Europe, 
 
 ---
 
+## Community Signal Sources
+
+In addition to news outlets and primary sources, actively search **community and social platforms** to surface what practitioners are actually talking about. These sources reveal emerging sentiment, under-reported stories, and grassroots buzz before it hits mainstream tech media.
+
+Search these platforms as part of every run:
+
+- **Hacker News** (`news.ycombinator.com`) — top posts and "Ask HN" threads; high-signal for developer and founder sentiment
+- **Reddit** — relevant subreddits: r/technology, r/MachineLearning, r/programming, r/netsec, r/hardware, r/startups, r/artificial, r/LocalLLaMA
+- **Twitter / X** — trending tech topics, announcements from founders, researchers, and engineers; search recent posts from known industry voices
+- **LinkedIn** — executive announcements, company updates, thought leadership posts from CTOs, VCs, and founders
+
+Use community sources to **discover and validate stories**, not as primary sources in the output. If a topic is trending heavily on these platforms but lacks a citable primary source, note it as community signal and deprioritize unless a credible outlet has covered it. When a community post IS the primary source (e.g. a founder's LinkedIn announcement, a researcher's Twitter thread linking to a paper), cite it directly.
+
+---
+
 ## Coverage Dimensions
 
 The eleven domains below are the coverage axis. Aim for at least eight of them to appear in the final digest. If a domain is empty, run a dedicated discovery search before accepting it's a quiet day.
 
 - **AI / ML** — model releases, benchmarks, safety developments, foundation models, inference hardware
-- **Research** — academic papers, university studies, lab discoveries, technical breakthroughs
+- **Research** — academic papers, technical breakthroughs
 - **Startups** — early-stage companies, pivots, launches, founder stories
 - **Product** — feature releases, redesigns, platform changes at established companies
 - **Security** — vulnerabilities, breaches, patches, CVEs, threat research
 - **Industry** — CEO announcements, executive moves, company strategy, earnings, layoffs
 - **Policy & Law** — tech regulation, antitrust, data privacy laws, government rulings on tech companies
-- **Venture Capital** — funding rounds, acquisitions, valuations, exits, investor activity
+- **VC** — funding rounds, acquisitions, valuations, exits, investor activity
 - **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
-- **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
+- **Developer Tools** — IDEs, SDKs, APIs, Github Trends, programming languages, build systems, cloud developer platforms
 - **Defense Tech** — autonomous weapons, military AI, surveillance technology, drone warfare, defense contracts, dual-use technology, national security implications of tech
 
 ---
@@ -85,7 +100,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
 ```json
 {
   "category": "tech",
-  "subcategory": "AI / ML | Venture Capital | Research | Startups | Product | Security | Industry | Policy & Law | Hardware | Developer Tools | Defense Tech",
+  "subcategory": "AI / ML | VC | Research | Startups | Product | Security | Industry | Policy & Law | Hardware | Developer Tools | Defense Tech",
   "tags": ["AI", "Infrastructure"],
   "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
 }
