@@ -91,8 +91,7 @@ All `web_search` calls must pass date arguments as top-level tool arguments:
   "query": "Describe the research goal and mention DIGEST_DATE",
   "searchQueries": ["concise keyword phrase"],
   "fromDate": "SEARCH_FROM_DATE",
-  "toDate": "DIGEST_DATE",
-  "maxResults": 30
+  "toDate": "DIGEST_DATE"
   // add other params exposed by the tool as needed (e.g. sourceType, searchDepth)
 }
 ```
