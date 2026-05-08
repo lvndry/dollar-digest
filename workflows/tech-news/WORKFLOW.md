@@ -85,7 +85,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
 ```json
 {
   "category": "tech",
-  "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | Hardware | Developer Tools | Defense Tech",
+  "subcategory": "AI / ML | Venture Capital | Research | Startups | Product | Security | Industry | Policy & Law | Hardware | Developer Tools | Defense Tech",
   "tags": ["AI", "Infrastructure"],
   "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
 }
