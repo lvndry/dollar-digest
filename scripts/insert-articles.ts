@@ -3,6 +3,7 @@ import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { articles } from "@/lib/schema";
 import { fetchOgImages } from "./lib/og-image";
 import { readFileSync, writeFileSync } from "fs";
+import { jsonrepair } from "jsonrepair";
 
 function normalizeUrl(url: string | null): string | null {
   if (!url) return null;
@@ -26,7 +27,14 @@ if (!filePath) {
   process.exit(1);
 }
 
-const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, unknown>[];
+const raw = readFileSync(filePath, "utf-8");
+let parsed: Record<string, unknown>[];
+try {
+  parsed = JSON.parse(raw) as Record<string, unknown>[];
+} catch {
+  console.warn("[insert] JSON parse failed, attempting repair…");
+  parsed = JSON.parse(jsonrepair(raw)) as Record<string, unknown>[];
+}
 const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})\.json$/);
 const digestDate = dateMatch?.[1] ?? new Date().toISOString().split("T")[0]!;
 
