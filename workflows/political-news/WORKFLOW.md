@@ -4,7 +4,6 @@ description: Daily political news digest by region (US, China, BRICS, Europe, Af
 schedule: "30 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
-maxIterations: 80
 ---
 
 # Political News Digest — Daily Professional Edition
