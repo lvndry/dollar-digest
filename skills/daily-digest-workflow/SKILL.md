@@ -291,7 +291,7 @@ Shared rules across all types:
 
 After all research and scoring is complete and you have a final list of articles in any intermediate format:
 
-1. Call `spawn_subagent` with `persona: "researcher"` and the following task:
+1. Call `spawn_subagent` and pass the following task:
 
    > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
    >
