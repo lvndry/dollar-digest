@@ -36,7 +36,6 @@ Search these platforms as part of every run:
 - **LinkedIn** — executive announcements, VC and founder posts
 - **YouTube** — tech channel releases, conference talks, product demos
 - **GitHub** — trending repos, release notes, major version announcements
-- **Discord / Slack communities** — developer communities, open source project servers
 - **Product Hunt** — new product launches and developer tools
 
 Use community sources to **discover and validate stories**, not as primary sources in the output. If a topic is trending heavily on these platforms but lacks a citable primary source, note it as community signal and deprioritize unless a credible outlet has covered it. When a community post IS the primary source (e.g. a founder's LinkedIn announcement, a researcher's Twitter thread linking to a paper), cite it directly.
