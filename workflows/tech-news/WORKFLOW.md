@@ -30,10 +30,14 @@ In addition to news outlets and primary sources, actively search **community and
 
 Search these platforms as part of every run:
 
-- **Hacker News** (`news.ycombinator.com`) — top posts and "Ask HN" threads; high-signal for developer and founder sentiment
-- **Reddit** — relevant subreddits: r/technology, r/MachineLearning, r/programming, r/netsec, r/hardware, r/startups, r/artificial, r/LocalLLaMA
-- **Twitter / X** — trending tech topics, announcements from founders, researchers, and engineers; search recent posts from known industry voices
-- **LinkedIn** — executive announcements, company updates, thought leadership posts from CTOs, VCs, and founders
+- **Hacker News** — top posts, "Ask HN" threads
+- **Reddit** — r/technology, r/MachineLearning, r/programming, r/netsec, r/hardware, r/startups, r/artificial, r/LocalLLaMA
+- **Twitter / X** — founders, researchers, engineers, industry voices
+- **LinkedIn** — executive announcements, VC and founder posts
+- **YouTube** — tech channel releases, conference talks, product demos
+- **GitHub** — trending repos, release notes, major version announcements
+- **Discord / Slack communities** — developer communities, open source project servers
+- **Product Hunt** — new product launches and developer tools
 
 Use community sources to **discover and validate stories**, not as primary sources in the output. If a topic is trending heavily on these platforms but lacks a citable primary source, note it as community signal and deprioritize unless a credible outlet has covered it. When a community post IS the primary source (e.g. a founder's LinkedIn announcement, a researcher's Twitter thread linking to a paper), cite it directly.
 
