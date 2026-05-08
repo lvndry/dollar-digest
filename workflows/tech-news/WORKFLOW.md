@@ -1,6 +1,6 @@
 ---
 name: tech-news
-description: Daily professional tech news digest — deep research across AI, VC, Research, Startup, Product, and Security
+description: Daily professional tech news digest — deep research across AI, VC, Research, Startup, Product, Security, and Defense Tech
 schedule: "0 6 * * *"
 autoApprove: true
 catchUpOnStartup: true
@@ -18,9 +18,15 @@ Call `load_skill` with `skill_name: "daily-digest-workflow"` and follow it as ma
 
 ---
 
+## Geographic Focus
+
+Search must be **international in scope, with priority given to the US, Europe, and Africa**. Do not default to US-only sources. Actively seek stories from European tech hubs (London, Berlin, Paris, Stockholm, Amsterdam) and African tech ecosystems (Lagos, Nairobi, Cairo, Cape Town, Accra). A story from one of these regions that is otherwise comparable in importance to a US story should be included, not dropped.
+
+---
+
 ## Coverage Dimensions
 
-The ten domains below are the coverage axis. Aim for at least eight of them to appear in the final digest. If a domain is empty, run a dedicated discovery search before accepting it's a quiet day.
+The eleven domains below are the coverage axis. Aim for at least eight of them to appear in the final digest. If a domain is empty, run a dedicated discovery search before accepting it's a quiet day.
 
 - **AI / ML** — model releases, benchmarks, safety developments, foundation models, inference hardware
 - **Research** — academic papers, university studies, lab discoveries, technical breakthroughs
@@ -32,6 +38,7 @@ The ten domains below are the coverage axis. Aim for at least eight of them to a
 - **Venture Capital** — funding rounds, acquisitions, valuations, exits, investor activity
 - **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
 - **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
+- **Defense Tech** — autonomous weapons, military AI, surveillance technology, drone warfare, defense contracts, dual-use technology, national security implications of tech
 
 ---
 
@@ -52,6 +59,7 @@ Use these exact strings; pick every tag that clearly applies (usually 1–4):
 - **OSS** — open source, GitHub, Linux, foundations, GitHub trends
 - **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
 - **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
+- **Defense** — autonomous weapons, military AI, defense contracts, dual-use tech, national security, surveillance
 
 ---
 
@@ -77,7 +85,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
 ```json
 {
   "category": "tech",
-  "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | Hardware | Developer Tools",
+  "subcategory": "AI | VC | Research | Startup | Product | Security | Industry | Policy | Hardware | Developer Tools | Defense Tech",
   "tags": ["AI", "Infrastructure"],
   "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
 }
@@ -106,8 +114,9 @@ Field rules:
 **Loop rule:** If you make any edit to the output file while working through this checklist, restart from the top. Only declare done when every item passes without changes.
 
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
-- [ ] All ten domains were covered in the landscape discovery sweep
+- [ ] All eleven domains were covered in the landscape discovery sweep
 - [ ] At least eight domains are represented in the final digest — dedicated search run for any empty domain
+- [ ] Geographic coverage includes at least one story from Europe or Africa (not exclusively US)
 - [ ] All stories scoring ≥ 0.5 are included — no qualifying stories dropped
 - [ ] Each story has a non-empty `tags` array with allowed tag strings only
 - [ ] Each story has concrete numbers or verifiable outcomes
