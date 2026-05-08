@@ -93,6 +93,7 @@ All `web_search` calls must pass date arguments as top-level tool arguments:
   "fromDate": "SEARCH_FROM_DATE",
   "toDate": "DIGEST_DATE",
   "maxResults": 30
+  // add other params exposed by the tool as needed (e.g. sourceType, searchDepth)
 }
 ```
 
