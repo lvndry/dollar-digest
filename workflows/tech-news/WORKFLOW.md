@@ -111,8 +111,6 @@ Field rules:
 
 ## Quality Checklist (verify before finishing)
 
-**Loop rule:** If you make any edit to the output file while working through this checklist, restart from the top. Only declare done when every item passes without changes.
-
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
 - [ ] All eleven domains were covered in the landscape discovery sweep
 - [ ] At least eight domains are represented in the final digest — dedicated search run for any empty domain

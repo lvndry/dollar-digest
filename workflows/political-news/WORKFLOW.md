@@ -109,7 +109,7 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
       "bias": "far-left | left | center | right | far-right"
     }
   ],
-  "strategicInterpretation": "1-3 sentences on incentives, leverage, likely counter-moves, or second-order effects. Clearly distinguish interpretation from verified fact."
+  "strategicInterpretation": "1-3 sentences on incentives, leverage, likely counter-moves, economic impacts, or second-order effects. Clearly distinguish interpretation from verified fact."
 }
 ```
 
@@ -120,8 +120,6 @@ Field rules:
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`sources`**: each entry requires a defensible `bias` label.
 - **`strategicInterpretation`**: explain the game-theoretic or strategic meaning — incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground it in verified facts. Use "may", "could", or "signals" when interpreting motives or future moves. Do not mix interpretation into the core summary.
-
-Do **not** emit `subcategory` for politics articles.
 
 ---
 
@@ -136,8 +134,6 @@ Do **not** emit `subcategory` for politics articles.
 ---
 
 ## Quality Checklist (verify before finishing)
-
-**Loop rule:** If you make any edit to the output file while working through this checklist, restart from the top. Only declare done when every item passes without changes.
 
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
 - [ ] All eight regions were covered in the landscape discovery sweep

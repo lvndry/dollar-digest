@@ -259,7 +259,7 @@ Final objects must include these shared fields:
 }
 ```
 
-Only output valid JSON arrays in files. Console progress logs are fine.
+Only output valid JSON arrays in files.
 
 ### Summary writing rules
 
