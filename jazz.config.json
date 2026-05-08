@@ -2,8 +2,7 @@
   "llmProvider": "openrouter",
   "llmModel": "openrouter/owl-alpha",
   "web_search": {
-    "provider": "exa",
-    "priority_order": ["exa", "brave"]
+    "provider": "exa"
   },
   "storage": {
     "type": "file",
