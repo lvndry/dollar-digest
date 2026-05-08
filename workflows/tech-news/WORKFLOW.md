@@ -112,7 +112,7 @@ Field rules:
 ## Quality Checklist (verify before finishing)
 
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
-- [ ] All eleven domains were covered in the landscape discovery sweep
+- [ ] All domains were covered in the landscape discovery sweep
 - [ ] At least eight domains are represented in the final digest — dedicated search run for any empty domain
 - [ ] Geographic coverage includes at least one story from Europe or Africa (not exclusively US)
 - [ ] All stories scoring ≥ 0.5 are included — no qualifying stories dropped

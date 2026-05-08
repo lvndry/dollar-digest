@@ -115,7 +115,7 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
 
 Field rules:
 
-- **`tags`**: non-empty array; exact strings from the tag list; usually 1–3, max 4. Do not default to `Policy` / `Diplomacy`.
+- **`tags`**: non-empty array; exact strings from the tag list; usually 1–4.
 - **`regions`**: non-empty array; exact strings from the dimension list; tag every region materially involved.
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`sources`**: each entry requires a defensible `bias` label.
