@@ -51,23 +51,15 @@ The domains below are the coverage axis. Aim for at least eight of them to appea
 
 ## Tech Story Tags
 
-Use these exact strings; pick every tag that clearly applies (usually 1–4):
+Tags add a cross-cutting dimension to the subcategory. Use a maximum of 4 tags per story. Suggested starting tags that cut across multiple domains:
 
-- **AI** — artificial intelligence, model behavior, agent systems, evaluation
-- **Infrastructure** — chips, GPUs, cloud, data centers, networking, compute markets
-- **Research** — papers, labs, academic findings, technical breakthroughs
-- **Security** — vulnerabilities, breaches, malware, CVEs, patches, threat intelligence
-- **Startups** — new companies, launches, pivots, founder activity
-- **VC** — funding rounds, valuations, acquisitions, exits, investor activity
-- **Product** — user-facing launches, feature releases, platform changes
-- **Enterprise** — B2B software, CIO/CTO adoption, workplace technology
-- **Consumer** — consumer apps, devices, social platforms, creator tools
-- **Policy** — regulation, antitrust, data privacy, government action affecting tech
-- **OSS** — open source, GitHub, Linux, foundations, GitHub trends
-- **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
-- **Developer Tools** — IDEs, SDKs, APIs, programming languages, build systems, cloud developer platforms
-- **Defense** — autonomous weapons, military AI, defense contracts, dual-use tech, national security, surveillance
-- **Health Tech** — digital health, medical devices, biotech, clinical AI, FDA, telemedicine
+- **AI** — the story involves AI/ML technology regardless of domain
+- **Infrastructure** — chips, GPUs, cloud, data centers, compute markets
+- **OSS** — open source software, licensing, foundations
+- **Enterprise** — primarily targets businesses, CIOs, or workplace adoption
+- **Consumer** — primarily targets end users or consumer products
+
+These are suggestions, not an exhaustive list. Add any other tags that genuinely help a reader understand what the story is about — keep them short, specific, and useful. Do not add tags that merely restate the subcategory.
 
 ---
 
@@ -102,7 +94,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
 Field rules:
 
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
-- **`tags`**: non-empty array; exact strings from the tag list; usually 1–4. Tags may overlap with `subcategory` but should add useful detail rather than repeat it mechanically.
+- **`tags`**: non-empty array of short strings; max 4. Use the suggested tags or invent better ones — the goal is cross-cutting descriptors that add information beyond the subcategory.
 - **`technicalSignificance`**: required for every story. Clearly separate interpretation from fact.
 
 ---
@@ -126,7 +118,7 @@ Field rules:
 - [ ] At least eight domains are represented in the final digest — dedicated search run for any empty domain
 - [ ] Geographic coverage includes at least one story from Europe or Africa (not exclusively US)
 - [ ] All stories scoring ≥ 0.5 are included — no qualifying stories dropped
-- [ ] Each story has a non-empty `tags` array with allowed tag strings only
+- [ ] Each story has a non-empty `tags` array (max 4) that adds cross-cutting context beyond the subcategory
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Primary sources preferred over aggregator reblogs
 - [ ] Summaries are factual, precise, and hype-free
