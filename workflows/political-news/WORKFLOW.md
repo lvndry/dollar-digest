@@ -47,6 +47,11 @@ Use these exact strings; pick every tag that clearly applies to the story (usual
 - **Protest** — civil unrest, demonstrations, strikes, social movements, crackdowns
 - **Energy** — oil, gas, renewables, energy policy, climate agreements, resource disputes
 - **Surveillance** — state surveillance, censorship, press freedom, digital authoritarianism
+- **Immigration** — border policy, asylum, deportations, migration flows, refugee crises
+- **Trade** — tariffs, trade deals, export controls, trade bloc negotiations
+- **Climate** — climate agreements, COPs, green policy, climate litigation, net-zero commitments
+- **Health** — pandemic response, public health policy, drug pricing, healthcare legislation
+- **Media** — media ownership, propaganda, disinformation, state media, press crackdowns
 
 Do not default to `Policy` / `Diplomacy` — pick the tags that actually explain the story.
 
@@ -104,19 +109,17 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
       "bias": "far-left | left | center | right | far-right"
     }
   ],
-  "strategicInterpretation": "1-3 sentences on incentives, leverage, likely counter-moves, or second-order effects. Clearly distinguish interpretation from verified fact."
+  "strategicInterpretation": "1-3 sentences on incentives, leverage, likely counter-moves, economic impacts, or second-order effects. Clearly distinguish interpretation from verified fact."
 }
 ```
 
 Field rules:
 
-- **`tags`**: non-empty array; exact strings from the tag list; usually 1–3. Do not default to `Policy` / `Diplomacy`.
+- **`tags`**: non-empty array; exact strings from the tag list; usually 1–4.
 - **`regions`**: non-empty array; exact strings from the dimension list; tag every region materially involved.
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`sources`**: each entry requires a defensible `bias` label.
 - **`strategicInterpretation`**: explain the game-theoretic or strategic meaning — incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground it in verified facts. Use "may", "could", or "signals" when interpreting motives or future moves. Do not mix interpretation into the core summary.
-
-Do **not** emit `subcategory` for politics articles.
 
 ---
 
@@ -131,8 +134,6 @@ Do **not** emit `subcategory` for politics articles.
 ---
 
 ## Quality Checklist (verify before finishing)
-
-**Loop rule:** If you make any edit to the output file while working through this checklist, restart from the top. Only declare done when every item passes without changes.
 
 - [ ] Shared `daily-digest-workflow` skill loaded and followed
 - [ ] All eight regions were covered in the landscape discovery sweep
