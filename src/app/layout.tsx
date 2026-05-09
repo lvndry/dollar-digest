@@ -92,7 +92,7 @@ export function generateMetadata(): Metadata {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const availableDates = await getCachedAvailableDates();
+  const availableDates = await getCachedAvailableDates().catch(() => [] as string[]);
   const archiveAccess = canAccessArchive(session);
   return (
     <html

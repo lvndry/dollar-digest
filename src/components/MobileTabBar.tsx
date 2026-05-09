@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const TABS = [
   { href: "/", label: "Today" },
@@ -11,6 +11,9 @@ const TABS = [
 
 export function MobileTabBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const dateSuffix = dateParam ? `?date=${dateParam}` : "";
   const activeIndex = TABS.findIndex((tab) => tab.href === pathname);
 
   return (
@@ -21,7 +24,7 @@ export function MobileTabBar() {
           return (
             <Link
               key={href}
-              href={href}
+              href={`${href}${dateSuffix}`}
               className="flex-1 py-2.5 text-center font-ui text-[0.6rem] tracking-[0.08em] uppercase transition-colors duration-150"
               style={{
                 color: active ? "var(--ink)" : "var(--ink-muted)",

@@ -4,16 +4,12 @@ import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 
 async function getAvailableDates(): Promise<string[]> {
-  try {
-    const rows = await db
-      .selectDistinct({ digestDate: articles.digestDate })
-      .from(articles)
-      .orderBy(desc(articles.digestDate));
+  const rows = await db
+    .selectDistinct({ digestDate: articles.digestDate })
+    .from(articles)
+    .orderBy(desc(articles.digestDate));
 
-    return rows.map((r) => r.digestDate);
-  } catch {
-    return [];
-  }
+  return rows.map((r) => r.digestDate);
 }
 
 /** Refresh at most every 2 hours. Ingestions purge this cache immediately via the 'articles' tag. */

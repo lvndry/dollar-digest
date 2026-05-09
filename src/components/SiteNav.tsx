@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import { ThemeToggle } from "./ThemeToggle";
@@ -22,6 +22,9 @@ interface SiteNavProps {
 
 export function SiteNav({ session }: SiteNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const dateSuffix = dateParam ? `?date=${dateParam}` : "";
   useSwipeNavigation();
 
   return (
@@ -36,7 +39,7 @@ export function SiteNav({ session }: SiteNavProps) {
     >
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link
-          href="/"
+          href={`/${dateSuffix}`}
           className="font-display italic shrink-0"
           style={{ color: "var(--ink)", fontSize: "1rem", letterSpacing: "-0.01em" }}
         >
@@ -49,7 +52,7 @@ export function SiteNav({ session }: SiteNavProps) {
             return (
               <Link
                 key={href}
-                href={href}
+                href={`${href}${dateSuffix}`}
                 className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150"
                 style={{
                   color: active ? "var(--ink)" : "var(--ink-muted)",
