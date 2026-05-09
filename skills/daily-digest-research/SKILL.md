@@ -1,5 +1,5 @@
 ---
-name: daily-digest-workflow
+name: daily-digest-research
 description: Shared operating policy for One Dollar Digest Jazz workflows. Use when running or authoring scheduled digest workflows that gather articles, validate sources, and write digest JSON.
 tagline: Deep research policy for scheduled One Dollar Digest workflows.
 triggers:
