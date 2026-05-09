@@ -1,9 +1,14 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 
-async function getAvailableDates(): Promise<string[]> {
+/** Refresh at most every 2 hours. Ingestions purge this cache immediately via the 'articles' tag. */
+export async function getCachedAvailableDates(): Promise<string[]> {
+  "use cache";
+  cacheTag("articles");
+  cacheLife({ revalidate: 7200 });
+
   try {
     const rows = await db
       .selectDistinct({ digestDate: articles.digestDate })
@@ -15,13 +20,3 @@ async function getAvailableDates(): Promise<string[]> {
     return [];
   }
 }
-
-/** Refresh at most every 2 hours. Ingestions purge this cache immediately via the 'articles' tag. */
-export const getCachedAvailableDates = unstable_cache(
-  getAvailableDates,
-  ["available-dates"],
-  {
-    revalidate: 7200,
-    tags: ["articles"],
-  },
-);

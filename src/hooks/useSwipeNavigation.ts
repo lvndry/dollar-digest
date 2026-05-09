@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { dateAwareHref } from "@/lib/nav";
 
 const SWIPEABLE_TABS = ["/", "/tech", "/politics"];
 const SWIPE_THRESHOLD = 60;
@@ -25,9 +26,9 @@ export function useSwipeNavigation() {
       if (currentIndex === -1) return;
 
       if (deltaX < 0 && currentIndex < SWIPEABLE_TABS.length - 1) {
-        router.push(SWIPEABLE_TABS[currentIndex + 1]!);
+        router.push(dateAwareHref(SWIPEABLE_TABS[currentIndex + 1]!));
       } else if (deltaX > 0 && currentIndex > 0) {
-        router.push(SWIPEABLE_TABS[currentIndex - 1]!);
+        router.push(dateAwareHref(SWIPEABLE_TABS[currentIndex - 1]!));
       }
     }
 

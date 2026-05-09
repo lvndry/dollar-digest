@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { dateAwareHref } from "@/lib/nav";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import { ThemeToggle } from "./ThemeToggle";
@@ -22,10 +23,12 @@ interface SiteNavProps {
 
 export function SiteNav({ session }: SiteNavProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const dateParam = searchParams.get("date");
-  const dateSuffix = dateParam ? `?date=${dateParam}` : "";
+  const router = useRouter();
   useSwipeNavigation();
+
+  function navTo(base: string) {
+    router.push(dateAwareHref(base));
+  }
 
   return (
     <header
@@ -39,7 +42,11 @@ export function SiteNav({ session }: SiteNavProps) {
     >
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link
-          href={`/${dateSuffix}`}
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            navTo("/");
+          }}
           className="font-display italic shrink-0"
           style={{ color: "var(--ink)", fontSize: "1rem", letterSpacing: "-0.01em" }}
         >
@@ -52,7 +59,11 @@ export function SiteNav({ session }: SiteNavProps) {
             return (
               <Link
                 key={href}
-                href={`${href}${dateSuffix}`}
+                href={href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navTo(href);
+                }}
                 className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150"
                 style={{
                   color: active ? "var(--ink)" : "var(--ink-muted)",

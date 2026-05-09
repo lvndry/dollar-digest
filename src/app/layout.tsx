@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DM_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
@@ -122,10 +123,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SessionProvider>
           <SiteNav session={session} />
           <div className="max-w-5xl mx-auto px-6 text-center pb-2">
-            <GlobalArchiveCalendar
-              availableDates={availableDates}
-              canAccessArchive={archiveAccess}
-            />
+            <Suspense fallback={<div className="mt-6 h-[18px]" aria-hidden="true" />}>
+              <GlobalArchiveCalendar
+                availableDates={availableDates}
+                canAccessArchive={archiveAccess}
+              />
+            </Suspense>
           </div>
           {children}
         </SessionProvider>
