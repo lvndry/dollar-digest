@@ -9,14 +9,10 @@ export async function getCachedAvailableDates(): Promise<string[]> {
   cacheTag("articles");
   cacheLife({ revalidate: 7200 });
 
-  try {
-    const rows = await db
-      .selectDistinct({ digestDate: articles.digestDate })
-      .from(articles)
-      .orderBy(desc(articles.digestDate));
+  const rows = await db
+    .selectDistinct({ digestDate: articles.digestDate })
+    .from(articles)
+    .orderBy(desc(articles.digestDate));
 
-    return rows.map((r) => r.digestDate);
-  } catch {
-    return [];
-  }
+  return rows.map((row) => row.digestDate);
 }

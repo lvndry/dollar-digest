@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { dateAwareHref } from "@/lib/nav";
+import { usePathname } from "next/navigation";
+import { useDateAwareNav } from "@/hooks/useDateAwareNav";
 
 const TABS = [
   { href: "/", label: "Today" },
@@ -12,12 +12,8 @@ const TABS = [
 
 export function MobileTabBar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const toHref = useDateAwareNav();
   const activeIndex = TABS.findIndex((tab) => tab.href === pathname);
-
-  function navTo(base: string) {
-    router.push(dateAwareHref(base));
-  }
 
   return (
     <div className="sm:hidden border-t" style={{ borderColor: "var(--border)" }}>
@@ -27,11 +23,7 @@ export function MobileTabBar() {
           return (
             <Link
               key={href}
-              href={href}
-              onClick={(e) => {
-                e.preventDefault();
-                navTo(href);
-              }}
+              href={toHref(href)}
               className="flex-1 py-2.5 text-center font-ui text-[0.6rem] tracking-[0.08em] uppercase transition-colors duration-150"
               style={{
                 color: active ? "var(--ink)" : "var(--ink-muted)",

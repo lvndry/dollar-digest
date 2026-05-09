@@ -31,28 +31,11 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
-function ordinalDate(date: Date): string {
-  const day = date.getDate();
-  const suffix =
-    day >= 11 && day <= 13
-      ? "th"
-      : day % 10 === 1
-        ? "st"
-        : day % 10 === 2
-          ? "nd"
-          : day % 10 === 3
-            ? "rd"
-            : "th";
-  const month = date.toLocaleDateString("en-GB", { month: "long" });
-  return `${day}${suffix} ${month} ${date.getFullYear()}`;
-}
-
 export function generateMetadata(): Metadata {
-  const date = ordinalDate(new Date());
   return {
     title: {
-      default: `The One Dollar Digest | ${date}`,
-      template: `%s | The One Dollar Digest | ${date}`,
+      default: "The One Dollar Digest",
+      template: "%s | The One Dollar Digest",
     },
     description:
       "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
@@ -91,10 +74,27 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+async function LayoutShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const availableDates = await getCachedAvailableDates();
+  const availableDates = await getCachedAvailableDates().catch(() => [] as string[]);
   const archiveAccess = canAccessArchive(session);
+  return (
+    <SessionProvider>
+      <SiteNav session={session} />
+      <div className="max-w-5xl mx-auto px-6 text-center pb-2">
+        <Suspense fallback={<div className="mt-6 h-[18px]" aria-hidden="true" />}>
+          <GlobalArchiveCalendar
+            availableDates={availableDates}
+            canAccessArchive={archiveAccess}
+          />
+        </Suspense>
+      </div>
+      {children}
+    </SessionProvider>
+  );
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -120,18 +120,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="font-body">
-        <SessionProvider>
-          <SiteNav session={session} />
-          <div className="max-w-5xl mx-auto px-6 text-center pb-2">
-            <Suspense fallback={<div className="mt-6 h-[18px]" aria-hidden="true" />}>
-              <GlobalArchiveCalendar
-                availableDates={availableDates}
-                canAccessArchive={archiveAccess}
-              />
-            </Suspense>
-          </div>
-          {children}
-        </SessionProvider>
+        <Suspense
+          fallback={
+            <div
+              className="sticky top-0 z-50 w-full h-14"
+              style={{ borderBottom: "1px solid var(--border)" }}
+            />
+          }
+        >
+          <LayoutShell>{children}</LayoutShell>
+        </Suspense>
       </body>
     </html>
   );

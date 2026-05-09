@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { dateAwareHref } from "@/lib/nav";
+import { usePathname } from "next/navigation";
+import { useDateAwareNav } from "@/hooks/useDateAwareNav";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import { ThemeToggle } from "./ThemeToggle";
@@ -23,12 +23,8 @@ interface SiteNavProps {
 
 export function SiteNav({ session }: SiteNavProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  const toHref = useDateAwareNav();
   useSwipeNavigation();
-
-  function navTo(base: string) {
-    router.push(dateAwareHref(base));
-  }
 
   return (
     <header
@@ -42,11 +38,7 @@ export function SiteNav({ session }: SiteNavProps) {
     >
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            navTo("/");
-          }}
+          href={toHref("/")}
           className="font-display italic shrink-0"
           style={{ color: "var(--ink)", fontSize: "1rem", letterSpacing: "-0.01em" }}
         >
@@ -59,11 +51,7 @@ export function SiteNav({ session }: SiteNavProps) {
             return (
               <Link
                 key={href}
-                href={href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navTo(href);
-                }}
+                href={toHref(href)}
                 className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150"
                 style={{
                   color: active ? "var(--ink)" : "var(--ink-muted)",
