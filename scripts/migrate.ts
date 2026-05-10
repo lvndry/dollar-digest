@@ -40,6 +40,29 @@ async function main() {
       );
     }
 
+    // Migration 0006 drops the articles_source_url_digest_date_unique index and the
+    // source_url column. Both were already removed via db:push before migration-based
+    // deploys were introduced, so we pre-mark 0006 as applied when the index is absent.
+    const MIGRATION_0006_TIMESTAMP = 1778395331549;
+    const { rows: alreadySeeded } = await client.execute({
+      sql: "SELECT COUNT(*) AS count FROM __drizzle_migrations WHERE created_at >= ?",
+      args: [MIGRATION_0006_TIMESTAMP],
+    });
+    if (Number(alreadySeeded[0][0]) === 0) {
+      const { rows: indexRows } = await client.execute(
+        "SELECT COUNT(*) AS count FROM sqlite_master WHERE type='index' AND name='articles_source_url_digest_date_unique'",
+      );
+      if (Number(indexRows[0][0]) === 0) {
+        await client.execute({
+          sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
+          args: ["bootstrapped-0006", MIGRATION_0006_TIMESTAMP],
+        });
+        console.log(
+          "Migration 0006 bootstrapped: index already absent, marking as applied",
+        );
+      }
+    }
+
     await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
     console.log("Migrations applied successfully");
   } finally {
