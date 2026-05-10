@@ -4,6 +4,7 @@ import { DigestGrid } from "@/components/DigestGrid";
 import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { NextDigestCountdown } from "@/components/NextDigestCountdown";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { SiteFooter } from "@/components/SiteFooter";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 
 export const metadata: Metadata = {
@@ -125,7 +126,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
             style={{ color: "var(--ink-muted)" }}
           >
-            No digest available for this date.
+            Nothing was published for this date.
           </p>
         ) : (
           <>
@@ -151,39 +152,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         )}
       </main>
 
-      <footer
-        className="max-w-5xl mx-auto px-6 border-t pb-16 pt-8 flex items-center justify-between flex-wrap gap-4"
-        style={{ borderColor: "var(--border)" }}
-      >
-        <span
-          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          © {new Date().getFullYear()} The One Dollar Digest
-        </span>
-        <span
-          className="font-display italic text-[0.875rem]"
-          style={{ color: "var(--ink-muted)" }}
-        >
-          One dollar. Every story that matters.
-        </span>
-        <span className="flex items-center gap-4">
-          <Link
-            href="/contact"
-            className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-colors duration-150 hover:opacity-70"
-            style={{ color: "var(--ink-faint)" }}
-          >
-            Contact
-          </Link>
-          <Link
-            href="/privacy"
-            className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-colors duration-150 hover:opacity-70"
-            style={{ color: "var(--ink-faint)" }}
-          >
-            Privacy
-          </Link>
-        </span>
-      </footer>
+      <SiteFooter />
     </DigestFeedWrapper>
   );
 }

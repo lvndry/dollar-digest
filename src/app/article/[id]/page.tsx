@@ -412,6 +412,13 @@ export default async function ArticlePage({
                       borderColor: "var(--border)",
                       color: "var(--ink-mid)",
                     }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        "var(--surface)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.backgroundColor = "";
+                    }}
                   >
                     <span className="min-w-0 break-words">{source.name}</span>
                     {source.bias && (
@@ -425,6 +432,26 @@ export default async function ArticlePage({
             </div>
           </div>
         )}
+
+        <div
+          className="mt-16 pt-8 border-t flex items-center justify-between"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <Link
+            href="/"
+            className="font-ui text-[0.575rem] tracking-widest uppercase transition-opacity duration-150 hover:opacity-50"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            ← Today&apos;s Digest
+          </Link>
+          <span
+            className="font-display italic select-none"
+            style={{ color: "var(--ink-faint)", fontSize: "1.125rem" }}
+            aria-hidden
+          >
+            ✦
+          </span>
+        </div>
       </article>
     </div>
   );
