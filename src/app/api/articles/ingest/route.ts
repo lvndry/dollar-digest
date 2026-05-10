@@ -20,6 +20,12 @@ function serializeMetadataField(value: unknown): string | null {
   return serializeStringArray(value) ?? optionalString(value);
 }
 
+function parseCategory(value: unknown): NewArticle["category"] | null {
+  if (value == null) return "tech";
+  if (value === "tech" || value === "politics") return value;
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   const ingestSecret = process.env.INGEST_SECRET;
   if (!ingestSecret) {
@@ -45,11 +51,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Expected a non-empty array" }, { status: 400 });
   }
 
+  const invalidCategoryIndex = rows.findIndex(
+    (row) => parseCategory(row.category) === null,
+  );
+  if (invalidCategoryIndex !== -1) {
+    return NextResponse.json(
+      {
+        error: `Invalid category at row ${invalidCategoryIndex}; expected "tech" or "politics"`,
+      },
+      { status: 400 },
+    );
+  }
+
   const now = new Date().toISOString();
   const today = now.split("T")[0];
 
   const prepared: NewArticle[] = rows.flatMap((row) => {
     const digestDate = optionalString(row.digestDate) ?? today;
+    const category = parseCategory(row.category) ?? "tech";
+    const whyItMatters = optionalString(row.whyItMatters);
+    const technicalSignificance =
+      optionalString(row.technicalSignificance) ??
+      (category === "tech" ? whyItMatters : null);
+    const strategicInterpretation =
+      optionalString(row.strategicInterpretation) ??
+      (category === "politics" ? whyItMatters : null);
 
     const sources = normalizeArticleSources(row);
     const primarySource = sources[0];
@@ -64,7 +90,7 @@ export async function POST(request: NextRequest) {
         source: optionalString(row.source) ?? primarySource?.name ?? "",
         sourceUrl,
         sources: sources.length > 0 ? JSON.stringify(sources) : null,
-        category: String(row.category ?? "tech") as "tech" | "politics",
+        category,
         subcategory: optionalString(row.subcategory),
         bias: ((row.bias ?? primarySource?.bias) as NewArticle["bias"]) ?? null,
         publishedAt: optionalString(row.publishedAt) ?? today,
@@ -76,8 +102,8 @@ export async function POST(request: NextRequest) {
         tags: serializeMetadataField(row.tags),
         regions: serializeMetadataField(row.regions),
         primaryRegion: optionalString(row.primaryRegion),
-        strategicInterpretation: optionalString(row.strategicInterpretation),
-        technicalSignificance: optionalString(row.technicalSignificance),
+        strategicInterpretation,
+        technicalSignificance,
         digestDate,
         createdAt: optionalString(row.createdAt) ?? now,
       },

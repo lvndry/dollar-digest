@@ -68,4 +68,26 @@ describe("POST /api/articles/ingest", () => {
     expect(insertedRows).toHaveLength(1);
     expect(insertedRows[0]).toMatchObject({ title: "Same Story" });
   });
+
+  test("rejects invalid category values", async () => {
+    const response = await POST(
+      ingestRequest([
+        {
+          title: "Bad Category Story",
+          summary: "A valid enough summary for testing invalid category handling.",
+          source: "Example",
+          sourceUrl: "https://example.com/bad-category",
+          category: "finance",
+          publishedAt: "2026-05-04",
+          digestDate: "2026-05-04",
+        },
+      ]),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: 'Invalid category at row 0; expected "tech" or "politics"',
+    });
+    expect(insertedRows).toHaveLength(0);
+  });
 });

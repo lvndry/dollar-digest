@@ -27,16 +27,11 @@ const SUB_COLOR: Record<string, string> = {
   Security: "#a81515",
 };
 
-function getAccentColor(article: Article): string | undefined {
+function getAccentColor(article: Article): string {
   if (article.category === "politics" && article.bias) {
-    return BIAS_COLOR[article.bias];
+    return BIAS_COLOR[article.bias] ?? "#3d6b5c";
   }
-
-  if (article.subcategory) {
-    return SUB_COLOR[article.subcategory] ?? "#3d6b5c";
-  }
-
-  return "#3d6b5c";
+  return SUB_COLOR[article.subcategory ?? ""] ?? "#3d6b5c";
 }
 
 function getBadgeLabel(article: Article): string {
@@ -97,6 +92,127 @@ export default async function ArticleOgImage({
   const accentColor = getAccentColor(article);
   const badgeLabel = getBadgeLabel(article);
 
+  const footer = (
+    <div style={{ display: "flex", flexDirection: "column", padding: "0 72px 28px" }}>
+      <div style={{ height: 1, background: "#d8d2c8", marginBottom: 16 }} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontFamily: "'Courier New', monospace",
+          fontSize: 12,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "#7a746e",
+        }}
+      >
+        <span style={{ fontWeight: 700, color: "#4a4640" }}>{article.source}</span>
+        <span>onedollardigest.com · $1/month</span>
+      </div>
+    </div>
+  );
+
+  const badge = badgeLabel ? (
+    <div
+      style={{
+        background: accentColor,
+        color: "#fff",
+        fontFamily: "'Courier New', monospace",
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
+        padding: "4px 12px",
+        marginBottom: 20,
+        display: "flex",
+        alignSelf: "flex-start",
+      }}
+    >
+      {badgeLabel}
+    </div>
+  ) : null;
+
+  const masthead = (
+    <div
+      style={{
+        fontFamily: "'Courier New', monospace",
+        fontSize: 13,
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+        color: "#7a746e",
+        marginBottom: 28,
+      }}
+    >
+      THE ONE DOLLAR DIGEST
+    </div>
+  );
+
+  if (article.imageUrl) {
+    const title =
+      article.title.length > 60 ? article.title.slice(0, 57) + "…" : article.title;
+
+    return new ImageResponse(
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          background: "#f7f4ee",
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Georgia, serif",
+          borderTop: `6px solid ${accentColor}`,
+        }}
+      >
+        <div
+          style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden" }}
+        >
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              padding: "48px 40px 0 72px",
+            }}
+          >
+            {masthead}
+            {badge}
+            <h1
+              style={{
+                flex: 1,
+                fontSize: title.length > 50 ? 44 : 52,
+                fontStyle: "italic",
+                fontWeight: 400,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.15,
+                color: "#141210",
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {title}
+            </h1>
+          </div>
+          <div
+            style={{
+              width: "460px",
+              flexShrink: 0,
+              display: "flex",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={article.imageUrl}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+        </div>
+        {footer}
+      </div>,
+      size,
+    );
+  }
+
   const title =
     article.title.length > 80 ? article.title.slice(0, 77) + "…" : article.title;
 
@@ -108,44 +224,13 @@ export default async function ArticleOgImage({
         background: "#f7f4ee",
         display: "flex",
         flexDirection: "column",
-        padding: "56px 80px",
+        padding: "56px 80px 28px",
         fontFamily: "Georgia, serif",
         borderTop: `6px solid ${accentColor}`,
       }}
     >
-      <div
-        style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: 13,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "#7a746e",
-          marginBottom: 32,
-        }}
-      >
-        THE ONE DOLLAR DIGEST
-      </div>
-
-      {badgeLabel && (
-        <div
-          style={{
-            background: accentColor,
-            color: "#fff",
-            fontFamily: "'Courier New', monospace",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            padding: "4px 12px",
-            marginBottom: 24,
-            display: "inline-flex",
-            alignSelf: "flex-start",
-          }}
-        >
-          {badgeLabel}
-        </div>
-      )}
-
+      {masthead}
+      {badge}
       <h1
         style={{
           flex: 1,
@@ -162,8 +247,7 @@ export default async function ArticleOgImage({
       >
         {title}
       </h1>
-
-      <div style={{ height: 1, background: "#d8d2c8", marginBottom: 20 }} />
+      <div style={{ height: 1, background: "#d8d2c8", marginBottom: 20, marginTop: 0 }} />
       <div
         style={{
           display: "flex",

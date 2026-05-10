@@ -39,12 +39,12 @@
   --bg: #0d0c0a;
   --surface: #161412;
   --ink: #f0ebe2;
-  --ink-mid: #9e9890;
-  --ink-muted: #58524e;
-  --ink-faint: #242220;
+  --ink-mid: #b2aca4;
+  --ink-muted: #7a736b;
+  --ink-faint: #524c46;
   --accent: #68a890;
-  --border: #1e1c18;
-  --border-strong: #2e2c28;
+  --border: #272420;
+  --border-strong: #3e3a34;
 }
 
 html {

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
 import { articles } from "@/lib/schema";
+import { buildImageSourceCandidates } from "./lib/image-source-candidates";
 import { fetchOgImages } from "./lib/og-image";
 import { ArticleArraySchema } from "./lib/article-schema";
 import { readFileSync, writeFileSync } from "fs";
@@ -69,14 +70,33 @@ function serializeMetadataField(value: unknown): string | null {
 }
 
 const normalizedSources = parsed.map((item) => normalizeArticleSources(item));
+const imageSourceCandidates = parsed.map((item, index) =>
+  buildImageSourceCandidates({
+    sourceUrl: item.sourceUrl,
+    sources: item.sources,
+    fallbackSourceUrl: normalizedSources[index]?.[0]?.url ?? null,
+  }),
+);
 
 console.log(`[insert] Fetching OG images for ${parsed.length} articles…`);
-const imageUrls = await fetchOgImages(
-  parsed.map(
-    (item, index) =>
-      optionalString(item.sourceUrl) ?? normalizedSources[index]?.[0]?.url ?? null,
-  ),
+const imageUrls: (string | null)[] = new Array(parsed.length).fill(null);
+const maxCandidateDepth = imageSourceCandidates.reduce(
+  (max, candidates) => Math.max(max, candidates.length),
+  0,
 );
+
+for (let candidateDepth = 0; candidateDepth < maxCandidateDepth; candidateDepth++) {
+  const urlsForPass = imageSourceCandidates.map((candidates, index) =>
+    imageUrls[index] ? null : (candidates[candidateDepth] ?? null),
+  );
+  if (!urlsForPass.some(Boolean)) continue;
+
+  const passResults = await fetchOgImages(urlsForPass);
+  for (const [index, imageUrl] of passResults.entries()) {
+    if (!imageUrls[index] && imageUrl) imageUrls[index] = imageUrl;
+  }
+}
+
 console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} images`);
 
 const now = new Date().toISOString();
@@ -85,6 +105,14 @@ let skippedNoUrl = 0;
 const rows = parsed.flatMap((item, i) => {
   const sources = normalizedSources[i] ?? [];
   const primarySource = sources[0];
+  const category = String(item.category ?? "tech") as "tech" | "politics";
+  const whyItMatters = optionalString(item.whyItMatters);
+  const technicalSignificance =
+    optionalString(item.technicalSignificance) ??
+    (category === "tech" ? whyItMatters : null);
+  const strategicInterpretation =
+    optionalString(item.strategicInterpretation) ??
+    (category === "politics" ? whyItMatters : null);
   const sourceUrl = normalizeUrl(
     optionalString(item.sourceUrl) ?? primarySource?.url ?? null,
   );
@@ -101,7 +129,7 @@ const rows = parsed.flatMap((item, i) => {
       source: optionalString(item.source) ?? primarySource?.name ?? "",
       sourceUrl,
       sources: sources.length > 0 ? JSON.stringify(sources) : null,
-      category: String(item.category ?? "tech") as "tech" | "politics",
+      category,
       subcategory: item.subcategory ? String(item.subcategory) : null,
       bias:
         ((item.bias ?? primarySource?.bias) as
@@ -119,9 +147,8 @@ const rows = parsed.flatMap((item, i) => {
       tags: serializeMetadataField(item.tags),
       regions: serializeMetadataField(item.regions),
       primaryRegion: item.primaryRegion ? String(item.primaryRegion) : null,
-      strategicInterpretation: item.strategicInterpretation
-        ? String(item.strategicInterpretation)
-        : null,
+      strategicInterpretation,
+      technicalSignificance,
       digestDate,
       createdAt: now,
     },

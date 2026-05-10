@@ -196,6 +196,17 @@ When the candidate list is large, spawn deepening subagents in parallel — assi
 
 **Date gate (run first):** Before any merging or scoring, discard every candidate where `publishedAt` < `SELECT_FROM_DATE`. Do not attempt to keep them, adjust their score, or move them to a separate list. Delete them. A story from outside the `T-1` window is a search false positive — not a digest article.
 
+**LLM dedup responsibility:** deduplication is the model's job before output.
+Run this deterministic pass before scoring:
+
+1. Normalize every `sources[].url` candidate using canonical URL rules (https scheme, remove leading `www.`, strip tracking params like `utm_*`, `fbclid`, `gclid`, `ref`, and trim trailing slash).
+2. Build an event key using:
+   - overlap in normalized source URLs, plus
+   - same core event claim (who did what, with what concrete outcome) and near-identical publish window.
+3. Merge any rows that match by source overlap or clearly represent the same event.
+4. After merging, ensure each event appears once with one combined `sources` array sorted by source quality/confidence.
+5. Ensure no two final candidates share the same normalized source URL.
+
 Merge all candidates that describe the same event into one entry. Combine their `sources` arrays. Never keep two JSON objects for the same underlying event.
 
 For each consolidated candidate, verify before moving to scoring:
@@ -243,7 +254,7 @@ Final objects must include these shared fields:
   "title": "Concise, specific headline — no clickbait, no editorial spin",
   "summary": "Source-backed factual summary. See summary writing rules below.",
   "source": "Primary publication name",
-  "sourceUrl": "Primary canonical article URL",
+  "sourceUrl": "Derived canonical primary URL; must match sources[0].url",
   "sources": [
     {
       "name": "Publication or primary source name",
@@ -295,8 +306,8 @@ After all research and scoring is complete and you have a final list of articles
 
    > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
    >
-   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sourceUrl` (URL string), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
-   > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`, `sources` (array of {name, url}).
+   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sources` (non-empty array of {name, url}), `sourceUrl` (URL string, equal to `sources[0].url`), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
+   > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`.
    >
    > Article data: [paste all articles in any readable format]"
 
@@ -326,6 +337,9 @@ Before finishing, verify:
 - [ ] Every candidate with `needsDeepening: true` was processed in Phase 3
 - [ ] No candidate with `confidence: low` reached the final output without a hedged summary
 - [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
+- [ ] Mandatory LLM dedup pass ran on normalized `sources[].url` values before final scoring/output
+- [ ] No two final entries share any normalized source URL
+- [ ] `sourceUrl === sources[0].url` for every final entry
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
 - [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
 - [ ] `publishedAt` reflects the source article date
