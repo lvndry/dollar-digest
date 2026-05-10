@@ -21,7 +21,7 @@ async function readHead(url: string): Promise<string> {
   let html = "";
 
   try {
-    while (html.length < 12_000) {
+    while (html.length < 64_000) {
       const { done, value } = await reader.read();
       if (done) break;
       html += decoder.decode(value, { stream: true });
