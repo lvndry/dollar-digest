@@ -1,5 +1,5 @@
 import type { Session } from "next-auth";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { canAccessDigestDate } from "@/lib/access";
@@ -44,7 +44,11 @@ export function digestDateQuerySuffix(selectedDate: string, today: string): stri
   return selectedDate !== today ? `?date=${encodeURIComponent(selectedDate)}` : "";
 }
 
-async function fetchArticlesForDigestDate(date: string): Promise<Article[]> {
+/** Shared across home, tech, and politics so navigation reuses one cache entry per date. */
+export async function getCachedArticlesForDigestDate(date: string): Promise<Article[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("articles");
   try {
     return await db
       .select()
@@ -55,13 +59,6 @@ async function fetchArticlesForDigestDate(date: string): Promise<Article[]> {
     return [];
   }
 }
-
-/** Shared across home, tech, and politics so navigation reuses one cache entry per date. */
-export const getCachedArticlesForDigestDate = unstable_cache(
-  (date: string) => fetchArticlesForDigestDate(date),
-  ["articles"],
-  { revalidate: 3600, tags: ["articles"] },
-);
 
 export type DigestDayContext = {
   session: Session | null;
