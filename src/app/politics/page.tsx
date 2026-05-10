@@ -3,6 +3,7 @@ import { DigestGrid } from "@/components/DigestGrid";
 import { FilterBar } from "@/components/FilterBar";
 import { DigestFeedWrapper } from "@/components/DigestFeedWrapper";
 import { ArchivePaywall } from "@/components/ArchivePaywall";
+import { SiteFooter } from "@/components/SiteFooter";
 import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day";
 import { parseJsonStringArray } from "@/lib/parse-article-metadata";
 
@@ -105,7 +106,7 @@ export default async function PoliticsPage({ searchParams }: PoliticsPageProps) 
             className="text-center font-ui text-[0.6875rem] tracking-[0.06em] py-20"
             style={{ color: "var(--ink-muted)" }}
           >
-            No digest available for this date.
+            Nothing was published for this date.
           </p>
         ) : (
           <>
@@ -118,29 +119,7 @@ export default async function PoliticsPage({ searchParams }: PoliticsPageProps) 
         )}
       </main>
 
-      <footer
-        className="max-w-5xl mx-auto px-6 border-t pb-16 pt-8 flex items-center justify-between flex-wrap gap-4"
-        style={{ borderColor: "var(--border)" }}
-      >
-        <span
-          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          © {new Date().getFullYear()} The One Dollar Digest
-        </span>
-        <span
-          className="font-display italic text-[0.875rem]"
-          style={{ color: "var(--ink-muted)" }}
-        >
-          One dollar. Every story that matters.
-        </span>
-        <span
-          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          Powered by AI
-        </span>
-      </footer>
+      <SiteFooter />
     </DigestFeedWrapper>
   );
 }

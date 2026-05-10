@@ -5,7 +5,12 @@ const validArticle = {
   title: "OpenAI Releases GPT-5",
   summary: "OpenAI announced the release of GPT-5 with improved reasoning capabilities.",
   source: "TechCrunch",
-  sourceUrl: "https://techcrunch.com/2026/05/08/openai-gpt5",
+  sources: [
+    {
+      name: "TechCrunch",
+      url: "https://techcrunch.com/2026/05/08/openai-gpt5",
+    },
+  ],
   category: "tech" as const,
   publishedAt: "2026-05-08",
 };
@@ -22,8 +27,8 @@ describe("ArticleSchema", () => {
     expect(result.error?.issues[0]?.path).toContain("title");
   });
 
-  test("rejects missing sourceUrl", () => {
-    const result = ArticleSchema.safeParse({ ...validArticle, sourceUrl: undefined });
+  test("rejects missing sources", () => {
+    const result = ArticleSchema.safeParse({ ...validArticle, sources: undefined });
     expect(result.success).toBe(false);
   });
 

@@ -53,15 +53,19 @@ export default function LoginPage() {
               autoComplete="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full px-4 py-3 font-ui text-sm border bg-transparent outline-none transition-colors duration-150"
               style={{
                 borderColor: "var(--border-strong)",
                 color: "var(--ink)",
                 backgroundColor: "var(--surface)",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-strong)")}
+              onFocus={(event) =>
+                (event.currentTarget.style.borderColor = "var(--accent)")
+              }
+              onBlur={(event) =>
+                (event.currentTarget.style.borderColor = "var(--border-strong)")
+              }
             />
           </div>
 

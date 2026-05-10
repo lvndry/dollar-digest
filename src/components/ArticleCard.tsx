@@ -61,7 +61,6 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       : null;
   const articleSources = parseArticleSources(article.sources, {
     name: article.source,
-    url: article.sourceUrl,
     bias: article.bias,
   });
   const sourceLabel = formatArticleSourceLabel(articleSources, article.source);

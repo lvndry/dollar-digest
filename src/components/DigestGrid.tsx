@@ -1,11 +1,11 @@
 import Link from "next/link";
-import type { Article } from "@/lib/schema";
+import type { Article, ArticleCategory } from "@/lib/schema";
 import { ArticleCard } from "./ArticleCard";
 import { FeaturedArticleCard } from "./FeaturedArticleCard";
 
 interface DigestGridProps {
   articles: Article[];
-  category: "tech" | "politics";
+  category: ArticleCategory;
   label: string;
   articleLimit?: number;
   titleHref?: string;

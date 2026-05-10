@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { canAccessDigestDate } from "@/lib/access";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
-import type { Article } from "@/lib/schema";
+import type { Article, ArticleCategory } from "@/lib/schema";
 
 /** UTC calendar date `YYYY-MM-DD` for “today” (matches existing pages). */
 export function digestTodayIso(): string {
@@ -34,7 +34,7 @@ export function formatDigestDisplayDate(selectedDate: string): string {
 /** Matches `DigestGrid` category filter — use for empty-state checks on category pages. */
 export function countDigestArticlesForCategory(
   rows: Article[],
-  category: "tech" | "politics",
+  category: ArticleCategory,
 ): number {
   return rows.filter((a) => a.category === category).length;
 }

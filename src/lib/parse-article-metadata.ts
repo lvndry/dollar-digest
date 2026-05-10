@@ -17,6 +17,12 @@ export interface ArticleSource {
   bias?: string | null;
 }
 
+export interface ArticleSourceFallback {
+  name: string;
+  url?: string | null;
+  bias?: string | null;
+}
+
 export function formatArticleSourceLabel(
   articleSources: ArticleSource[],
   fallbackName: string,
@@ -39,8 +45,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function fallbackSources(fallback: ArticleSource): ArticleSource[] {
-  return fallback.name ? [fallback] : [];
+function fallbackSources(fallback: ArticleSourceFallback): ArticleSource[] {
+  return fallback.name
+    ? [
+        {
+          name: fallback.name,
+          url: fallback.url ?? null,
+          bias: fallback.bias ?? null,
+        },
+      ]
+    : [];
 }
 
 export function normalizeArticleSources(row: Record<string, unknown>): ArticleSource[] {
@@ -68,7 +82,7 @@ export function normalizeArticleSources(row: Record<string, unknown>): ArticleSo
   return [
     {
       name,
-      url: optionalString(row.sourceUrl),
+      url: null,
       bias: optionalString(row.bias),
     },
   ];
@@ -76,7 +90,7 @@ export function normalizeArticleSources(row: Record<string, unknown>): ArticleSo
 
 export function parseArticleSources(
   raw: string | null,
-  fallback: ArticleSource,
+  fallback: ArticleSourceFallback,
 ): ArticleSource[] {
   if (!raw) return fallbackSources(fallback);
 

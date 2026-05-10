@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import type { NewArticle } from "@/lib/schema";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
+import { parseCategory } from "@/lib/category";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 
@@ -18,6 +19,21 @@ function serializeStringArray(value: unknown): string | null {
 
 function serializeMetadataField(value: unknown): string | null {
   return serializeStringArray(value) ?? optionalString(value);
+}
+
+function normalizeUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    parsed.protocol = "https:";
+    parsed.hostname = parsed.hostname.replace(/^www\./, "");
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (/^utm_|^fbclid$|^gclid$|^ref$/.test(key)) parsed.searchParams.delete(key);
+    }
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return url;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -45,26 +61,61 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Expected a non-empty array" }, { status: 400 });
   }
 
+  const invalidCategoryIndex = rows.findIndex(
+    (row) => parseCategory(row.category) === null,
+  );
+  if (invalidCategoryIndex !== -1) {
+    return NextResponse.json(
+      {
+        error: `Invalid category at row ${invalidCategoryIndex}; expected "tech" or "politics"`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const invalidSourcesIndex = rows.findIndex((row) =>
+    normalizeArticleSources(row).every((source) => !normalizeUrl(source.url ?? null)),
+  );
+  if (invalidSourcesIndex !== -1) {
+    return NextResponse.json(
+      {
+        error: `Invalid sources at row ${invalidSourcesIndex}; provide at least one source with a valid URL`,
+      },
+      { status: 400 },
+    );
+  }
+
   const now = new Date().toISOString();
   const today = now.split("T")[0];
 
   const prepared: NewArticle[] = rows.flatMap((row) => {
     const digestDate = optionalString(row.digestDate) ?? today;
+    const category = parseCategory(row.category) ?? "tech";
+    const whyItMatters = optionalString(row.whyItMatters);
+    const technicalSignificance =
+      optionalString(row.technicalSignificance) ??
+      (category === "tech" ? whyItMatters : null);
+    const strategicInterpretation =
+      optionalString(row.strategicInterpretation) ??
+      (category === "politics" ? whyItMatters : null);
 
     const sources = normalizeArticleSources(row);
-    const primarySource = sources[0];
-    const sourceUrl = optionalString(row.sourceUrl) ?? primarySource?.url ?? null;
+    const canonicalSources = sources.flatMap((source) => {
+      const url = normalizeUrl(source.url ?? null);
+      if (!url) return [];
+      return [{ ...source, url }];
+    });
+    const primarySource = canonicalSources[0];
 
-    if (!sourceUrl) return [];
+    if (!primarySource?.url) return [];
 
     return [
       {
         title: String(row.title ?? ""),
         summary: String(row.summary ?? ""),
         source: optionalString(row.source) ?? primarySource?.name ?? "",
-        sourceUrl,
-        sources: sources.length > 0 ? JSON.stringify(sources) : null,
-        category: String(row.category ?? "tech") as "tech" | "politics",
+        sources: canonicalSources.length > 0 ? JSON.stringify(canonicalSources) : null,
+        category,
         subcategory: optionalString(row.subcategory),
         bias: ((row.bias ?? primarySource?.bias) as NewArticle["bias"]) ?? null,
         publishedAt: optionalString(row.publishedAt) ?? today,
@@ -76,8 +127,8 @@ export async function POST(request: NextRequest) {
         tags: serializeMetadataField(row.tags),
         regions: serializeMetadataField(row.regions),
         primaryRegion: optionalString(row.primaryRegion),
-        strategicInterpretation: optionalString(row.strategicInterpretation),
-        technicalSignificance: optionalString(row.technicalSignificance),
+        strategicInterpretation,
+        technicalSignificance,
         digestDate,
         createdAt: optionalString(row.createdAt) ?? now,
       },

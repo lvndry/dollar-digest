@@ -39,12 +39,12 @@
   --bg: #0d0c0a;
   --surface: #161412;
   --ink: #f0ebe2;
-  --ink-mid: #9e9890;
-  --ink-muted: #58524e;
-  --ink-faint: #242220;
+  --ink-mid: #b2aca4;
+  --ink-muted: #7a736b;
+  --ink-faint: #524c46;
   --accent: #68a890;
-  --border: #1e1c18;
-  --border-strong: #2e2c28;
+  --border: #272420;
+  --border-strong: #3e3a34;
 }
 
 html {
@@ -131,6 +131,32 @@ button:not(:disabled) {
 .btn-accent:hover {
   background-color: var(--accent);
   color: #fff;
+}
+
+/* ── Skeleton shimmer ─────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--border-strong) 50%,
+    var(--surface) 75%
+  );
+  background-size: 1200px 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
 }
 
 /* ── Animations ───────────────────────────────── */
