@@ -14,8 +14,12 @@ export default function NotFound() {
           from { transform: scaleX(0); }
           to   { transform: scaleX(1); }
         }
-@keyframes glyphSettle {
+        @keyframes glyphSettle {
           from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
 
