@@ -1,13 +1,14 @@
 import { createClient, type Client } from "@libsql/client";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
 const MIGRATIONS_FOLDER = "./drizzle";
 
-// The 'when' timestamp of the last migration applied via db:push (0004_ancient_gorilla_man).
-// Seeding __drizzle_migrations with this value tells the runner that everything up to
-// migration 0004 is already in place, so only newer migrations are applied.
-const LAST_PUSHED_MIGRATION_TIMESTAMP = 1777878243232;
+// The tag of the last migration applied via db:push (0004_ancient_gorilla_man).
+// Seeding __drizzle_migrations with rows for 0000-0004 tells the runner that
+// everything up to that migration is already in place.
+const LAST_PUSHED_MIGRATION_TAG = "0004_ancient_gorilla_man";
 
 interface JournalEntry {
   idx: number;
@@ -44,20 +45,67 @@ function readJournal(): Journal {
   return JSON.parse(fs.readFileSync(journalPath, "utf8")) as Journal;
 }
 
-function readMigrationStatements(tag: string): string[] {
+function readMigrationSql(tag: string): string {
   const sqlPath = path.join(MIGRATIONS_FOLDER, `${tag}.sql`);
-  return fs
-    .readFileSync(sqlPath, "utf8")
+  return fs.readFileSync(sqlPath, "utf8");
+}
+
+function readMigrationStatements(tag: string): string[] {
+  return readMigrationSql(tag)
     .split("--> statement-breakpoint")
     .map((stmt) => stmt.trim())
     .filter((stmt) => stmt.length > 0);
 }
 
-async function recordApplied(client: Client, hash: string, when: number) {
-  await client.execute({
-    sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
-    args: [hash, when],
-  });
+// drizzle-kit records each migration in `__drizzle_migrations` as the SHA256
+// of the migration file's full SQL content. Matching that format keeps this
+// table interoperable with `drizzle-kit migrate` if we ever switch back to it.
+function migrationHash(tag: string): string {
+  return createHash("sha256").update(readMigrationSql(tag)).digest("hex");
+}
+
+async function bootstrapMigrationTable(client: Client) {
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      hash TEXT NOT NULL,
+      created_at INTEGER
+    )
+  `);
+
+  const { rows } = await client.execute(
+    "SELECT COUNT(*) AS count FROM __drizzle_migrations",
+  );
+  if (Number(rows[0][0]) > 0) return;
+
+  const journal = readJournal();
+  const lastPushedIdx = journal.entries.findIndex(
+    (entry) => entry.tag === LAST_PUSHED_MIGRATION_TAG,
+  );
+  if (lastPushedIdx === -1) {
+    throw new Error(
+      `Bootstrap migration tag "${LAST_PUSHED_MIGRATION_TAG}" not found in journal`,
+    );
+  }
+
+  const seeded = journal.entries.slice(0, lastPushedIdx + 1);
+  const tx = await client.transaction("write");
+  try {
+    for (const entry of seeded) {
+      await tx.execute({
+        sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
+        args: [migrationHash(entry.tag), entry.when],
+      });
+    }
+    await tx.commit();
+  } finally {
+    // close() rolls back if commit() never ran, and is a no-op otherwise.
+    tx.close();
+  }
+
+  console.log(
+    `Migration tracking bootstrapped: ${seeded.length} migrations recorded with SHA256 hashes (up to ${LAST_PUSHED_MIGRATION_TAG})`,
+  );
 }
 
 async function applyPendingMigrations(client: Client) {
@@ -73,33 +121,44 @@ async function applyPendingMigrations(client: Client) {
 
   for (const entry of pending) {
     const statements = readMigrationStatements(entry.tag);
-    let executed = 0;
+    const hash = migrationHash(entry.tag);
+    const tx = await client.transaction("write");
     let driftMessage: string | null = null;
+    let executed = 0;
 
-    for (const stmt of statements) {
-      try {
-        await client.execute(stmt);
-        executed += 1;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        // Only tolerate drift on the very first statement. If we've already
-        // mutated the schema, a later drift error means something genuinely
-        // unexpected happened and we should fail loudly.
-        if (executed === 0 && isSchemaDriftError(message)) {
-          driftMessage = message;
-          break;
+    try {
+      for (const stmt of statements) {
+        try {
+          await tx.execute(stmt);
+          executed += 1;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          // Only tolerate drift on the very first statement. If we've already
+          // mutated the schema, a later drift error means something genuinely
+          // unexpected happened and we should fail loudly.
+          if (executed === 0 && isSchemaDriftError(message)) {
+            driftMessage = message;
+            break;
+          }
+          throw err;
         }
-        throw err;
       }
+
+      await tx.execute({
+        sql: "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
+        args: [hash, entry.when],
+      });
+      await tx.commit();
+    } finally {
+      // close() rolls back if commit() never ran, and is a no-op otherwise.
+      tx.close();
     }
 
     if (driftMessage) {
-      await recordApplied(client, `skipped-${entry.tag}`, entry.when);
       console.log(
-        `Skipped migration ${entry.tag} — schema already at target state (likely db:push): ${driftMessage}`,
+        `Recorded migration ${entry.tag} as already-applied — schema already at target state (likely db:push): ${driftMessage}`,
       );
     } else {
-      await recordApplied(client, entry.tag, entry.when);
       console.log(`Applied migration ${entry.tag} (${executed} statements)`);
     }
   }
@@ -111,26 +170,7 @@ async function main() {
 
   const client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
   try {
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS __drizzle_migrations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        hash TEXT NOT NULL,
-        created_at INTEGER
-      )
-    `);
-
-    const { rows } = await client.execute(
-      "SELECT COUNT(*) AS count FROM __drizzle_migrations",
-    );
-    const count = Number(rows[0][0]);
-
-    if (count === 0) {
-      await recordApplied(client, "bootstrapped-0004", LAST_PUSHED_MIGRATION_TIMESTAMP);
-      console.log(
-        "Migration tracking bootstrapped: migrations 0000-0004 marked as already applied",
-      );
-    }
-
+    await bootstrapMigrationTable(client);
     await applyPendingMigrations(client);
     console.log("Migrations applied successfully");
   } finally {
