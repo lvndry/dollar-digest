@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
+import { parseCategory } from "@/lib/category";
 import { articles } from "@/lib/schema";
 import { buildImageSourceCandidates } from "./lib/image-source-candidates";
 import { fetchOgImages } from "./lib/og-image";
@@ -70,11 +71,9 @@ function serializeMetadataField(value: unknown): string | null {
 }
 
 const normalizedSources = parsed.map((item) => normalizeArticleSources(item));
-const imageSourceCandidates = parsed.map((item, index) =>
+const imageSourceCandidates = parsed.map((item) =>
   buildImageSourceCandidates({
-    sourceUrl: item.sourceUrl,
     sources: item.sources,
-    fallbackSourceUrl: normalizedSources[index]?.[0]?.url ?? null,
   }),
 );
 
@@ -104,8 +103,18 @@ const now = new Date().toISOString();
 let skippedNoUrl = 0;
 const rows = parsed.flatMap((item, i) => {
   const sources = normalizedSources[i] ?? [];
-  const primarySource = sources[0];
-  const category = String(item.category ?? "tech") as "tech" | "politics";
+  const canonicalSources = sources.flatMap((source) => {
+    const url = normalizeUrl(source.url ?? null);
+    if (!url) return [];
+    return [{ ...source, url }];
+  });
+  const primarySource = canonicalSources[0];
+  const parsedCategory = parseCategory(item.category);
+  if (!parsedCategory)
+    console.warn(
+      `[insert] Unknown category "${item.category}" at index ${i}, defaulting to "tech"`,
+    );
+  const category = parsedCategory ?? "tech";
   const whyItMatters = optionalString(item.whyItMatters);
   const technicalSignificance =
     optionalString(item.technicalSignificance) ??
@@ -113,11 +122,7 @@ const rows = parsed.flatMap((item, i) => {
   const strategicInterpretation =
     optionalString(item.strategicInterpretation) ??
     (category === "politics" ? whyItMatters : null);
-  const sourceUrl = normalizeUrl(
-    optionalString(item.sourceUrl) ?? primarySource?.url ?? null,
-  );
-
-  if (!sourceUrl) {
+  if (!primarySource?.url) {
     skippedNoUrl++;
     return [];
   }
@@ -127,8 +132,7 @@ const rows = parsed.flatMap((item, i) => {
       title: String(item.title ?? ""),
       summary: String(item.summary ?? ""),
       source: optionalString(item.source) ?? primarySource?.name ?? "",
-      sourceUrl,
-      sources: sources.length > 0 ? JSON.stringify(sources) : null,
+      sources: canonicalSources.length > 0 ? JSON.stringify(canonicalSources) : null,
       category,
       subcategory: item.subcategory ? String(item.subcategory) : null,
       bias:
@@ -156,7 +160,7 @@ const rows = parsed.flatMap((item, i) => {
 });
 
 if (skippedNoUrl > 0)
-  console.log(`[insert] Skipped ${skippedNoUrl} articles with no source URL`);
+  console.log(`[insert] Skipped ${skippedNoUrl} articles with no canonical source URLs`);
 
 // Deduplicate within the batch by normalized title before hitting the DB
 const seenTitles = new Set<string>();

@@ -227,7 +227,7 @@ Apply the importance score defined by the category-specific workflow. Include ev
 
 ## Phase 6 — Source Validation
 
-Before writing final JSON, validate every `sourceUrl` and every `sources[].url`:
+Before writing final JSON, validate every `sources[].url`:
 
 - Fetch redirects, aggregators, shortened URLs, and any link you are uncertain about
 - Follow redirects to the final canonical URL
@@ -254,7 +254,6 @@ Final objects must include these shared fields:
   "title": "Concise, specific headline — no clickbait, no editorial spin",
   "summary": "Source-backed factual summary. See summary writing rules below.",
   "source": "Primary publication name",
-  "sourceUrl": "Derived canonical primary URL; must match sources[0].url",
   "sources": [
     {
       "name": "Publication or primary source name",
@@ -306,7 +305,7 @@ After all research and scoring is complete and you have a final list of articles
 
    > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
    >
-   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sources` (non-empty array of {name, url}), `sourceUrl` (URL string, equal to `sources[0].url`), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
+   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sources` (non-empty array of {name, url}), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
    > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`.
    >
    > Article data: [paste all articles in any readable format]"
@@ -339,9 +338,8 @@ Before finishing, verify:
 - [ ] All candidates covering the same event were merged into one entry with a combined `sources` array
 - [ ] Mandatory LLM dedup pass ran on normalized `sources[].url` values before final scoring/output
 - [ ] No two final entries share any normalized source URL
-- [ ] `sourceUrl === sources[0].url` for every final entry
 - [ ] Any story with a known `issueDate` has `issueDate === DIGEST_DATE`
-- [ ] Every final `sourceUrl` and `sources[].url` was fetched and validated
+- [ ] Every final `sources[].url` was fetched and validated
 - [ ] `publishedAt` reflects the source article date
 - [ ] Every story has `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` (24–48 hour selection window) — no exceptions for importance score
 - [ ] Summary depth matches the story type per the table above

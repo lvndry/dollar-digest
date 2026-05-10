@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import type { NewArticle } from "@/lib/schema";
 import { normalizeArticleSources } from "@/lib/parse-article-metadata";
+import { parseCategory } from "@/lib/category";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
 
@@ -20,10 +21,19 @@ function serializeMetadataField(value: unknown): string | null {
   return serializeStringArray(value) ?? optionalString(value);
 }
 
-function parseCategory(value: unknown): NewArticle["category"] | null {
-  if (value == null) return "tech";
-  if (value === "tech" || value === "politics") return value;
-  return null;
+function normalizeUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    parsed.protocol = "https:";
+    parsed.hostname = parsed.hostname.replace(/^www\./, "");
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (/^utm_|^fbclid$|^gclid$|^ref$/.test(key)) parsed.searchParams.delete(key);
+    }
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return url;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -63,6 +73,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const invalidSourcesIndex = rows.findIndex((row) =>
+    normalizeArticleSources(row).every((source) => !normalizeUrl(source.url ?? null)),
+  );
+  if (invalidSourcesIndex !== -1) {
+    return NextResponse.json(
+      {
+        error: `Invalid sources at row ${invalidSourcesIndex}; provide at least one source with a valid URL`,
+      },
+      { status: 400 },
+    );
+  }
+
   const now = new Date().toISOString();
   const today = now.split("T")[0];
 
@@ -78,18 +100,21 @@ export async function POST(request: NextRequest) {
       (category === "politics" ? whyItMatters : null);
 
     const sources = normalizeArticleSources(row);
-    const primarySource = sources[0];
-    const sourceUrl = optionalString(row.sourceUrl) ?? primarySource?.url ?? null;
+    const canonicalSources = sources.flatMap((source) => {
+      const url = normalizeUrl(source.url ?? null);
+      if (!url) return [];
+      return [{ ...source, url }];
+    });
+    const primarySource = canonicalSources[0];
 
-    if (!sourceUrl) return [];
+    if (!primarySource?.url) return [];
 
     return [
       {
         title: String(row.title ?? ""),
         summary: String(row.summary ?? ""),
         source: optionalString(row.source) ?? primarySource?.name ?? "",
-        sourceUrl,
-        sources: sources.length > 0 ? JSON.stringify(sources) : null,
+        sources: canonicalSources.length > 0 ? JSON.stringify(canonicalSources) : null,
         category,
         subcategory: optionalString(row.subcategory),
         bias: ((row.bias ?? primarySource?.bias) as NewArticle["bias"]) ?? null,

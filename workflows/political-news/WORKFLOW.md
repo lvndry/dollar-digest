@@ -119,7 +119,6 @@ Field rules:
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`bias`**: required; this is the primary source bias. Label the source reputation, not the article stance.
 - **`sources`**: non-empty array; each entry requires a defensible `bias` label.
-- **`sourceUrl`** (shared field): must match `sources[0].url`.
 - **`strategicInterpretation`**: explain the strategic significance and game-theoretic meaning — incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground it in verified facts. Use "may", "could", or "signals" when interpreting motives or future moves. Do not mix interpretation into the core summary.
 
 ---
@@ -145,7 +144,6 @@ Field rules:
 - [ ] Top-level `bias` is present and matches `sources[0].bias` for consistency
 - [ ] No two final entries describe the same underlying event
 - [ ] No two final entries share any normalized source URL
-- [ ] `sourceUrl` (shared field) matches `sources[0].url` for every entry
 - [ ] Each story has a grounded `strategicInterpretation` that uses hedging language for interpretation
 - [ ] Bias labels reflect the source's known reputation — not the article's slant
 - [ ] Stories ≥ 0.8 importance have dual-source research from different bias points when available, in a single `sources` array

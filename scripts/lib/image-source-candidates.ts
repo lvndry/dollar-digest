@@ -5,9 +5,7 @@ interface RankedSourceUrl {
 }
 
 interface ImageSourceCandidateInput {
-  sourceUrl?: unknown;
   sources?: unknown;
-  fallbackSourceUrl?: unknown;
 }
 
 function optionalString(value: unknown): string | null {
@@ -71,9 +69,5 @@ export function buildImageSourceCandidates(input: ImageSourceCandidateInput): st
 
   const orderedSourceUrls = sortByScore(rankedSources).map((source) => source.url);
 
-  return dedupeUrls([
-    optionalString(input.sourceUrl),
-    ...orderedSourceUrls,
-    optionalString(input.fallbackSourceUrl),
-  ]);
+  return dedupeUrls(orderedSourceUrls);
 }

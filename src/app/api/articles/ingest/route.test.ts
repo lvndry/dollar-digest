@@ -47,7 +47,7 @@ describe("POST /api/articles/ingest", () => {
           title: "Same Story",
           summary: "First summary",
           source: "Example",
-          sourceUrl: "https://example.com/first",
+          sources: [{ name: "Example", url: "https://example.com/first" }],
           category: "tech",
           publishedAt: "2026-05-04",
           digestDate: "2026-05-04",
@@ -56,7 +56,7 @@ describe("POST /api/articles/ingest", () => {
           title: " same story ",
           summary: "Duplicate summary",
           source: "Example",
-          sourceUrl: "https://example.com/duplicate",
+          sources: [{ name: "Example", url: "https://example.com/duplicate" }],
           category: "tech",
           publishedAt: "2026-05-04",
           digestDate: "2026-05-04",
@@ -76,7 +76,7 @@ describe("POST /api/articles/ingest", () => {
           title: "Bad Category Story",
           summary: "A valid enough summary for testing invalid category handling.",
           source: "Example",
-          sourceUrl: "https://example.com/bad-category",
+          sources: [{ name: "Example", url: "https://example.com/bad-category" }],
           category: "finance",
           publishedAt: "2026-05-04",
           digestDate: "2026-05-04",
@@ -87,6 +87,28 @@ describe("POST /api/articles/ingest", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       error: 'Invalid category at row 0; expected "tech" or "politics"',
+    });
+    expect(insertedRows).toHaveLength(0);
+  });
+
+  test("rejects missing source URLs in sources array", async () => {
+    const response = await POST(
+      ingestRequest([
+        {
+          title: "Missing URL Story",
+          summary: "A valid enough summary for testing invalid source handling.",
+          source: "Example",
+          sources: [{ name: "Example", url: "" }],
+          category: "tech",
+          publishedAt: "2026-05-04",
+          digestDate: "2026-05-04",
+        },
+      ]),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Invalid sources at row 0; provide at least one source with a valid URL",
     });
     expect(insertedRows).toHaveLength(0);
   });

@@ -61,7 +61,6 @@ export async function generateMetadata({
 
   const articleSources = parseArticleSources(article.sources, {
     name: article.source,
-    url: article.sourceUrl,
     bias: article.bias,
   });
 
@@ -193,11 +192,9 @@ export default async function ArticlePage({
       : null;
   const articleSources = parseArticleSources(article.sources, {
     name: article.source,
-    url: article.sourceUrl,
     bias: article.bias,
   });
-  const primarySourceUrl =
-    articleSources.find((source) => source.url)?.url ?? article.sourceUrl;
+  const primarySourceUrl = articleSources.find((source) => source.url)?.url;
   const sourceLabel =
     articleSources.length > 1
       ? articleSources.map((source) => source.name).join(" · ")
@@ -277,7 +274,7 @@ export default async function ArticlePage({
         </div>
 
         <h1
-          className="break-words font-display italic text-[clamp(2rem,5vw,3.25rem)] leading-[1.06] tracking-[-0.02em] mb-7"
+          className="wrap-break-word font-display italic text-[clamp(2rem,5vw,3.25rem)] leading-[1.06] tracking-[-0.02em] mb-7"
           style={{ color: "var(--ink)" }}
         >
           {article.title}
@@ -412,15 +409,15 @@ export default async function ArticlePage({
                       borderColor: "var(--border)",
                       color: "var(--ink-mid)",
                     }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                    onMouseEnter={(event) => {
+                      (event.currentTarget as HTMLElement).style.backgroundColor =
                         "var(--surface)";
                     }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = "";
+                    onMouseLeave={(event) => {
+                      (event.currentTarget as HTMLElement).style.backgroundColor = "";
                     }}
                   >
-                    <span className="min-w-0 break-words">{source.name}</span>
+                    <span className="min-w-0 wrap-break-word">{source.name}</span>
                     {source.bias && (
                       <span style={{ color: "var(--ink-faint)" }}>
                         {BIAS_LABELS[source.bias] ?? source.bias}

@@ -127,7 +127,6 @@ Field rules:
 - [ ] Each story includes a non-empty `sources` array with canonical URLs
 - [ ] No two final entries describe the same underlying event
 - [ ] No two final entries share any normalized source URL
-- [ ] `sourceUrl` (shared field) matches `sources[0].url` for every entry
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Primary sources preferred over aggregator reblogs
 - [ ] Summaries are factual, precise, and hype-free
