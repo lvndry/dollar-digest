@@ -404,17 +404,10 @@ export default async function ArticlePage({
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-w-0 max-w-full flex-wrap items-center justify-between gap-x-4 gap-y-1 border px-5 py-3 font-ui text-[0.6875rem] tracking-[0.08em] uppercase transition-colors duration-150"
+                    className="source-link inline-flex min-w-0 max-w-full flex-wrap items-center justify-between gap-x-4 gap-y-1 border px-5 py-3 font-ui text-[0.6875rem] tracking-[0.08em] uppercase"
                     style={{
                       borderColor: "var(--border)",
                       color: "var(--ink-mid)",
-                    }}
-                    onMouseEnter={(event) => {
-                      (event.currentTarget as HTMLElement).style.backgroundColor =
-                        "var(--surface)";
-                    }}
-                    onMouseLeave={(event) => {
-                      (event.currentTarget as HTMLElement).style.backgroundColor = "";
                     }}
                   >
                     <span className="min-w-0 wrap-break-word">{source.name}</span>
